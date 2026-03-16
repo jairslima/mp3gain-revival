@@ -1318,6 +1318,13 @@ void mp3gain_process_file_analysis(
 
     if (tagInfo->recalc == 0) {
         mp3gain_load_existing_track_data(tagInfo, maxsample, maxgain, mingain, ok);
+        if (*ok) {
+            mp3gain_mark_valid_file(fileok, numFiles, 0
+#ifdef AACGAIN
+                , aacH
+#endif
+            );
+        }
     } else {
         mp3gain_prepare_recalc_state(tagInfo, maxsample);
         *ok = mp3gain_run_file_recalc(
