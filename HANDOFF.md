@@ -88,25 +88,52 @@
   - CLI option field mapping now delegated through `project\cli.[ch]`
 - Exposed `WriteMP3GainTag(...)` and `queryUserForClipping(...)` from `mp3gain.c` so orchestration can continue moving into `process.c`.
 
+## Build Status: WORKING
+
+The Windows build is now validated. First successful compile achieved on 2026-03-16.
+
+### libmpg123 Resolution
+The mpg123 source was already extracted by a previous vcpkg attempt at:
+`vcpkg_installed\vcpkg\blds\mpg123\src\-0852196a3c.clean\`
+
+The release build was completed manually:
+```
+cmake --build vcpkg_installed/vcpkg/blds/mpg123/x64-windows-rel --target libmpg123
+```
+
+Resulting artifacts:
+- Header: `vcpkg_installed\vcpkg\blds\mpg123\src\-0852196a3c.clean\src\include\mpg123.h`
+- Lib: `vcpkg_installed\vcpkg\blds\mpg123\x64-windows-rel\src\libmpg123\mpg123.lib`
+- DLL: `vcpkg_installed\vcpkg\blds\mpg123\x64-windows-rel\src\libmpg123\mpg123.dll`
+
+### Compile Fixes Applied
+All compile errors from the refactoring were fixed:
+1. `mp3gain.c`: Added `#include <windows.h>` in WIN32 block (needed for HANDLE, FILETIME, etc.)
+2. `mp3gain.c`: Removed `static` from `frequency[4][4]` to allow extern reference from process.c
+3. `mp3gain.c`: Removed `static` from functions now called cross-TU: `fillBuffer`, `skipID3v2`, `frameSearch`, `getSizeOfFile`, `changeGain`, `showVersion`, `errUsage`, `fullUsage`, `wrapExplanation`
+4. `process.c`: Added extern declarations for `curframe`, `arrbytesinframe`, `frequency`
+5. `process.h`: Added missing `double *lastfreq` param to `mp3gain_process_file_analysis` declaration
+6. `process.c`: Added missing `lastfreq` argument in `mp3gain_finish_track_recalc` call
+7. `rg_error.h`: Guarded MMSYSERR/WAVERR macro definitions with `#ifndef` to avoid redefinition after `<windows.h>`
+
+### Confirmed Working
+```
+mp3gain.exe version 1.6.2   (powershell -Command "& 'build/Release/mp3gain.exe' '-v'")
+```
+
 ## Current Risks
-- Build has not been validated in this environment.
-- The codebase may require dependency and project-file repair before first successful compile.
-- Publishing as a current project is realistic for the CLI revival, not yet for the historical GUI.
-- LGPL compliance should remain explicit in docs, notices, and release process as the code is modernized.
-- `project\mp3gain.c` is still in legacy encoding, so edits there require extra care.
-- The remaining highest-risk monolithic block is still the frame-by-frame analysis loop in `project\mp3gain.c`, but its decode/analyze and advance/progress portions have already been extracted.
-- Current build blocker: `libmpg123` is still unavailable to the local CMake build.
-- A `vcpkg install --triplet x64-windows` attempt was started from `C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\vcpkg\`, but it either stalled or is progressing too slowly to confirm completion in-session.
-- As of the last check, neither `vcpkg_installed\x64-windows\include\mpg123.h` nor the expected installed library files were present in a usable local path for this workspace.
+- The mpg123.dll must be present alongside mp3gain.exe for it to run.
+- No automated tests yet - behavior correctness is unverified beyond startup.
+- Linux/macOS build not yet validated.
+- LGPL compliance should remain explicit in docs and release process.
 
 ## Recommended Next Steps
-1. Initialize Git here if it is still not initialized outside this session.
-2. Publish clear repository messaging that this is an LGPL fork/continuation of MP3Gain.
-3. Pick the first supported target platform for build recovery.
-4. Resolve `libmpg123` for the active toolchain, either by finishing the `vcpkg` install or wiring CMake to an already-installed copy.
-5. Re-run CMake configuration and then compile to surface refactor-induced compile errors.
-6. Fix compile errors before doing any more structural refactoring.
-7. Add CI and minimum verification after the first successful build.
+1. Test actual MP3 analysis: `mp3gain.exe somefile.mp3`
+2. Test gain application: `mp3gain.exe -r somefile.mp3`
+3. Add smoke tests for analysis-only flows.
+4. Set up GitHub repository and push.
+5. Add CI (GitHub Actions) for Windows build validation.
+6. Validate Linux build via WSL or CI.
 
 ## Current Main Shape
 - `project\mp3gain.c` `main()` is now close to a thin coordinator.
