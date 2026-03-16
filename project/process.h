@@ -234,7 +234,6 @@ void mp3gain_write_dirty_tags(
 
 void mp3gain_process_frame_audio(
     mpg123_handle *mh,
-    unsigned char *curframe,
     long bytesinframe,
     int nchan,
     int recalc,
@@ -249,7 +248,6 @@ void mp3gain_process_frame_audio(
 
 unsigned long mp3gain_process_mp3_frame_iteration(
     mpg123_handle *mh,
-    unsigned char *curframe,
     long bytesinframe,
     int nchan,
     int recalc,
@@ -268,7 +266,6 @@ unsigned long mp3gain_process_mp3_frame_iteration(
 
 unsigned long mp3gain_process_mp3_frame_iteration_safe(
     mpg123_handle *mh,
-    unsigned char *curframe,
     char *filename,
     long bytesinframe,
     int nchan,
@@ -287,7 +284,6 @@ unsigned long mp3gain_process_mp3_frame_iteration_safe(
 );
 
 unsigned long mp3gain_advance_frame_scan(
-    unsigned char *curframe,
     long bytesinframe,
     char analysisError,
     unsigned long frame,
@@ -295,7 +291,6 @@ unsigned long mp3gain_advance_frame_scan(
 );
 
 unsigned long mp3gain_prepare_mp3_frame(
-    unsigned char *curframe,
     char *filename,
     int *bitridx,
     int *mpegver,
@@ -309,7 +304,6 @@ unsigned long mp3gain_prepare_mp3_frame(
 
 unsigned long mp3gain_process_mp3_frames(
     mpg123_handle *mh,
-    unsigned char *curframe,
     char *filename,
     int recalc,
     int maxAmpOnly,

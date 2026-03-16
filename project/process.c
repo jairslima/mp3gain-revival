@@ -24,7 +24,7 @@ extern int undoChanges;
 extern double lastfreq;
 extern int totFiles;
 extern unsigned char *wrdpntr;
-extern unsigned char *buffer;
+extern unsigned char buffer[];
 extern unsigned char *minGain;
 extern unsigned char *maxGain;
 extern long inbuffer;
@@ -33,6 +33,7 @@ extern unsigned long filepos;
 extern unsigned char *curframe;
 extern long arrbytesinframe[16];
 extern const double frequency[4][4];
+extern FILE *inf;
 
 int getSizeOfFile(char *filename);
 unsigned long fillBuffer(long savelastbytes);
@@ -100,7 +101,7 @@ int mp3gain_init_decoder(mpg123_handle **mh, int *decodeSuccess)
         !(*mh = mpg123_new(NULL, decodeSuccess)) ||
         MPG123_OK != mpg123_param(*mh, MPG123_ADD_FLAGS, MPG123_FORCE_FLOAT, 0.) ||
         MPG123_OK != mpg123_param(*mh, MPG123_REMOVE_FLAGS, MPG123_GAPLESS | MPG123_SEEKBUFFER, 0.) ||
-        MPG123_OK != mpg123_param(*mh, MPG123_VERBOSE, 10, 0.) ||
+        MPG123_OK != mpg123_param(*mh, MPG123_VERBOSE, 0, 0.) ||
 #if (MPG123_API_VERSION >= 45)
         MPG123_OK != mpg123_param(*mh, MPG123_ADD_FLAGS, MPG123_NO_READAHEAD, 0.) ||
 #endif
@@ -747,7 +748,6 @@ void mp3gain_write_dirty_tags(
 
 void mp3gain_process_frame_audio(
     mpg123_handle *mh,
-    unsigned char *curframe,
     long bytesinframe,
     int nchan,
     int recalc,
@@ -822,7 +822,6 @@ void mp3gain_process_frame_audio(
 
 unsigned long mp3gain_process_mp3_frame_iteration(
     mpg123_handle *mh,
-    unsigned char *curframe,
     long bytesinframe,
     int nchan,
     int recalc,
@@ -843,7 +842,7 @@ unsigned long mp3gain_process_mp3_frame_iteration(
         maxGain = maxgain;
         minGain = mingain;
         mp3gain_process_frame_audio(
-            mh, curframe, bytesinframe, nchan, recalc, maxAmpOnly,
+            mh, bytesinframe, nchan, recalc, maxAmpOnly,
             decodeSuccess, nprocsamp, lsamples, rsamples, maxsample, analysisError
         );
         if (*analysisError) {
@@ -851,12 +850,11 @@ unsigned long mp3gain_process_mp3_frame_iteration(
         }
     }
 
-    return mp3gain_advance_frame_scan(curframe, bytesinframe, *analysisError, frame, gFilesize);
+    return mp3gain_advance_frame_scan(bytesinframe, *analysisError, frame, gFilesize);
 }
 
 unsigned long mp3gain_process_mp3_frame_iteration_safe(
     mpg123_handle *mh,
-    unsigned char *curframe,
     char *filename,
     long bytesinframe,
     int nchan,
@@ -880,7 +878,7 @@ unsigned long mp3gain_process_mp3_frame_iteration_safe(
 #endif
 #endif
         return mp3gain_process_mp3_frame_iteration(
-            mh, curframe, bytesinframe, nchan, recalc, maxAmpOnly,
+            mh, bytesinframe, nchan, recalc, maxAmpOnly,
             decodeSuccess, nprocsamp, lsamples, rsamples, maxsample,
             maxgain, mingain, analysisError, frame, gFilesize
         );
@@ -898,7 +896,6 @@ unsigned long mp3gain_process_mp3_frame_iteration_safe(
 }
 
 unsigned long mp3gain_advance_frame_scan(
-    unsigned char *curframe,
     long bytesinframe,
     char analysisError,
     unsigned long frame,
@@ -925,7 +922,6 @@ unsigned long mp3gain_advance_frame_scan(
 }
 
 unsigned long mp3gain_prepare_mp3_frame(
-    unsigned char *curframe,
     char *filename,
     int *bitridx,
     int *mpegver,
@@ -956,7 +952,6 @@ unsigned long mp3gain_prepare_mp3_frame(
 
 unsigned long mp3gain_process_mp3_frames(
     mpg123_handle *mh,
-    unsigned char *curframe,
     char *filename,
     int recalc,
     int maxAmpOnly,
@@ -984,13 +979,13 @@ unsigned long mp3gain_process_mp3_frames(
 
     while (ok) {
         ok = mp3gain_prepare_mp3_frame(
-            curframe, filename, bitridx, mpegver, crcflag, freqidx,
+            filename, bitridx, mpegver, crcflag, freqidx,
             bytesinframe, mode, nchan, arrbytesinframe
         );
 
         if (ok) {
             ok = mp3gain_process_mp3_frame_iteration_safe(
-                mh, curframe, filename, *bytesinframe, *nchan, recalc, maxAmpOnly,
+                mh, filename, *bytesinframe, *nchan, recalc, maxAmpOnly,
                 decodeSuccess, nprocsamp, lsamples, rsamples, maxsample,
                 maxgain, mingain, analysisError, ++(*frame), gFilesize
             );
@@ -1077,12 +1072,13 @@ unsigned long mp3gain_run_file_recalc(
 #endif
         *ok = mp3gain_prepare_first_mp3_frame(curframe, filename, mode, mpegver, freqidx, frame, arrbytesinframe);
         mp3gain_sync_mp3_frequency(*mpegver, *freqidx, maxAmpOnly, first, lastfreq, analysisError, frequency);
-        *ok = mp3gain_process_mp3_frames(
-            mh, curframe, filename, recalc, maxAmpOnly,
+        mp3gain_process_mp3_frames(
+            mh, filename, recalc, maxAmpOnly,
             decodeSuccess, nprocsamp, lsamples, rsamples, maxsample,
             maxgain, mingain, analysisError, frame, bitridx, mpegver,
             crcflag, freqidx, bytesinframe, mode, nchan, arrbytesinframe, gFilesize
         );
+        /* Normal EOF from the frame loop is not an error; leave *ok = 1. */
     }
 
     return *ok;
@@ -1421,7 +1417,7 @@ void mp3gain_process_files_batch(
         AACGainHandle aacH = aacInfo[mainloop];
 #endif
         char *curfilename = argv[mainloop];
-        FILE *inf = NULL;
+        inf = NULL;
 
         tagInfo[mainloop].recalc |= albumRecalc;
 
