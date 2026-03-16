@@ -78,15 +78,16 @@ A DLL de runtime do mpg123 deve estar no mesmo diretório que mp3gain.exe.
 Localização original: `vcpkg_installed/vcpkg/blds/mpg123/x64-windows-rel/src/libmpg123/mpg123.dll`
 
 ## Estado Atual
-- **Fase:** 3 do Roadmap (Verificação) - **EM PROGRESSO**
+- **Fase:** 3 do Roadmap (Verificação) - **COMPLETA**
 - **Build:** Funcional no Windows com MSVC e libmpg123
 - **Binário:** `build/Release/mp3gain.exe` versão 1.6.2
-- **Análise MP3:** FUNCIONANDO. `mp3gain.exe test/test1.mp3` retorna resultado correto:
-  ```
-  Recommended "Track" dB change: -8.760000
-  Recommended "Track" mp3 gain change: -6
-  ```
-- **Git:** 3 commits no master
+- **Análise por faixa:** FUNCIONANDO
+- **Análise de álbum:** FUNCIONANDO (dois arquivos ou mais)
+- **Aplicação de gain por faixa (`-r`):** FUNCIONANDO
+- **Undo de gain (`-u`):** FUNCIONANDO
+- **Aplicação de gain de álbum (`-a`):** FUNCIONANDO
+- **REPLAYGAIN_REFERENCE_LOUDNESS:** Corrigido de 89.0 para 95.5 dB
+- **Git:** 5 commits no master
 
 ## Bugs Corrigidos na Fase 3 (2026-03-16)
 Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
@@ -109,11 +110,11 @@ Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
    Fix: não sobrescrever `*ok` com o retorno da loop; deixar `*ok = 1`.
 
 ## Próximos Passos
-1. Testar aplicação de gain (`mp3gain.exe -r arquivo.mp3`)
-2. Adicionar testes smoke básicos
-3. Configurar CI (GitHub Actions para Windows)
-4. Verificar build no Linux (via WSL ou CI)
-5. Publicar no GitHub como fork LGPL oficial
+1. Adicionar testes smoke automatizados
+2. Configurar CI (GitHub Actions para Windows)
+3. Verificar build no Linux (via WSL ou CI)
+4. Publicar no GitHub como fork LGPL oficial
+5. Criar pacote de release com binário + DLL
 
 ## Problemas Conhecidos
 - A DLL do mpg123 precisa ser distribuída junto com o executável
