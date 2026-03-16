@@ -7,7 +7,7 @@
  *
  * Identification string:  either "track" or "album";
  * Channel number:         always 1 (master volume);
- * Volume adjustment:      recommended gain relative to 89 dB standard;
+ * Volume adjustment:      recommended gain relative to 95.5 dB standard;
  * Bits representing peak: always 16;
  * Peak volume:            max absolute sample value relative to full scale
  *
@@ -1243,7 +1243,7 @@ int WriteMP3GainID3Tag(char *filename, struct MP3GainTagInfo *info, int saveTime
 	if (info->haveTrackGain || info->haveTrackPeak ||
 	    info->haveAlbumGain || info->haveAlbumPeak) {
 		need_update = 1;
-		frame = id3_make_frame("TXXX", "bsbs", 0, "replaygain_reference_loudness", 0, "89.0 dB");
+		frame = id3_make_frame("TXXX", "bsbs", 0, "replaygain_reference_loudness", 0, "95.5 dB");
 		*pframe = frame;
 		pframe = &(frame->next);
 	}
