@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+# Smoke tests for MP3Gain Revival
+# Run from the repo root: bash test/smoke_test.sh
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+EXE="$REPO_ROOT/build/Release/mp3gain.exe"
+T1="$REPO_ROOT/test/test1.mp3"
+T1B="$REPO_ROOT/test/test1_backup.mp3"
+T2="$REPO_ROOT/test/test2.mp3"
+T2B="$REPO_ROOT/test/test2_backup.mp3"
+
+PASS=0
+FAIL=0
+
+pass() { echo "  PASS: $1"; PASS=$((PASS + 1)); }
+fail() { echo "  FAIL: $1"; FAIL=$((FAIL + 1)); }
+
+check() {
+    local desc="$1"
+    local pattern="$2"
+    local output="$3"
+    if echo "$output" | grep -qF "$pattern"; then
+        pass "$desc"
+    else
+        fail "$desc (expected: '$pattern')"
+        echo "    --- output ---"
+        echo "$output" | sed 's/^/    /'
+    fi
+}
+
+check_absent() {
+    local desc="$1"
+    local pattern="$2"
+    local output="$3"
+    if echo "$output" | grep -qF "$pattern"; then
+        fail "$desc (unexpected pattern found: '$pattern')"
+    else
+        pass "$desc"
+    fi
+}
+
+restore() {
+    cp "$T1B" "$T1"
+    cp "$T2B" "$T2"
+}
+
+require_backup() {
+    if [ ! -f "$T1B" ] || [ ! -f "$T2B" ]; then
+        echo "ERROR: backup files not found ($T1B, $T2B)"
+        echo "Run: cp test/test1.mp3 test/test1_backup.mp3 && cp test/test2.mp3 test/test2_backup.mp3"
+        exit 1
+    fi
+}
+
+require_exe() {
+    if [ ! -f "$EXE" ]; then
+        echo "ERROR: executable not found: $EXE"
+        echo "Build first: cmake --build build --config Release"
+        exit 1
+    fi
+}
+
+# -----------------------------------------------------------------------
+echo "MP3Gain Revival Smoke Tests"
+echo "==========================="
+echo "EXE: $EXE"
+echo ""
+
+require_exe
+require_backup
+restore
+
+# --- Test 1: version ---
+echo "[1] Version flag"
+out=$("$EXE" -v 2>&1 || true)
+check "version string present" "1.6.2" "$out"
+
+# --- Test 2: single-file track analysis ---
+echo ""
+echo "[2] Single-file track analysis"
+restore
+out=$("$EXE" "$T1" 2>&1)
+check "track dB value"         "Track\" dB change: -8.760000"  "$out"
+check "track gain step"        "Track\" mp3 gain change: -6"   "$out"
+check "max global gain field"  "Max mp3 global gain field: 210" "$out"
+check "min global gain field"  "Min mp3 global gain field: 130" "$out"
+
+# --- Test 3: two-file album analysis ---
+echo ""
+echo "[3] Two-file album analysis"
+restore
+out=$("$EXE" "$T1" "$T2" 2>&1)
+check "album dB line present"  "Album\" dB change for all files: -8.760000" "$out"
+check "album gain step"        "Album\" mp3 gain change for all files: -6"  "$out"
+
+# --- Test 4: apply track gain (-r) ---
+echo ""
+echo "[4] Apply track gain (-r)"
+restore
+"$EXE" -r "$T1" > /dev/null 2>&1
+out=$("$EXE" "$T1" 2>&1)
+check "max global gain reduced to 204" "Max mp3 global gain field: 204" "$out"
+check "recommendation is now 0 steps"  "Track\" mp3 gain change: 0"    "$out"
+
+# --- Test 5: undo (-u) ---
+echo ""
+echo "[5] Undo gain (-u)"
+restore
+"$EXE" -r "$T1" > /dev/null 2>&1
+"$EXE" -u "$T1" > /dev/null 2>&1
+out=$("$EXE" "$T1" 2>&1)
+check "max global gain restored to 210" "Max mp3 global gain field: 210" "$out"
+check "recommendation restored to -6"   "Track\" mp3 gain change: -6"   "$out"
+
+# --- Test 6: apply album gain (-a) ---
+echo ""
+echo "[6] Apply album gain (-a)"
+restore
+"$EXE" -a "$T1" "$T2" > /dev/null 2>&1
+out1=$("$EXE" "$T1" 2>&1)
+out2=$("$EXE" "$T2" 2>&1)
+check "file1 max global gain reduced to 204" "Max mp3 global gain field: 204" "$out1"
+check "file2 max global gain reduced to 204" "Max mp3 global gain field: 204" "$out2"
+
+# --- Test 7: exit code ---
+echo ""
+echo "[7] Exit codes"
+restore
+"$EXE" "$T1" > /dev/null 2>&1
+code=$?
+if [ "$code" -eq 0 ]; then pass "analysis exits 0"; else fail "analysis exits 0 (got $code)"; fi
+
+# --- cleanup ---
+restore
+
+# --- summary ---
+echo ""
+echo "==========================="
+TOTAL=$((PASS + FAIL))
+echo "Results: $PASS/$TOTAL passed"
+if [ "$FAIL" -gt 0 ]; then
+    echo "FAILED: $FAIL test(s)"
+    exit 1
+else
+    echo "All tests passed."
+    exit 0
+fi
