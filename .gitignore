@@ -1,0 +1,23 @@
+# Build outputs
+*.obj
+*.o
+*.exe
+*.dll
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.map
+*.res
+# Visual Studio
+.vs/
+Debug/
+Release/
+DebugDLL/
+ReleaseDLL/
+
+# Generated artifacts
+dist/
+build/
+vcpkg_installed/
+.vs/
