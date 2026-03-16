@@ -78,18 +78,42 @@ A DLL de runtime do mpg123 deve estar no mesmo diretório que mp3gain.exe.
 Localização original: `vcpkg_installed/vcpkg/blds/mpg123/x64-windows-rel/src/libmpg123/mpg123.dll`
 
 ## Estado Atual
-- **Fase:** 2 do Roadmap (Build Recovery) - **CONCLUÍDA**
+- **Fase:** 3 do Roadmap (Verificação) - **EM PROGRESSO**
 - **Build:** Funcional no Windows com MSVC e libmpg123
-- **Binário:** `build/Release/mp3gain.exe` - confirmado funcionando (versão 1.6.2)
-- **Git:** Repositório inicializado, primeiro commit feito
+- **Binário:** `build/Release/mp3gain.exe` versão 1.6.2
+- **Análise MP3:** FUNCIONANDO. `mp3gain.exe test/test1.mp3` retorna resultado correto:
+  ```
+  Recommended "Track" dB change: -8.760000
+  Recommended "Track" mp3 gain change: -6
+  ```
+- **Git:** 3 commits no master
 
-## Próximos Passos (Fase 3 - Verificação)
-1. Testar análise real de arquivos MP3 (`mp3gain.exe arquivo.mp3`)
-2. Testar aplicação de gain (`mp3gain.exe -r arquivo.mp3`)
-3. Adicionar testes smoke básicos
-4. Configurar CI (GitHub Actions para Windows)
-5. Verificar build no Linux (via WSL ou CI)
-6. Publicar no GitHub como fork LGPL oficial
+## Bugs Corrigidos na Fase 3 (2026-03-16)
+Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
+
+1. **`extern unsigned char *buffer` (ponteiro) vs `unsigned char buffer[]` (array):**
+   `wrdpntr = buffer` em `mp3gain_prime_mp3_frames` carregava os primeiros 8 bytes
+   do conteúdo do arquivo como endereço, travando dentro de `skipID3v2`.
+   Fix: `extern unsigned char buffer[];`
+
+2. **Parâmetro `curframe` sombreando o global na loop de frames:**
+   `mp3gain_process_mp3_frames` e funções filhas recebiam `curframe` como parâmetro,
+   que ficava sempre apontando para o primeiro frame. `frameSearch()` atualizava
+   apenas o global em mp3gain.c, causando loop infinito no frame 2.
+   Fix: removido o parâmetro `curframe` de todas as funções da cadeia; usam o
+   global `curframe` (extern) diretamente.
+
+3. **`if (*ok)` bloqueando `mp3gain_finish_track_recalc`:**
+   Ao terminar o arquivo (EOF), `frameSearch` retorna 0, `ok=0`, e a função de
+   finalização da análise nunca era chamada. EOF normal não é erro.
+   Fix: não sobrescrever `*ok` com o retorno da loop; deixar `*ok = 1`.
+
+## Próximos Passos
+1. Testar aplicação de gain (`mp3gain.exe -r arquivo.mp3`)
+2. Adicionar testes smoke básicos
+3. Configurar CI (GitHub Actions para Windows)
+4. Verificar build no Linux (via WSL ou CI)
+5. Publicar no GitHub como fork LGPL oficial
 
 ## Problemas Conhecidos
 - A DLL do mpg123 precisa ser distribuída junto com o executável
