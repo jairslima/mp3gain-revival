@@ -62,14 +62,13 @@ This repository is being rebuilt from archived MP3Gain materials with the goal o
 - The Unix `Makefile` expects an external `libmpg123`
 - Windows build validation has been completed locally, but CI stabilization and cross-platform validation are still incomplete
 - The historical Windows GUI source is not present in this archive set
-- The local `archive/` tree is organized in this workspace but has not yet been fully published to Git
 - The local dependency tree in `vcpkg_installed/` can become very large and is not part of the active source review path
 
 ## Recommended Next Steps
 1. Stabilize the Windows CI workflow and confirm the new smoke-test fixture path
 2. Extend verification to tag read/write, undo, clipping, and Linux build validation
 3. Continue reducing orchestration and global-state coupling between `mp3gain.c` and `process.c`
-4. Decide what historical material from `archive/` should be published in Git versus kept only in the local recovery workspace
+4. Keep the published `archive/` tree curated and clearly separated from the active source tree
 5. Prepare release notes, packaging, and contributor-facing documentation once verification is credible
 
 ## License

@@ -1,0 +1,65 @@
+body { font-family: arial, veranda, helvetica, sans-serif }
+
+table { margin-left: 5%; margin-right: 5% }
+
+p { margin-left: 5%; margin-right: 5%; text-align: justify }
+P.abstract { text-align: center }
+P.copyright { text-align: center; font-size: x-small }
+.note { font-size: x-small }
+.menu { text-align: center }
+.menu { margin-top: 0.5em; margin-bottom: 0.5em }
+.menu A { text-decoration: none; background-color: silver }
+.menu A:link { color: blue }
+.menu A:active { color: red }
+.menu A:visited { color: navy }
+.menu A:hover { color: yellow; background-color: gray }
+.menu A:link .bt { color: silver }
+.menu A:visited .bt { color: silver }
+.menu A:hover .bt { color: gray }
+
+.caption { text-align: center; padding: 0.5em 0em 0.5em 0em; color: maroon }
+
+h3 { padding: 0em 0.2em 0em 0.2em }
+h3 A { text-decoration: none; padding: 0.1em 0.2em 0.1em 0.2em }
+h3 A:link { color: blue }
+h3 A:active { color: red }
+h3 A:visited { color: navy }
+h3 A:hover { color: yellow; background-color: gray }
+
+h1 A { text-decoration: none; color: blue }
+h1 { color: red; letter-spacing: 1.5em; font-size: x-large; font-family: BankGothic MD BT, sans-serif }
+h2 { color: blue; background-color: silver; text-align: center }
+h3 { color: navy; margin-top: 2em }
+
+ol { margin-left: 5%; margin-right: 5%; text-align: justify }
+ul { margin-left: 5%; margin-right: 5%; text-align: justify }
+ul.important { line-height: 1.3em }
+ol.important { line-height: 1.3em }
+li b { color: maroon; font-weight: bold }
+.a { color: black; padding-bottom: 1em }
+.product { font-weight: bold; color: maroon }
+
+b.verdict { font-weight: bold; font-size: large; padding: 1em 0em 1em 0em }
+.top { text-align: right }
+.top A { text-decoration: none; background-color: silver }
+.top A:link { color: navy }
+.top A:active { color: red }
+.top A:visited { color: navy }
+.top A:hover { color: yellow; background-color: gray }
+.top A:link .bt { color: silver }
+.top A:visited .bt { color: silver }
+.top A:hover .bt { color: gray }
+
+.excellent { color: #009f00 }
+.verygood { color: #2f6f00 }
+.good { color: #3f3f00 }
+.fair { color: #7f4f00 }
+.poor { color: #7f0000 }
+.worst { color: #9f0000 }
+
+b.excellent { font-weight: bold; font-size: large; padding: 1em 0em 1em 0em; color: #009f00 }
+b.verygood { font-weight: bold; font-size: large; padding: 1em 0em 1em 0em; color: #2f6f00 }
+b.good { font-weight: bold; font-size: large; padding: 1em 0em 1em 0em; color: #3f3f00 }
+b.fair { font-weight: bold; font-size: large; padding: 1em 0em 1em 0em; color: #7f4f00 }
+b.poor { font-weight: bold; font-size: large; padding: 1em 0em 1em 0em; color: #7f0000 }
+b.worst { font-weight: bold; font-size: large; padding: 1em 0em 1em 0em; color: #9f0000 }

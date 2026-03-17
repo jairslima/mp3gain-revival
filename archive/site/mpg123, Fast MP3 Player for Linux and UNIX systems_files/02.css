@@ -1,0 +1,381 @@
+html{
+   background: #e0e0ff no-repeat top right; 
+   color: #000000;
+   cursor: default; 
+   direction: ltr; 
+   font-family: serif;
+   line-height: 1.5em;
+}
+
+body
+{
+    margin-top:10pt;
+    margin-right:10pt;
+    margin-bottom:10pt;
+    margin-left:10pt;
+}
+
+div.mainpart
+{
+	padding:0;
+	margin:0;
+}
+
+pre
+{
+	text-align:left;
+	border-radius: 0.5em;
+	overflow: auto;
+	padding: 0.5ch;
+	max-width: 80ch;
+	margin-left: auto;
+	margin-right: auto;
+}
+img {border: none;}
+
+.big { font-size:200%; }
+.reallybig { font-size:300%; }
+.center{ text-align:center; }
+
+pre.plain
+{
+	border:solid;
+	background-color:#ffffff;
+	color:#000000;
+}
+
+/*a:link { color:#FFA100; text-decoration:none; font-weight:bold; }
+a:visited { color:#CA8000; text-decoration:none; font-weight:bold; }
+a:hover { color:#FFA100; text-decoration:underline; }
+a:active { color:#FFFFFF; text-decoration:none; }
+*/
+
+h1, h2, h3
+{
+	font-family: sans; color: #330000;
+}
+@media screen
+{
+	h1, h2, h3
+	{
+		text-shadow: 0pt 0pt 3pt #999999;
+	}
+}
+
+/* Overflow:auto is the trick that prevents overlapping
+   with the float object (which text flows around, the
+   background overlaps). I need that anywhere I do
+   place a float for site layout intead of an image
+   alongside a paragraph. All values except (the default
+   overflow: visible work.
+   Downside: min-width triggers scrolling on the
+   block, not floating out of the way. Once might consider
+   adding some fake minimal-width element to ensure
+   wrap before scroll. */
+p
+{
+	text-align:justify;
+	max-width: 90ch;
+	min-width: 30ch;
+	padding-top:0.5em;
+	margin:auto; 
+}
+ul, ol
+{
+	overflow: auto;
+	text-align:justify;
+	max-width: 80ch;
+	margin:auto;
+}
+li { padding: 0.2em }
+
+hr { width:80%; }
+
+.boxed {border: 1px solid #666666; padding: .5em;}
+.newshead
+{
+	font-weight: bold;
+	font-family: sans;
+}
+
+.newsblock
+{
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+@media screen
+{
+.newsblock
+{
+	overflow: auto;
+	margin-left: auto; 
+	margin-right: auto; 
+	padding: 0em;
+/*   border-style: solid;
+   border-width: 2px;
+   border-color: gray;
+   border-radius: 1em; */
+/*   box-shadow: 2pt -2pt 3px #999999; */
+	max-width: 70ch;
+/*	min-width: 30em; */
+}
+.newshead
+{
+	background-color: #000055;
+	padding: 0.5em;
+	border-color: gray;
+	border-style: solid;
+	border-width: 1pt;
+	border-bottom-width: 0px;
+	border-top-left-radius: 1em;
+	border-top-right-radius: 1em;
+}
+.newsbody
+{
+	background-color: #ccdddd; 
+	margin: 0em;
+	padding: 1em;
+	border-style: solid;
+	border-width: 1pt; 
+	border-color: gray;
+	border-top-width: 0px;
+	border-bottom-right-radius: 1em;
+	border-bottom-left-radius: 1em;
+}
+}
+
+@media print
+{
+	.newsblock
+	{
+		border-style: solid;
+		border-width: 1pt;
+		border-color: gray;
+		border-radius: 1em;
+		padding: 0.5em;
+	}
+}
+
+
+.newshead a:link { color:#FFA100; text-decoration:none; font-weight:bold; }
+
+@media screen
+{
+	.newshead a:visited { color:#CA8000; text-decoration:none; font-weight:bold; }
+	.newshead a:hover { color:#FFA100; text-decoration:underline; }
+	.newshead a:active { color:#FFFFFF; text-decoration:none; }
+}
+
+.newsdate { color: #ee4400; }
+.newstitle { color: #ffffff; }
+.newsby { color: #bbbbbb; }
+
+/* Draw line numbers for code blocks, magically not interfering
+   with text selection. */
+.num::before
+{
+	/* Great, does not validate because of a validator bug:
+	   https://github.com/w3c/css-validator/issues/24 */
+	content: attr(data-num);
+	color: #888888;
+}
+
+code
+{
+	font-family: monospace;
+	padding: 0.1em;
+/*        border: 1px solid #666666;  */
+	border-radius: 2pt;
+        background-color:#ffffff;
+        color:#000000;
+	white-space:nowrap;
+}
+
+.code
+{
+	font-family: monospace;
+	tab-size: 3;
+	-moz-tab-size: 3; /* Damn, wanted to avoid browser hacks. */
+        max-width: 85ch;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid #666666; 
+        background-color:#ffffff;
+        color:#000000;
+}
+
+div.yearlinks
+{
+	text-align: center;
+	max-width: 60ch;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 1em;
+}
+
+ul.vmenu li
+{
+	font-family: sans;
+	font-weight: bold;
+	list-style-type: none;
+	background-color: #ffffff;
+	border: 1pt solid #000000;
+	border-radius: 3pt;
+	box-shadow: -2pt -2pt 3px #999999;
+	margin-top: 0.2em;
+	margin-bottom: 0.2em;
+}
+
+ul.vmenu li:hover
+{
+	background-color: #ffff33;
+}
+
+ul.vmenu
+{
+	text-align: center;
+	padding: 0.5em;
+}
+
+@media screen and (min-width: 120ch)
+{
+	div.mainpart
+	{
+		margin-left: 20%;
+		margin-right:auto;
+	}
+/*	p
+	{
+		margin:auto; 
+	} */
+}
+
+@media screen and (min-width: 70ch) and (max-width: 120ch)
+{
+	div.mainpart
+	{
+		margin-left:22ch;
+	}
+}
+
+@media screen and (min-width: 70ch)
+{
+	/* Looks best without specifying a margin. With margin: 1em, stuff is cut off?! */
+	div.linkbar
+	{
+		width: 20ch;
+		float: left;
+		height:100%;
+		overflow: auto;
+		left: 0px;
+		top: 0px;
+		position: fixed;
+		text-align: center;
+	}
+	/* Fill the li block to make it clickable (mostly).
+	   W3C does not like putting the a tag around li. */
+	ul.vmenu a
+	{
+		display:block;
+	}
+	img.mainlogo
+	{
+		width: 100%
+	}
+}
+
+@media screen and (max-width: 70ch)
+{
+	div.linkbar
+	{
+		margin-left: auto;
+		margin-right: auto;
+		text-align: center;
+		line-height: 1.6em;
+	}
+	ul.vmenu li
+	{
+		display: inline;
+		list-style-type: none;
+		padding: 0.1em;
+		white-space: nowrap;
+	}
+	img.mainlogo
+	{
+		width: 20ch;
+	}
+}
+
+@media screen and (max-width: 45ch)
+{
+	ul,ol
+	{
+		padding-left:0.9em;
+	}
+}
+
+@media screen and (min-width: 70ch) and (max-height: 38em)
+{
+	div.linkbar
+	{
+		line-height: 1.7em
+	}
+	ul.vmenu li
+	{
+                display: inline;
+                list-style-type: none;
+                padding: 0.1em;
+		margin: 0.2em;
+                white-space: nowrap;
+	}
+        ul.vmenu a
+        {
+                display:inline;
+        }
+}
+
+/* Hide visual fluff if space is tight. */
+@media screen and (max-width: 70ch), screen and (max-height: 38em)
+{
+	.fluff
+	{
+		display:none;
+	}
+}
+
+@media print
+{
+	div.linkbar
+	{
+		display: none;
+	}
+}
+
+div.end
+{
+	font-size: 0.6em;
+	color: #888888;
+	text-align: center;
+}
+
+div.w3c
+{
+	text-align: right;
+}
+
+div.httpsnotice
+{
+	text-align: center;
+	font-style: italic;
+	font-family: sans-serif;
+	color: #ff2222;
+}
+
+@media print
+{
+	div.httpsnotice
+	{
+		display: none;
+	}
+}

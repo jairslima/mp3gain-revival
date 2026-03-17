@@ -114,7 +114,7 @@ Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
 1. Confirmar e estabilizar o CI do Windows
 2. Adicionar cobertura automatizada para tag read/write, undo e clipping
 3. Verificar build no Linux (via WSL ou CI)
-4. Alinhar a documentação pública ao estado real do repositório e decidir a publicação do acervo em `archive/`
+4. Alinhar a documentação pública ao estado real do repositório e manter o acervo em `archive/` curado
 5. Criar pacote de release com binário + DLL
 
 ## Problemas Conhecidos
@@ -124,4 +124,3 @@ Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
   terminou
 - O build Linux ainda não foi validado neste workspace
 - O código de suporte a DLL (replaygaindll.c) não está no path de build principal
-- O acervo histórico em `archive/` está organizado localmente, mas ainda não foi publicado integralmente via Git

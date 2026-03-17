@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)https://www.mpg123.de/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<link href="./mpg123, Fast MP3 Player for Linux and UNIX systems_files/02.css" rel="stylesheet" type="text/css">
+	<meta name="author" content="Michael Hipp &amp; Thomas Orgis">
+	<meta name="copyright" content="Michael Hipp &amp; Thomas Orgis">
+	<meta name="publisher" content="Thomas Orgis">
+	<!-- Try to work around stupid mobile browsers doing large things on small screens. -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/svg+xml" href="https://www.mpg123.de/favicon.svg">
+	<link rel="icon" type="image/png" sizes="128x128" href="https://www.mpg123.de/favicon128.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="https://www.mpg123.de/favicon32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="https://www.mpg123.de/faviconi16.png">
+
+	<title>mpg123, Fast MP3 Player for Linux and UNIX systems</title>
+	<meta name="keywords" content="mp3 linux player decoder mpg123 mp2 mp1 mpeg audio solaris hpux layer3 layer2 layer1 aix freebsd bsdos sgi ultrix os2 netbsd mint windows esd 3dnow pentium optimized nas alpha dec sparc alsa oss mips ppc java sunos fast free source unix cool frontend">
+	<meta name="robots" content="INDEX,FOLLOW">
+<style id="_goober"> .go1475592160{height:0;}.go1671063245{height:auto;}.go1888806478{display:flex;flex-wrap:wrap;flex-grow:1;}@media (min-width:600px){.go1888806478{flex-grow:initial;min-width:288px;}}.go167266335{background-color:#313131;font-size:0.875rem;line-height:1.43;letter-spacing:0.01071em;color:#fff;align-items:center;padding:6px 16px;border-radius:4px;box-shadow:0px 3px 5px -1px rgba(0,0,0,0.2),0px 6px 10px 0px rgba(0,0,0,0.14),0px 1px 18px 0px rgba(0,0,0,0.12);}.go3162094071{padding-left:20px;}.go3844575157{background-color:#313131;}.go1725278324{background-color:#43a047;}.go3651055292{background-color:#d32f2f;}.go4215275574{background-color:#ff9800;}.go1930647212{background-color:#2196f3;}.go946087465{display:flex;align-items:center;padding:8px 0;}.go703367398{display:flex;align-items:center;margin-left:auto;padding-left:16px;margin-right:-8px;}.go3963613292{width:100%;position:relative;transform:translateX(0);top:0;right:0;bottom:0;left:0;min-width:288px;}.go1141946668{box-sizing:border-box;display:flex;max-height:100%;position:fixed;z-index:1400;height:auto;width:auto;transition:top 300ms ease 0ms,right 300ms ease 0ms,bottom 300ms ease 0ms,left 300ms ease 0ms,max-width 300ms ease 0ms;pointer-events:none;max-width:calc(100% - 40px);}.go1141946668 .notistack-CollapseWrapper{padding:6px 0px;transition:padding 300ms ease 0ms;}@media (max-width:599.95px){.go1141946668{width:100%;max-width:calc(100% - 32px);}}.go3868796639 .notistack-CollapseWrapper{padding:2px 0px;}.go3118922589{top:14px;flex-direction:column;}.go1453831412{bottom:14px;flex-direction:column-reverse;}.go4027089540{left:20px;}@media (min-width:600px){.go4027089540{align-items:flex-start;}}@media (max-width:599.95px){.go4027089540{left:16px;}}.go2989568495{right:20px;}@media (min-width:600px){.go2989568495{align-items:flex-end;}}@media (max-width:599.95px){.go2989568495{right:16px;}}.go4034260886{left:50%;transform:translateX(-50%);}@media (min-width:600px){.go4034260886{align-items:center;}}</style><style type="text/css">[data-sonner-toaster][dir=ltr],html[dir=ltr]{--toast-icon-margin-start:-3px;--toast-icon-margin-end:4px;--toast-svg-margin-start:-1px;--toast-svg-margin-end:0px;--toast-button-margin-start:auto;--toast-button-margin-end:0;--toast-close-button-start:0;--toast-close-button-end:unset;--toast-close-button-transform:translate(-35%, -35%)}[data-sonner-toaster][dir=rtl],html[dir=rtl]{--toast-icon-margin-start:4px;--toast-icon-margin-end:-3px;--toast-svg-margin-start:0px;--toast-svg-margin-end:-1px;--toast-button-margin-start:0;--toast-button-margin-end:auto;--toast-close-button-start:unset;--toast-close-button-end:0;--toast-close-button-transform:translate(35%, -35%)}[data-sonner-toaster]{position:fixed;width:var(--width);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;--gray1:hsl(0, 0%, 99%);--gray2:hsl(0, 0%, 97.3%);--gray3:hsl(0, 0%, 95.1%);--gray4:hsl(0, 0%, 93%);--gray5:hsl(0, 0%, 90.9%);--gray6:hsl(0, 0%, 88.7%);--gray7:hsl(0, 0%, 85.8%);--gray8:hsl(0, 0%, 78%);--gray9:hsl(0, 0%, 56.1%);--gray10:hsl(0, 0%, 52.3%);--gray11:hsl(0, 0%, 43.5%);--gray12:hsl(0, 0%, 9%);--border-radius:8px;box-sizing:border-box;padding:0;margin:0;list-style:none;outline:0;z-index:999999999;transition:transform .4s ease}@media (hover:none) and (pointer:coarse){[data-sonner-toaster][data-lifted=true]{transform:none}}[data-sonner-toaster][data-x-position=right]{right:var(--offset-right)}[data-sonner-toaster][data-x-position=left]{left:var(--offset-left)}[data-sonner-toaster][data-x-position=center]{left:50%;transform:translateX(-50%)}[data-sonner-toaster][data-y-position=top]{top:var(--offset-top)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--offset-bottom)}[data-sonner-toast]{--y:translateY(100%);--lift-amount:calc(var(--lift) * var(--gap));z-index:var(--z-index);position:absolute;opacity:0;transform:var(--y);touch-action:none;transition:transform .4s,opacity .4s,height .4s,box-shadow .2s;box-sizing:border-box;outline:0;overflow-wrap:anywhere}[data-sonner-toast][data-styled=true]{padding:16px;background:var(--normal-bg);border:1px solid var(--normal-border);color:var(--normal-text);border-radius:var(--border-radius);box-shadow:0 4px 12px rgba(0,0,0,.1);width:var(--width);font-size:13px;display:flex;align-items:center;gap:6px}[data-sonner-toast]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-y-position=top]{top:0;--y:translateY(-100%);--lift:1;--lift-amount:calc(1 * var(--gap))}[data-sonner-toast][data-y-position=bottom]{bottom:0;--y:translateY(100%);--lift:-1;--lift-amount:calc(var(--lift) * var(--gap))}[data-sonner-toast][data-styled=true] [data-description]{font-weight:400;line-height:1.4;color:#3f3f3f}[data-rich-colors=true][data-sonner-toast][data-styled=true] [data-description]{color:inherit}[data-sonner-toaster][data-sonner-theme=dark] [data-description]{color:#e8e8e8}[data-sonner-toast][data-styled=true] [data-title]{font-weight:500;line-height:1.5;color:inherit}[data-sonner-toast][data-styled=true] [data-icon]{display:flex;height:16px;width:16px;position:relative;justify-content:flex-start;align-items:center;flex-shrink:0;margin-left:var(--toast-icon-margin-start);margin-right:var(--toast-icon-margin-end)}[data-sonner-toast][data-promise=true] [data-icon]>svg{opacity:0;transform:scale(.8);transform-origin:center;animation:sonner-fade-in .3s ease forwards}[data-sonner-toast][data-styled=true] [data-icon]>*{flex-shrink:0}[data-sonner-toast][data-styled=true] [data-icon] svg{margin-left:var(--toast-svg-margin-start);margin-right:var(--toast-svg-margin-end)}[data-sonner-toast][data-styled=true] [data-content]{display:flex;flex-direction:column;gap:2px}[data-sonner-toast][data-styled=true] [data-button]{border-radius:4px;padding-left:8px;padding-right:8px;height:24px;font-size:12px;color:var(--normal-bg);background:var(--normal-text);margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end);border:none;font-weight:500;cursor:pointer;outline:0;display:flex;align-items:center;flex-shrink:0;transition:opacity .4s,box-shadow .2s}[data-sonner-toast][data-styled=true] [data-button]:focus-visible{box-shadow:0 0 0 2px rgba(0,0,0,.4)}[data-sonner-toast][data-styled=true] [data-button]:first-of-type{margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end)}[data-sonner-toast][data-styled=true] [data-cancel]{color:var(--normal-text);background:rgba(0,0,0,.08)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-styled=true] [data-cancel]{background:rgba(255,255,255,.3)}[data-sonner-toast][data-styled=true] [data-close-button]{position:absolute;left:var(--toast-close-button-start);right:var(--toast-close-button-end);top:0;height:20px;width:20px;display:flex;justify-content:center;align-items:center;padding:0;color:var(--gray12);background:var(--normal-bg);border:1px solid var(--gray4);transform:var(--toast-close-button-transform);border-radius:50%;cursor:pointer;z-index:1;transition:opacity .1s,background .2s,border-color .2s}[data-sonner-toast][data-styled=true] [data-close-button]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-styled=true] [data-disabled=true]{cursor:not-allowed}[data-sonner-toast][data-styled=true]:hover [data-close-button]:hover{background:var(--gray2);border-color:var(--gray5)}[data-sonner-toast][data-swiping=true]::before{content:'';position:absolute;left:-100%;right:-100%;height:100%;z-index:-1}[data-sonner-toast][data-y-position=top][data-swiping=true]::before{bottom:50%;transform:scaleY(3) translateY(50%)}[data-sonner-toast][data-y-position=bottom][data-swiping=true]::before{top:50%;transform:scaleY(3) translateY(-50%)}[data-sonner-toast][data-swiping=false][data-removed=true]::before{content:'';position:absolute;inset:0;transform:scaleY(2)}[data-sonner-toast][data-expanded=true]::after{content:'';position:absolute;left:0;height:calc(var(--gap) + 1px);bottom:100%;width:100%}[data-sonner-toast][data-mounted=true]{--y:translateY(0);opacity:1}[data-sonner-toast][data-expanded=false][data-front=false]{--scale:var(--toasts-before) * 0.05 + 1;--y:translateY(calc(var(--lift-amount) * var(--toasts-before))) scale(calc(-1 * var(--scale)));height:var(--front-toast-height)}[data-sonner-toast]>*{transition:opacity .4s}[data-sonner-toast][data-x-position=right]{right:0}[data-sonner-toast][data-x-position=left]{left:0}[data-sonner-toast][data-expanded=false][data-front=false][data-styled=true]>*{opacity:0}[data-sonner-toast][data-visible=false]{opacity:0;pointer-events:none}[data-sonner-toast][data-mounted=true][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset)));height:var(--initial-height)}[data-sonner-toast][data-removed=true][data-front=true][data-swipe-out=false]{--y:translateY(calc(var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset) + var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=false]{--y:translateY(40%);opacity:0;transition:transform .5s,opacity .2s}[data-sonner-toast][data-removed=true][data-front=false]::before{height:calc(var(--initial-height) + 20%)}[data-sonner-toast][data-swiping=true]{transform:var(--y) translateY(var(--swipe-amount-y,0)) translateX(var(--swipe-amount-x,0));transition:none}[data-sonner-toast][data-swiped=true]{user-select:none}[data-sonner-toast][data-swipe-out=true][data-y-position=bottom],[data-sonner-toast][data-swipe-out=true][data-y-position=top]{animation-duration:.2s;animation-timing-function:ease-out;animation-fill-mode:forwards}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=left]{animation-name:swipe-out-left}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=right]{animation-name:swipe-out-right}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=up]{animation-name:swipe-out-up}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=down]{animation-name:swipe-out-down}@keyframes swipe-out-left{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) - 100%));opacity:0}}@keyframes swipe-out-right{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) + 100%));opacity:0}}@keyframes swipe-out-up{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) - 100%));opacity:0}}@keyframes swipe-out-down{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) + 100%));opacity:0}}@media (max-width:600px){[data-sonner-toaster]{position:fixed;right:var(--mobile-offset-right);left:var(--mobile-offset-left);width:100%}[data-sonner-toaster][dir=rtl]{left:calc(var(--mobile-offset-left) * -1)}[data-sonner-toaster] [data-sonner-toast]{left:0;right:0;width:calc(100% - var(--mobile-offset-left) * 2)}[data-sonner-toaster][data-x-position=left]{left:var(--mobile-offset-left)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--mobile-offset-bottom)}[data-sonner-toaster][data-y-position=top]{top:var(--mobile-offset-top)}[data-sonner-toaster][data-x-position=center]{left:var(--mobile-offset-left);right:var(--mobile-offset-right);transform:none}}[data-sonner-toaster][data-sonner-theme=light]{--normal-bg:#fff;--normal-border:var(--gray4);--normal-text:var(--gray12);--success-bg:hsl(143, 85%, 96%);--success-border:hsl(145, 92%, 87%);--success-text:hsl(140, 100%, 27%);--info-bg:hsl(208, 100%, 97%);--info-border:hsl(221, 91%, 93%);--info-text:hsl(210, 92%, 45%);--warning-bg:hsl(49, 100%, 97%);--warning-border:hsl(49, 91%, 84%);--warning-text:hsl(31, 92%, 45%);--error-bg:hsl(359, 100%, 97%);--error-border:hsl(359, 100%, 94%);--error-text:hsl(360, 100%, 45%)}[data-sonner-toaster][data-sonner-theme=light] [data-sonner-toast][data-invert=true]{--normal-bg:#000;--normal-border:hsl(0, 0%, 20%);--normal-text:var(--gray1)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-invert=true]{--normal-bg:#fff;--normal-border:var(--gray3);--normal-text:var(--gray12)}[data-sonner-toaster][data-sonner-theme=dark]{--normal-bg:#000;--normal-bg-hover:hsl(0, 0%, 12%);--normal-border:hsl(0, 0%, 20%);--normal-border-hover:hsl(0, 0%, 25%);--normal-text:var(--gray1);--success-bg:hsl(150, 100%, 6%);--success-border:hsl(147, 100%, 12%);--success-text:hsl(150, 86%, 65%);--info-bg:hsl(215, 100%, 6%);--info-border:hsl(223, 43%, 17%);--info-text:hsl(216, 87%, 65%);--warning-bg:hsl(64, 100%, 6%);--warning-border:hsl(60, 100%, 9%);--warning-text:hsl(46, 87%, 65%);--error-bg:hsl(358, 76%, 10%);--error-border:hsl(357, 89%, 16%);--error-text:hsl(358, 100%, 81%)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]{background:var(--normal-bg);border-color:var(--normal-border);color:var(--normal-text)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]:hover{background:var(--normal-bg-hover);border-color:var(--normal-border-hover)}[data-rich-colors=true][data-sonner-toast][data-type=success]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=success] [data-close-button]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=info]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=info] [data-close-button]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning] [data-close-button]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=error]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}[data-rich-colors=true][data-sonner-toast][data-type=error] [data-close-button]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}.sonner-loading-wrapper{--size:16px;height:var(--size);width:var(--size);position:absolute;inset:0;z-index:10}.sonner-loading-wrapper[data-visible=false]{transform-origin:center;animation:sonner-fade-out .2s ease forwards}.sonner-spinner{position:relative;top:50%;left:50%;height:var(--size);width:var(--size)}.sonner-loading-bar{animation:sonner-spin 1.2s linear infinite;background:var(--gray11);border-radius:6px;height:8%;left:-10%;position:absolute;top:-3.9%;width:24%}.sonner-loading-bar:first-child{animation-delay:-1.2s;transform:rotate(.0001deg) translate(146%)}.sonner-loading-bar:nth-child(2){animation-delay:-1.1s;transform:rotate(30deg) translate(146%)}.sonner-loading-bar:nth-child(3){animation-delay:-1s;transform:rotate(60deg) translate(146%)}.sonner-loading-bar:nth-child(4){animation-delay:-.9s;transform:rotate(90deg) translate(146%)}.sonner-loading-bar:nth-child(5){animation-delay:-.8s;transform:rotate(120deg) translate(146%)}.sonner-loading-bar:nth-child(6){animation-delay:-.7s;transform:rotate(150deg) translate(146%)}.sonner-loading-bar:nth-child(7){animation-delay:-.6s;transform:rotate(180deg) translate(146%)}.sonner-loading-bar:nth-child(8){animation-delay:-.5s;transform:rotate(210deg) translate(146%)}.sonner-loading-bar:nth-child(9){animation-delay:-.4s;transform:rotate(240deg) translate(146%)}.sonner-loading-bar:nth-child(10){animation-delay:-.3s;transform:rotate(270deg) translate(146%)}.sonner-loading-bar:nth-child(11){animation-delay:-.2s;transform:rotate(300deg) translate(146%)}.sonner-loading-bar:nth-child(12){animation-delay:-.1s;transform:rotate(330deg) translate(146%)}@keyframes sonner-fade-in{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}@keyframes sonner-fade-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.8)}}@keyframes sonner-spin{0%{opacity:1}100%{opacity:.15}}@media (prefers-reduced-motion){.sonner-loading-bar,[data-sonner-toast],[data-sonner-toast]>*{transition:none!important;animation:none!important}}.sonner-loader{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transform-origin:center;transition:opacity .2s,transform .2s}.sonner-loader[data-visible=false]{opacity:0;transform:scale(.8) translate(-50%,-50%)}</style><meta id="nedeegdmhlnmboboahchfpkmdnnemapd"><meta id="dcngeagmmhegagicpcmpinaoklddcgon"></head>
+<body>
+<div class="linkbar">
+	<a href="https://www.mpg123.de/index.shtml" title="mpg123 website entry page"><img alt="mpg123 logo" src="./mpg123, Fast MP3 Player for Linux and UNIX systems_files/logo-current.svg" class="mainlogo">
+	</a>
+	<div class="menu">
+	<code class="fluff">goto page;</code>
+	<ul class="vmenu">
+		<li><a href="https://www.mpg123.de/download.shtml">download</a></li>
+		<li><a href="https://www.mpg123.de/trunk">svn</a></li>
+		<li><a href="https://www.mpg123.de/features.shtml">features</a></li>
+		<li><a href="https://www.mpg123.de/api/">library API</a></li>
+		<li><a href="http://sourceforge.net/projects/mpg123">sf.net project</a></li>
+		<li><a href="http://sourceforge.net/p/mpg123/bugs/">bug tracker</a></li>
+		<li><a href="https://www.mpg123.de/cgi-bin/news.cgi">news archive</a></li>
+		<li><a href="https://www.mpg123.de/hacking.shtml">hacking</a></li>
+		<li><a href="https://www.mpg123.de/testing.shtml">testing</a></li>
+		<li><a href="https://www.mpg123.de/benchmarking.shtml">benchmarking</a></li>
+		<li><a href="https://www.mpg123.de/faq.shtml">FAQ</a></li>
+		<li><a href="https://www.mpg123.de/links.shtml">links</a></li>
+		<li><a href="https://www.mpg123.de/contact.shtml">contact</a></li>
+	</ul>
+	</div>
+</div>
+
+<div class="mainpart">
+
+
+
+<h1>mpg123 - Fast console MPEG Audio Player and decoder library</h1>
+<p>
+The mpg123 distribution contains a
+real time MPEG 1.0/2.0/2.5 audio player/decoder
+for layers 1,2 and 3 (most commonly MPEG 1.0 layer 3 aka MP3),
+as well as re-usable decoding and output <a href="https://www.mpg123.de/api/">libraries</a>.
+Among others, it works on GNU/Linux, MacOSX, the BSDs, Solaris,
+AIX, HPUX, SGI Irix, OS/2 and Cygwin or plain MS Windows
+(not all more exotic platforms tested regularily, but patches welcome).
+You may jump to the non-exhaustive <a href="https://www.mpg123.de/features.shtml">list of features</a>.
+</p>
+<p>
+It is free software licensed under LGPL 2.1 .
+</p>
+<p>
+Note that nowadays, the <strong>mpg123 decoder</strong> core can work with
+<strong>floating point or integer math</strong> and with some
+tuning between accuracy and performance at build-time,
+using assembly optimizations for several platforms,
+depending on your build configuration. There is detection and
+selection of assembly optimisations on x86, x86-64, and ARM at
+program runtime.
+It's fast, it's high-quality. Just use it;-)
+</p>
+
+<h2>Top News</h2>
+<div class="newsblock">
+<div class="newshead"><a id="2025-12-20"></a><a href="https://www.mpg123.de/#"><span class="newsdate">2025-12-20</span></a> <a href="https://www.mpg123.de/#2025-12-20"><span class="newsby">thomas:</span> <span class="newstitle">Releasing mpg123 version 1.33.4: </span></a></div>
+<div class="newsbody">
+<ul>
+<li>
+	mpg123: In terminal control, ignore 7-bit escape sequences to avoid spurious
+	actions, e.g. when hitting cursor keys. Inspired by Peter Tirsek.
+</li>
+<li>
+	ports/cmake: Avoid possibly conflicting use of SIZEOF_OFF_T CMake variable
+	when embedding mpg123 with other projects using cmake and different off_t
+	semantics. (<a href="https://www.mpg123.de/bugs/382">bug 382</a>)
+</li>
+</ul>
+<p>Head over to the <a href="https://www.mpg123.de/download.shtml">download section</a> for getting your hands on the release.</p>
+</div>
+</div>
+<div class="newsblock">
+<div class="newshead"><a id="2025-10-05"></a><a href="https://www.mpg123.de/#"><span class="newsdate">2025-10-05</span></a> <a href="https://www.mpg123.de/#2025-10-05"><span class="newsby">thomas:</span> <span class="newstitle">Releasing mpg123 version 1.33.3: </span></a></div>
+<div class="newsbody">
+<ul>
+<li>
+	libmpg123:
+<ul>
+<li>
+	Fix build with newer toolchain on Android by using __ANDROID__ macro (<a href="https://www.mpg123.de/bugs/380">bug 380</a>).
+</li>
+<li>
+	Consolidate and more consistently use .rodata switch in macro.
+</li>
+</ul>
+</li>
+</ul>
+<p>Head over to the <a href="https://www.mpg123.de/download.shtml">download section</a> for getting your hands on the release.</p>
+</div>
+</div>
+<div class="newsblock">
+<div class="newshead"><a id="2025-08-05"></a><a href="https://www.mpg123.de/#"><span class="newsdate">2025-08-05</span></a> <a href="https://www.mpg123.de/#2025-08-05"><span class="newsby">thomas:</span> <span class="newstitle">Releasing mpg123 version 1.33.2: </span></a></div>
+<div class="newsbody">
+<ul>
+<li>
+	libmpg123:
+<ul>
+<li>
+	Do not modify raw ID3v2 data while parsing (<a href="https://www.mpg123.de/bugs/379">bug 379</a>). This used to be fine
+	before MPG123_STORE_RAW_ID3 got introduced. Not anymore.
+</li>
+</ul>
+</li>
+</ul>
+<p>Head over to the <a href="https://www.mpg123.de/download.shtml">download section</a> for getting your hands on the release.</p>
+</div>
+</div>
+<div class="newsblock">
+<div class="newshead"><a id="2025-07-27"></a><a href="https://www.mpg123.de/#"><span class="newsdate">2025-07-27</span></a> <a href="https://www.mpg123.de/#2025-07-27"><span class="newsby">thomas:</span> <span class="newstitle">Releasing mpg123 version 1.33.1: gimme signal (also 1.31.4, 1.32.11 for signal regression)</span></a></div>
+<div class="newsbody">
+<p>This has some little fixes, but mainly the fix for a regression since 1.31
+is of interest: Repeated signals for terminal control were not handled, causing
+mpg123 to end unexpectedly on the second SIGUSR1, for example. The flaky
+semantics of <code>signal()</code> have bitten us. These remaining calls have
+been moved to <code>sigaction()</code> now like others. Full list of changes
+for 1.33.1 follows.
+</p>
+<ul>
+<li>
+	INSTALL updated with hints for Windows, mainly.
+</li>
+<li>
+	Finally formatted README. Maybe do it in Markdown sometime, as that's
+	the fashion.
+</li>
+<li>
+	build:
+<ul>
+<li>
+	The ports/cmake only installs manpages for BUILD_PROGRAMS now.
+</li>
+<li>
+	The configure gives better hint if pkg-config was missing during generation
+	(<a href="https://www.mpg123.de/bugs/378">bug 378</a>).
+</li>
+</ul>
+</li>
+<li>
+	mpg123:
+<ul>
+<li>
+	Replace usage of signal() in terminal code with our sigaction() wrapper
+	to fix repeated handling for --sigusr1 and --sigusr2, which got subtly
+	broken on Linux + glibc by a feature test macro change in mpg123 1.31.
+</li>
+</ul>
+</li>
+</ul>
+<p>Only the signal change is part of the bugfix releases for the older series.
+Direct download links: mpg123
+<a href="https://sourceforge.net/projects/mpg123/files/mpg123/1.33.1/mpg123-1.33.1.tar.bz2/download">1.33.1</a>
+<a href="https://sourceforge.net/projects/mpg123/files/mpg123/1.33.1/mpg123-1.33.1.tar.bz2.sig/download">(signature)</a>,
+<a href="https://sourceforge.net/projects/mpg123/files/mpg123/1.32.11/mpg123-1.32.11.tar.bz2/download">1.32.11</a>
+<a href="https://sourceforge.net/projects/mpg123/files/mpg123/1.32.11/mpg123-1.32.11.tar.bz2.sig/download">(signature)</a>
+and
+<a href="https://sourceforge.net/projects/mpg123/files/mpg123/1.31.4/mpg123-1.31.4.tar.bz2/download">1.31.4</a>
+<a href="https://sourceforge.net/projects/mpg123/files/mpg123/1.31.4/mpg123-1.31.4.tar.bz2.sig/download">(signature)</a>,
+</p>
+<p>Head over to the <a href="https://www.mpg123.de/download.shtml">download section</a> for getting your hands on the release.</p>
+</div>
+</div>
+<div class="newsblock">
+<div class="newshead"><a id="2025-06-07"></a><a href="https://www.mpg123.de/#"><span class="newsdate">2025-06-07</span></a> <a href="https://www.mpg123.de/#2025-06-07"><span class="newsby">thomas:</span> <span class="newstitle">Releasing mpg123 version 1.33.0: </span></a></div>
+<div class="newsbody">
+<ul>
+<li>
+	mpg123
+<ul>
+<li>
+	Fix printout of filenames at end (convert/limit text encoding).
+</li>
+<li>
+	Treat HTTP header encoding as unknown/ASCII and formally convert to UTF-8.
+</li>
+<li>
+	Make --continue mode work with --random.
+</li>
+<li>
+	Handle possible failure of __wgetmainargs on Windows (<a href="https://www.mpg123.de/bugs/375">bug 375</a>).
+</li>
+</ul>
+</li>
+<li>
+	mpg123-id3dump: Fix up command line arg handling for Windows.
+</li>
+<li>
+	out123
+<ul>
+<li>
+	Finally give zero exit code when generating sounds, not indicating
+	spurious failure.
+</li>
+</ul>
+</li>
+<li>
+	build:
+<ul>
+<li>
+	Use CCASFLAGS for assembler tests, to enable builds that enable instruction
+	sets that way (<a href="https://www.mpg123.de/bugs/377">bug 377</a>).
+</li>
+<li>
+	PIC for compat libs (convenience libs used during build) only if building
+	shared libs (github PR 17 by Wouter Wijsman).
+</li>
+</ul>
+</li>
+<li>
+	compat:
+<ul>
+<li>
+	Map strtok use to strtok_r or strtok_s (MS platforms), if possible.
+	users only in control_generic and libout123 so far. Out123 itself uses mytok.
+	Shall fix <a href="https://www.mpg123.de/bugs/376">bug 376</a> (build with MSVC again).
+</li>
+<li>
+	Enable build on PSP by merging in the hotfix of opmitting signal code
+	(github PR 18 by Wouter Wijsman).
+</li>
+</ul>
+</li>
+<li>
+	libout123
+<ul>
+<li>
+	modules/win32: Align waveOutGetDevCapsA to WAVEOUTCAPSA, in anticipation
+	of some UNICODE change.
+</li>
+</ul>
+</li>
+<li>
+	libmpg123
+<ul>
+<li>
+	API version 49 with added mpg123_open_handle64(), mpg123_open64(), and
+	mpg123_open_fixed64() that are not subject to largefile renaming. This
+	means you can still access internal I/O with MPG123_PORTABLE_API. The
+	code has been there before, anyway.
+</li>
+<li>
+	With MPG123_PORTABLE_API, mpg123_open_handle() is hidden now (use
+	mpg123_open_handle64() instead).
+</li>
+<li>
+	more silence on errors (sideband limit message)
+</li>
+</ul>
+</li>
+</ul>
+<p>Head over to the <a href="https://www.mpg123.de/download.shtml">download section</a> for getting your hands on the release.</p>
+</div>
+</div>
+<p>For older news see the <a href="https://www.mpg123.de/cgi-bin/news.cgi">news archive</a></p>
+
+<h2><a id="compliance"></a>ISO MPEG compliance</h2>
+<p>This is a rough log of an automated compliance test on the mpg123 webserver (Xeon E3, GNU/Linux),
+using the test bitstreams from the ISO MPEG reference set.
+At least the floating point output should really be close enough to the reference.</p>
+<p>
+	Regarding the method: This is comparing mpg123's output (with gapless code deactivated) from reference bitstreams to the reference output.
+	A simple RMS error measure is employed, relative to full scale, just summing over mono or stereo data indiscriminently.
+	This is my interpretation of the rules... maximum allowed RMS=8.80967e-06, maximum signal difference 6.10352e-05.
+</p>
+<pre class="plain">compliance test for mpg123-1.33.5-dev+20260311022201 on Linux x86_64
+First decoder in this list will be tested first, then generic: 
+Supported decoders: AVX x86-64 generic generic_dither
+
+Testing default decoder...
+
+==== Layer 1 ====
+--&gt; 16 bit signed integer output
+fl1.bit:	RMS=4.364373e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl2.bit:	RMS=4.353138e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl3.bit:	RMS=4.348759e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+fl4.bit:	RMS=4.403421e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl5.bit:	RMS=4.323446e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl6.bit:	RMS=4.389602e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+fl7.bit:	RMS=3.826083e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl8.bit:	RMS=4.362205e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+--&gt; 32 bit integer output
+fl1.bit:	RMS=1.967634e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+fl2.bit:	RMS=1.971686e-08 (PASS) maxdiff=1.117587e-07 (PASS)
+fl3.bit:	RMS=2.002386e-08 (PASS) maxdiff=1.341105e-07 (PASS)
+fl4.bit:	RMS=1.902169e-08 (PASS) maxdiff=1.266599e-07 (PASS)
+fl5.bit:	RMS=3.655859e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl6.bit:	RMS=3.069318e-08 (PASS) maxdiff=1.629815e-07 (PASS)
+fl7.bit:	RMS=1.768833e-08 (PASS) maxdiff=8.940697e-08 (PASS)
+fl8.bit:	RMS=1.857219e-08 (PASS) maxdiff=8.428469e-08 (PASS)
+--&gt; 24 bit integer output
+fl1.bit:	RMS=4.096055e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl2.bit:	RMS=4.156199e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl3.bit:	RMS=4.126996e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl4.bit:	RMS=4.100406e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl5.bit:	RMS=4.574976e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl6.bit:	RMS=3.920292e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl7.bit:	RMS=4.186568e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl8.bit:	RMS=4.104751e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+--&gt; 32 bit floating point output
+fl1.bit:	RMS=1.967635e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+fl2.bit:	RMS=1.971679e-08 (PASS) maxdiff=1.117587e-07 (PASS)
+fl3.bit:	RMS=2.002391e-08 (PASS) maxdiff=1.341105e-07 (PASS)
+fl4.bit:	RMS=1.902160e-08 (PASS) maxdiff=1.266599e-07 (PASS)
+fl5.bit:	RMS=3.655860e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl6.bit:	RMS=3.069316e-08 (PASS) maxdiff=1.629815e-07 (PASS)
+fl7.bit:	RMS=1.768828e-08 (PASS) maxdiff=8.940697e-08 (PASS)
+fl8.bit:	RMS=1.857223e-08 (PASS) maxdiff=8.428469e-08 (PASS)
+
+==== Layer 2 ====
+--&gt; 16 bit signed integer output
+fl10.bit:	RMS=3.512100e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl11.bit:	RMS=3.837267e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl12.bit:	RMS=3.901071e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl13.bit:	RMS=4.379583e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl14.bit:	RMS=4.112578e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+fl15.bit:	RMS=4.388568e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+fl16.bit:	RMS=4.147495e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+--&gt; 32 bit integer output
+fl10.bit:	RMS=1.777418e-08 (PASS) maxdiff=8.475035e-08 (PASS)
+fl11.bit:	RMS=1.789150e-08 (PASS) maxdiff=9.685755e-08 (PASS)
+fl12.bit:	RMS=1.780872e-08 (PASS) maxdiff=8.940697e-08 (PASS)
+fl13.bit:	RMS=1.760690e-08 (PASS) maxdiff=4.470348e-08 (PASS)
+fl14.bit:	RMS=3.361258e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl15.bit:	RMS=2.414684e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl16.bit:	RMS=1.924891e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+--&gt; 24 bit integer output
+fl10.bit:	RMS=4.086103e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl11.bit:	RMS=4.098320e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl12.bit:	RMS=4.095125e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl13.bit:	RMS=4.108581e-08 (PASS) maxdiff=5.960464e-08 (PASS)
+fl14.bit:	RMS=4.444728e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl15.bit:	RMS=4.098525e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl16.bit:	RMS=4.146825e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+--&gt; 32 bit floating point output
+fl10.bit:	RMS=1.777416e-08 (PASS) maxdiff=8.475035e-08 (PASS)
+fl11.bit:	RMS=1.789151e-08 (PASS) maxdiff=9.685755e-08 (PASS)
+fl12.bit:	RMS=1.780868e-08 (PASS) maxdiff=8.940697e-08 (PASS)
+fl13.bit:	RMS=1.760693e-08 (PASS) maxdiff=4.470348e-08 (PASS)
+fl14.bit:	RMS=3.361258e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl15.bit:	RMS=2.414676e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl16.bit:	RMS=1.924847e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+
+==== Layer 3 ====
+--&gt; 16 bit signed integer output
+compl.bit:	RMS=4.300912e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+--&gt; 32 bit integer output
+compl.bit:	RMS=2.104434e-08 (PASS) maxdiff=1.881272e-07 (PASS)
+--&gt; 24 bit integer output
+compl.bit:	RMS=4.170551e-08 (PASS) maxdiff=2.384186e-07 (PASS)
+--&gt; 32 bit floating point output
+compl.bit:	RMS=2.104434e-08 (PASS) maxdiff=1.881272e-07 (PASS)
+
+==== Layer 3 intensity stereo ====
+   (no official reference, comparing to mpg123 generic 24 bit)
+--&gt; 16 bit signed integer output
+drumshort08kHz.bit:	RMS=4.348691e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+drumshort24kHz.bit:	RMS=4.365981e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+drumshort48kHz.bit:	RMS=4.375106e-06 (PASS) maxdiff=8.106232e-06 (PASS)
+mono-is-ms.bit:	RMS=4.389831e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+--&gt; 32 bit integer output
+drumshort08kHz.bit:	RMS=3.281180e-08 (PASS) maxdiff=1.043081e-07 (PASS)
+drumshort24kHz.bit:	RMS=3.282391e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+drumshort48kHz.bit:	RMS=4.068793e-08 (PASS) maxdiff=6.854534e-07 (PASS)
+mono-is-ms.bit:	RMS=3.511104e-08 (PASS) maxdiff=2.197921e-07 (PASS)
+--&gt; 24 bit integer output
+drumshort08kHz.bit:	RMS=3.600636e-09 (PASS) maxdiff=5.960464e-08 (PASS)
+drumshort24kHz.bit:	RMS=2.518008e-09 (PASS) maxdiff=1.192093e-07 (PASS)
+drumshort48kHz.bit:	RMS=2.917921e-08 (PASS) maxdiff=7.152557e-07 (PASS)
+mono-is-ms.bit:	RMS=1.635551e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+--&gt; 32 bit floating point output
+drumshort08kHz.bit:	RMS=3.281174e-08 (PASS) maxdiff=1.043081e-07 (PASS)
+drumshort24kHz.bit:	RMS=3.282395e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+drumshort48kHz.bit:	RMS=4.068791e-08 (PASS) maxdiff=6.854534e-07 (PASS)
+mono-is-ms.bit:	RMS=3.511108e-08 (PASS) maxdiff=2.197921e-07 (PASS)
+
+==== Overall result ====
+PASS (limited or full)
+
+Now the generic decoder:
+
+==== Layer 1 ====
+--&gt; 16 bit signed integer output
+fl1.bit:	RMS=4.364373e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl2.bit:	RMS=4.353138e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl3.bit:	RMS=4.348759e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+fl4.bit:	RMS=4.403421e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl5.bit:	RMS=4.323446e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl6.bit:	RMS=4.389641e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+fl7.bit:	RMS=3.826083e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl8.bit:	RMS=4.362205e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+--&gt; 32 bit integer output
+fl1.bit:	RMS=1.977733e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+fl2.bit:	RMS=1.980311e-08 (PASS) maxdiff=1.117587e-07 (PASS)
+fl3.bit:	RMS=2.006633e-08 (PASS) maxdiff=1.341105e-07 (PASS)
+fl4.bit:	RMS=1.911986e-08 (PASS) maxdiff=1.266599e-07 (PASS)
+fl5.bit:	RMS=4.047884e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+fl6.bit:	RMS=3.178246e-08 (PASS) maxdiff=1.639128e-07 (PASS)
+fl7.bit:	RMS=1.775744e-08 (PASS) maxdiff=1.043081e-07 (PASS)
+fl8.bit:	RMS=1.866297e-08 (PASS) maxdiff=8.195639e-08 (PASS)
+--&gt; 24 bit integer output
+fl1.bit:	RMS=4.119282e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl2.bit:	RMS=4.184623e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl3.bit:	RMS=4.153068e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl4.bit:	RMS=4.118697e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl5.bit:	RMS=4.816338e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl6.bit:	RMS=4.047773e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl7.bit:	RMS=4.191854e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl8.bit:	RMS=4.106042e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+--&gt; 32 bit floating point output
+fl1.bit:	RMS=1.977741e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+fl2.bit:	RMS=1.980280e-08 (PASS) maxdiff=1.117587e-07 (PASS)
+fl3.bit:	RMS=2.006633e-08 (PASS) maxdiff=1.341105e-07 (PASS)
+fl4.bit:	RMS=1.911983e-08 (PASS) maxdiff=1.266599e-07 (PASS)
+fl5.bit:	RMS=4.047868e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+fl6.bit:	RMS=3.178251e-08 (PASS) maxdiff=1.639128e-07 (PASS)
+fl7.bit:	RMS=1.775792e-08 (PASS) maxdiff=1.043081e-07 (PASS)
+fl8.bit:	RMS=1.866297e-08 (PASS) maxdiff=8.195639e-08 (PASS)
+
+==== Layer 2 ====
+--&gt; 16 bit signed integer output
+fl10.bit:	RMS=3.512100e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl11.bit:	RMS=3.837267e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl12.bit:	RMS=3.901071e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl13.bit:	RMS=4.379583e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+fl14.bit:	RMS=4.112596e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+fl15.bit:	RMS=4.388557e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+fl16.bit:	RMS=4.147495e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+--&gt; 32 bit integer output
+fl10.bit:	RMS=1.788206e-08 (PASS) maxdiff=8.195639e-08 (PASS)
+fl11.bit:	RMS=1.798147e-08 (PASS) maxdiff=1.005828e-07 (PASS)
+fl12.bit:	RMS=1.791770e-08 (PASS) maxdiff=8.568168e-08 (PASS)
+fl13.bit:	RMS=1.770191e-08 (PASS) maxdiff=4.470348e-08 (PASS)
+fl14.bit:	RMS=4.111211e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+fl15.bit:	RMS=2.477557e-08 (PASS) maxdiff=1.639128e-07 (PASS)
+fl16.bit:	RMS=1.970979e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+--&gt; 24 bit integer output
+fl10.bit:	RMS=4.102704e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl11.bit:	RMS=4.113184e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl12.bit:	RMS=4.107583e-08 (PASS) maxdiff=1.192093e-07 (PASS)
+fl13.bit:	RMS=4.127499e-08 (PASS) maxdiff=5.960464e-08 (PASS)
+fl14.bit:	RMS=4.977907e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl15.bit:	RMS=4.145519e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+fl16.bit:	RMS=4.171672e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+--&gt; 32 bit floating point output
+fl10.bit:	RMS=1.788201e-08 (PASS) maxdiff=8.195639e-08 (PASS)
+fl11.bit:	RMS=1.798150e-08 (PASS) maxdiff=1.005828e-07 (PASS)
+fl12.bit:	RMS=1.791763e-08 (PASS) maxdiff=8.568168e-08 (PASS)
+fl13.bit:	RMS=1.770194e-08 (PASS) maxdiff=4.470348e-08 (PASS)
+fl14.bit:	RMS=4.111203e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+fl15.bit:	RMS=2.477554e-08 (PASS) maxdiff=1.639128e-07 (PASS)
+fl16.bit:	RMS=1.970946e-08 (PASS) maxdiff=1.490116e-07 (PASS)
+
+==== Layer 3 ====
+--&gt; 16 bit signed integer output
+compl.bit:	RMS=4.300914e-06 (PASS) maxdiff=7.688999e-06 (PASS)
+--&gt; 32 bit integer output
+compl.bit:	RMS=2.147540e-08 (PASS) maxdiff=1.750886e-07 (PASS)
+--&gt; 24 bit integer output
+compl.bit:	RMS=4.202659e-08 (PASS) maxdiff=1.788139e-07 (PASS)
+--&gt; 32 bit floating point output
+compl.bit:	RMS=2.147539e-08 (PASS) maxdiff=1.750886e-07 (PASS)
+
+==== Layer 3 intensity stereo ====
+   (no official reference, comparing to mpg123 generic 24 bit)
+--&gt; 16 bit signed integer output
+drumshort08kHz.bit:	RMS=4.348733e-06 (PASS) maxdiff=7.748604e-06 (PASS)
+drumshort24kHz.bit:	RMS=4.366053e-06 (PASS) maxdiff=7.808208e-06 (PASS)
+drumshort48kHz.bit:	RMS=4.375036e-06 (PASS) maxdiff=7.748604e-06 (PASS)
+mono-is-ms.bit:	RMS=4.389819e-06 (PASS) maxdiff=7.629395e-06 (PASS)
+--&gt; 32 bit integer output
+drumshort08kHz.bit:	RMS=3.685351e-08 (PASS) maxdiff=4.172325e-07 (PASS)
+drumshort24kHz.bit:	RMS=3.893594e-08 (PASS) maxdiff=7.450581e-07 (PASS)
+drumshort48kHz.bit:	RMS=3.389556e-08 (PASS) maxdiff=2.607703e-07 (PASS)
+mono-is-ms.bit:	RMS=3.372314e-08 (PASS) maxdiff=8.940697e-08 (PASS)
+--&gt; 24 bit integer output
+drumshort08kHz.bit:	RMS=2.297661e-08 (PASS) maxdiff=4.172325e-07 (PASS)
+drumshort24kHz.bit:	RMS=2.677607e-08 (PASS) maxdiff=7.748604e-07 (PASS)
+drumshort48kHz.bit:	RMS=1.460054e-08 (PASS) maxdiff=2.384186e-07 (PASS)
+mono-is-ms.bit:	RMS=9.138218e-09 (PASS) maxdiff=5.960464e-08 (PASS)
+--&gt; 32 bit floating point output
+drumshort08kHz.bit:	RMS=3.685353e-08 (PASS) maxdiff=4.172325e-07 (PASS)
+drumshort24kHz.bit:	RMS=3.893599e-08 (PASS) maxdiff=7.450581e-07 (PASS)
+drumshort48kHz.bit:	RMS=3.389551e-08 (PASS) maxdiff=2.607703e-07 (PASS)
+mono-is-ms.bit:	RMS=3.372002e-08 (PASS) maxdiff=8.940697e-08 (PASS)
+
+==== Overall result ====
+PASS (limited or full)
+
+</pre>
+<p>
+	Depending on what integer quality mode you choose at compile time (and the decoder in use), the 16bit output can vary between PASS and LIMITED for fully or limited accuracy compliance.
+	But keep in mind:
+	For the integer output, you have to give +-1 for rounding... that's what I append to any integer number read from some measurement device anyway, by default.
+	That minimum possible deviation already brings the output close (or over) the border of full compliance... that really does not mean that the output sounds bad!
+	It shall be noted that a measure to improve subjective quality, namely the dithering before rounding to integers, can also increase the theoretical decoding error.
+</p>
+<p>
+	In the end, RMS values in the order of 10 to the power of -5 should sound just fine.
+	To get 16bit output to PASS, you usually need to enable proper rounding using the
+	<span class="code">--enable-int-quality</span> configure flag, which is on by default since
+	some time now. On a specific (older) system, you might consider turning that off for
+	possibly a slight performance gain.
+</p>
+<p>
+	For comparisong with other decoders (as well as older incarnations of the mpg123 engine), have a read of
+	the <a href="http://www.underbit.com/resources/mpeg/audio/compliance/">Underbit compliance tests</a>.
+	Actually, my testing method follows that example, including their quoting of ISO MPEG rules.
+</p>
+
+<h2><a id="regression"></a>Regression tests</h2>
+<p>
+This is output from the rudimentary regression test suite (which should eventually merge several approaches we had on testing in the past), working on the periodic snapshot:
+</p>
+<pre class="plain">cc -Os  -I/tmp/mpg123-svn.sbaBH/prefix/include  -c -o helpers.o helpers.c
+CC 2859531_id3_tag_not_skipped_when_NO_ID3V2_is_defined.bin
+CC 2950218_extra_samples_seek_last_frame.bin
+CC basic_resync.bin
+CC bug201_another_one.bin
+CC bug201_wrong_frame_buffer.bin
+CC chomp_strings.bin
+CC custom_io.bin
+CC frame_seek_weirdness.bin
+CC freeformat.bin
+CC less_bytes_after_seek2.bin
+CC less_bytes_after_seek.bin
+CC more_bytes_on_second_decode.bin
+CC out123_errorlist.bin
+CC out123_passthrough.bin
+CC premature_decoder_change.bin
+CC seek_accuracy.bin
+CC string_alloc.bin
+Running tests.
+Starting tests, look into test.log for messages.
+PASS|SKIP is good, FAIL is bad.
+
+2859531_id3_tag_not_skipped_when_NO_ID3V2_is_defined:     PASS
+2950218_extra_samples_seek_last_frame:                    PASS
+basic_resync:                                             PASS
+bug201_another_one:                                       PASS
+bug201_wrong_frame_buffer:                                PASS
+chomp_strings:                                            PASS
+custom_io:                                                PASS
+frame_seek_weirdness:                                     PASS
+freeformat:                                               PASS
+less_bytes_after_seek2:                                   PASS
+less_bytes_after_seek:                                    PASS
+more_bytes_on_second_decode:                              PASS
+out123_errorlist:                                         PASS
+out123_passthrough:                                       PASS
+premature_decoder_change:                                 PASS
+seek_accuracy:                                            PASS
+string_alloc:                                             PASS
+
+PASS
+
+</pre>
+
+<h2><a id="build"></a>Build tests</h2>
+<p>Testing some build setups and looking at libmpg123 size.
+</p>
+<pre class="plain">Testing builds ...
+config:
+build default: PASS
+   libmpg123.so=260K libsyn123.so=74K libout123.so=50K mpg123=139K out123=62K
+config: --disable-shared
+build static: PASS
+   libmpg123.a=381K libsyn123.a=93K libout123.a=86K mpg123=452K out123=150K
+config: --enable-portable
+build portable: PASS
+   libmpg123.so=256K libsyn123.so=74K libout123.so=50K out123=62K
+config: --disable-8bit
+build just no 8 bit: PASS
+   libmpg123.so=252K libsyn123.so=74K libout123.so=50K mpg123=139K out123=62K
+config: --disable-buffer --disable-feeder
+config: --disable-messages --disable-moreinfo
+config: --disable-feature_report --disable-network
+config: --disable-icy --disable-id3v2 --disable-ntom
+config: --disable-8bit --disable-16bit --disable-32bit
+config: --disable-layer1 --disable-layer2
+config: --enable-runtime-tables --disable-downsample
+config: --disable-equalizer --disable-ieeefloat
+build minimal mpg123: PASS
+   libmpg123.so=124K libsyn123.so=74K libout123.so=34K mpg123=115K out123=54K
+config: --disable-buffer --disable-feeder
+config: --disable-messages --disable-moreinfo
+config: --disable-feature_report --disable-network
+config: --disable-icy --disable-id3v2 --disable-ntom
+config: --disable-8bit --disable-16bit --disable-32bit
+config: --disable-layer1 --disable-layer2
+config: --enable-runtime-tables --disable-downsample
+config: --disable-equalizer --disable-ieeefloat
+config: --enable-portable --disable-string
+build minimal libmpg123: PASS
+   libmpg123.so=111K
+config: --disable-buffer --disable-feeder
+config: --disable-messages --disable-moreinfo
+config: --disable-feature_report --disable-network
+config: --disable-icy --disable-id3v2 --disable-ntom
+config: --disable-8bit --disable-16bit --disable-32bit
+config: --disable-layer1 --disable-layer2
+config: --enable-runtime-tables --disable-downsample
+config: --disable-equalizer --disable-ieeefloat
+config: --enable-portable --disable-string
+config: --with-cpu=generic
+build minimal generic libmpg123: PASS
+   libmpg123.so=99K
+config: --with-audio=dummy
+build cross arm-linux-gnueabihf default: PASS
+   libmpg123.so=260K libsyn123.so=74K libout123.so=50K mpg123=139K out123=62K
+config: --with-audio=dummy --disable-buffer
+config: --disable-feeder --disable-messages
+config: --disable-moreinfo --disable-feature_report
+config: --disable-network --disable-icy --disable-id3v2
+config: --disable-ntom --disable-8bit --disable-16bit
+config: --disable-32bit --disable-layer1 --disable-layer2
+config: --enable-runtime-tables --disable-downsample
+config: --disable-equalizer --disable-ieeefloat
+build cross arm-linux-gnueabihf minimal mpg123: PASS
+   libmpg123.so=124K libsyn123.so=74K libout123.so=34K mpg123=115K out123=54K
+config: --with-audio=dummy --disable-buffer
+config: --disable-feeder --disable-messages
+config: --disable-moreinfo --disable-feature_report
+config: --disable-network --disable-icy --disable-id3v2
+config: --disable-ntom --disable-8bit --disable-16bit
+config: --disable-32bit --disable-layer1 --disable-layer2
+config: --enable-runtime-tables --disable-downsample
+config: --disable-equalizer --disable-ieeefloat
+config: --enable-portable --disable-string
+build cross arm-linux-gnueabihf minimal libmpg123: PASS
+   libmpg123.so=111K
+config: --with-audio=dummy
+build cross aarch64-linux-gnu default: PASS
+   libmpg123.so=260K libsyn123.so=74K libout123.so=50K mpg123=139K out123=62K
+config: --with-audio=dummy --disable-buffer
+config: --disable-feeder --disable-messages
+config: --disable-moreinfo --disable-feature_report
+config: --disable-network --disable-icy --disable-id3v2
+config: --disable-ntom --disable-8bit --disable-16bit
+config: --disable-32bit --disable-layer1 --disable-layer2
+config: --enable-runtime-tables --disable-downsample
+config: --disable-equalizer --disable-ieeefloat
+build cross aarch64-linux-gnu minimal mpg123: PASS
+   libmpg123.so=124K libsyn123.so=74K libout123.so=34K mpg123=115K out123=54K
+config: --with-audio=dummy --disable-buffer
+config: --disable-feeder --disable-messages
+config: --disable-moreinfo --disable-feature_report
+config: --disable-network --disable-icy --disable-id3v2
+config: --disable-ntom --disable-8bit --disable-16bit
+config: --disable-32bit --disable-layer1 --disable-layer2
+config: --enable-runtime-tables --disable-downsample
+config: --disable-equalizer --disable-ieeefloat
+config: --enable-portable --disable-string
+build cross aarch64-linux-gnu minimal libmpg123: PASS
+   libmpg123.so=111K
+
+</pre>
+
+<h2>Needed computing power</h2>
+<p>A test (GNU/Linux OS) with 0.60-beta2 showed 3&nbsp;% to 4&nbsp;% CPU
+usage on decoding high quality VBR MP3 with a pentiumII laptop with 366MHz, while a pentium 100MHz can easily handle two mpg123 instances in realtime (plus the mixing daemon that works on decoded data).
+ Well, and more recently,
+	A Core2Duo P8600 core can do 500 times realtime decoding (a track
+	nearly five minutes long decoded in half a second).
+</p>
+<p>
+Also, we have reports from such devices as nintendo DS or Sony PSP, or various embedded systems... 
+</p>
+<h3>Michael said once upon a time</h3>
+<p>
+	Plays Layer 3 in stereo on an AMD-486-120Mhz or (of course) a faster machine.
+</p>
+<p>
+	Just for info: mpg123 plays an average 128bps stream, with about 66%
+	in full quality on an AMD 486-133MHz machine.
+</p>
+</div>
+<div class="w3c">
+<a href="http://validator.w3.org/check/referer" target="_blank">
+<img src="./mpg123, Fast MP3 Player for Linux and UNIX systems_files/html5-badge.png" alt="Hopefully valid HTML!" style="border:0;width:88px;height:31px;">
+   </a>
+   <a href="http://jigsaw.w3.org/css-validator/check/referer" target="_blank">
+<img style="border:0;width:88px;height:31px" src="./mpg123, Fast MP3 Player for Linux and UNIX systems_files/valid-css.png" alt="Valid CSS!"></a>
+</div>
+
+
+
+</body></html>
