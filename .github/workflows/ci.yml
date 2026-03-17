@@ -18,7 +18,8 @@ jobs:
         run: |
           cmake -S project -B build `
             -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
-            -DVCPKG_TARGET_TRIPLET=x64-windows
+            -DVCPKG_TARGET_TRIPLET=x64-windows `
+            -DVCPKG_MANIFEST_DIR="${{ github.workspace }}"
         shell: pwsh
 
       - name: Build
