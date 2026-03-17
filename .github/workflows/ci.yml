@@ -52,3 +52,28 @@ jobs:
           path: |
             build/Release/mp3gain.exe
             build/Release/mpg123.dll
+
+  build-linux:
+    name: Build and Test (Linux / GCC)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get install -y cmake gcc libmpg123-dev
+
+      - name: Configure CMake
+        run: cmake -S project -B build
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run smoke tests
+        run: bash test/smoke_test.sh
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mp3gain-linux-x64
+          path: build/mp3gain

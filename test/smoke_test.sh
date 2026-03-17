@@ -5,7 +5,13 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-EXE="$REPO_ROOT/build/Release/mp3gain.exe"
+if [ -f "$REPO_ROOT/build/Release/mp3gain.exe" ]; then
+    EXE="$REPO_ROOT/build/Release/mp3gain.exe"
+elif [ -f "$REPO_ROOT/build/mp3gain" ]; then
+    EXE="$REPO_ROOT/build/mp3gain"
+else
+    EXE="$REPO_ROOT/build/mp3gain"
+fi
 FIXTURE_DIR="$REPO_ROOT/test/fixtures"
 TMP_DIR="$(mktemp -d)"
 T1="$TMP_DIR/test1.mp3"

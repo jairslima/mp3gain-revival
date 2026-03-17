@@ -697,7 +697,6 @@ int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchang
   int gr;
   unsigned char gain;
   int bitridx;
-  int freqidx;
   long bytesinframe;
   int sideinfo_len;
   int mpegver;
@@ -833,7 +832,6 @@ int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchang
 				}
 				else {
 					mpegver = (curframe[1] >> 3) & 0x03;
-					freqidx = (curframe[2] >> 2) & 0x03;
 
 					bytesinframe = arrbytesinframe[bitridx] + ((curframe[2] >> 1) & 0x01);
 
@@ -867,7 +865,6 @@ int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchang
 			if (ok) {
 				mpegver = (curframe[1] >> 3) & 0x03;
 				crcflag = curframe[1] & 0x01;
-				freqidx = (curframe[2] >> 2) & 0x03;
 
 				bytesinframe = arrbytesinframe[bitridx] + ((curframe[2] >> 1) & 0x01);
 				mode = (curframe[3] >> 6) & 0x03;

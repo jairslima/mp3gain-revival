@@ -4,8 +4,10 @@
 
 #include "apetag.h"
 #include "cli.h"
+#include "exec.h"
 #include "gain_analysis.h"
 #include "mp3gain.h"
+#include "prep.h"
 #include <mpg123.h>
 
 #include "process.h"
@@ -363,7 +365,7 @@ unsigned long mp3gain_prepare_first_mp3_frame(
     int *mode,
     int *mpegver,
     int *freqidx,
-    int *frame,
+    unsigned long *frame,
     long arrbytesinframe[16]
 )
 {

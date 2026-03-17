@@ -198,13 +198,41 @@ The next most valuable step is to continue from a real Linux-capable environment
 - Do not treat lack of Linux success yet as a documentation problem first.
 - The next developer should extract the first actual Linux compiler/configure failures, then correct the code and docs based on those results.
 
-## Recommended Next Steps
-1. Test actual MP3 analysis: `mp3gain.exe somefile.mp3`
-2. Test gain application: `mp3gain.exe -r somefile.mp3`
-3. Add smoke tests for analysis-only flows.
-4. Set up GitHub repository and push.
-5. Add CI (GitHub Actions) for Windows build validation.
-6. Validate Linux build via WSL or CI.
+## 2026-03-17 Linux Build Session
+
+### Linux Build: SUCCESS
+- Environment: WSL2, Ubuntu 24.04, gcc 13.3.0, cmake 3.28.3, libmpg123-dev 1.32.5
+- `cmake -S project -B build` completed without errors.
+- `cmake --build build` completed without errors (after fixes below).
+- Binary confirmed working: `./build/mp3gain version 1.6.2`
+
+### Warnings Fixed (all resolved, build now warning-free)
+
+1. **`process.c` missing `#include "prep.h"` and `#include "exec.h"`:**
+   `mp3gain_prepare_file`, `mp3gain_compute_recalc_flags`, and `mp3gain_handle_simple_action`
+   were declared in their respective headers but `process.c` did not include them,
+   causing implicit-declaration warnings on Linux gcc.
+   Fix: added `#include "exec.h"` and `#include "prep.h"` to `process.c`.
+
+2. **Type mismatch in `mp3gain_prepare_first_mp3_frame` — `int *frame` vs `unsigned long *`:**
+   The parameter was declared as `int *frame` in both `process.c` and `process.h`,
+   but all callers pass `unsigned long *frame`.
+   Fix: changed parameter type to `unsigned long *frame` in both files.
+
+3. **`apetag.c` — unused variables `flags` and `curFieldNum`:**
+   Both were assigned but never read. `flags` was used only to advance the pointer `p`;
+   `curFieldNum` was reset to 0 at loop start and never incremented.
+   Fix: removed declarations and dead assignments; preserved `p += 4` for `flags` field skip.
+
+4. **`mp3gain.c` — unused variable `freqidx` in `changeGain`:**
+   Assigned in two places inside the frame-scan loop but never read.
+   Fix: removed declaration and both assignments.
+
+### Recommended Next Steps
+1. Add a Linux job to the GitHub Actions CI workflow.
+2. Run existing smoke tests under Linux and confirm identical output to Windows.
+3. Add smoke-test coverage for tag read/write, undo, and clipping flows on Linux.
+4. After Linux CI is green, proceed to Phase 4 release packaging.
 
 ## Current Main Shape
 - `project\mp3gain.c` `main()` is now close to a thin coordinator.

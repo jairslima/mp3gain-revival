@@ -136,7 +136,7 @@ unsigned long mp3gain_prepare_first_mp3_frame(
     int *mode,
     int *mpegver,
     int *freqidx,
-    int *frame,
+    unsigned long *frame,
     long arrbytesinframe[16]
 );
 

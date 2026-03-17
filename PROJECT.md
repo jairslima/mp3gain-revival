@@ -79,8 +79,10 @@ Localização original: `vcpkg_installed/vcpkg/blds/mpg123/x64-windows-rel/src/l
 
 ## Estado Atual
 - **Fase:** 3 do Roadmap (Verificação) - **EM ANDAMENTO**
-- **Build:** Funcional localmente no Windows com MSVC e libmpg123
-- **Binário:** `build/Release/mp3gain.exe` versão 1.6.2
+- **Build Windows:** Funcional localmente com MSVC e libmpg123
+- **Build Linux:** Funcional (validado em WSL2/Ubuntu 24.04, gcc 13.3, cmake 3.28, libmpg123-dev 1.32.5)
+- **Binário Windows:** `build/Release/mp3gain.exe` versão 1.6.2
+- **Binário Linux:** `build/mp3gain` versão 1.6.2
 - **Análise por faixa:** FUNCIONANDO
 - **Análise de álbum:** FUNCIONANDO (dois arquivos ou mais)
 - **Aplicação de gain por faixa (`-r`):** FUNCIONANDO
@@ -112,13 +114,13 @@ Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
 
 ## Próximos Passos
 1. Confirmar e estabilizar o CI do Windows
-2. Adicionar cobertura automatizada para tag read/write, undo e clipping
-3. Verificar build no Linux em ambiente Linux real e capturar os primeiros erros concretos de portabilidade
-4. Alinhar a documentação pública ao estado real do repositório e manter o acervo em `archive/` curado
-5. Criar pacote de release com binário + DLL
+2. Adicionar job Linux no CI (GitHub Actions)
+3. Rodar smoke tests no Linux e validar comportamento idêntico ao Windows
+4. Adicionar cobertura automatizada para tag read/write, undo e clipping
+5. Criar pacote de release com binário + DLL (Windows) e binário nativo (Linux)
 
 ## Problemas Conhecidos
-- A DLL do mpg123 precisa ser distribuída junto com o executável
+- A DLL do mpg123 precisa ser distribuída junto com o executável no Windows
 - O build do vcpkg local usa a build de debug do mpg123 para dbg e release compilada manualmente
 - A cobertura automatizada ainda é parcial; smoke tests existem, mas a verificação completa de Phase 3 não
   terminou

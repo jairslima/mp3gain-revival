@@ -151,7 +151,6 @@ int ReadMP3APETag ( FILE *fp,  struct MP3GainTagInfo *info, struct APETagStruct 
 {
     unsigned long               vsize;
     unsigned long               isize;
-    unsigned long               flags;
 	unsigned long				remaining;
     char*                       buff;
     char*                       p;
@@ -162,7 +161,6 @@ int ReadMP3APETag ( FILE *fp,  struct MP3GainTagInfo *info, struct APETagStruct 
     unsigned long               TagLen;
     unsigned long               TagCount;
     unsigned long               origTagCount, otherFieldsCount;
-    unsigned long               curFieldNum;
     unsigned long               Ver;
     char*                       name;
     int                         is_info;
@@ -200,11 +198,10 @@ int ReadMP3APETag ( FILE *fp,  struct MP3GainTagInfo *info, struct APETagStruct 
 
 
     end = buff + TagLen - sizeof (T);
-	curFieldNum = 0;
     for ( p = buff; p < end && TagCount--; ) {
 		if (end - p < 8) break;
         vsize = Read_LE_Uint32 (p); p += 4;
-        flags = Read_LE_Uint32 (p); p += 4;
+        p += 4; /* skip flags field */
 
 		remaining = (unsigned long) (end - p);
         isize = strlen_max (p, remaining);
