@@ -78,8 +78,8 @@ A DLL de runtime do mpg123 deve estar no mesmo diretório que mp3gain.exe.
 Localização original: `vcpkg_installed/vcpkg/blds/mpg123/x64-windows-rel/src/libmpg123/mpg123.dll`
 
 ## Estado Atual
-- **Fase:** 3 do Roadmap (Verificação) - **COMPLETA**
-- **Build:** Funcional no Windows com MSVC e libmpg123
+- **Fase:** 3 do Roadmap (Verificação) - **EM ANDAMENTO**
+- **Build:** Funcional localmente no Windows com MSVC e libmpg123
 - **Binário:** `build/Release/mp3gain.exe` versão 1.6.2
 - **Análise por faixa:** FUNCIONANDO
 - **Análise de álbum:** FUNCIONANDO (dois arquivos ou mais)
@@ -87,7 +87,8 @@ Localização original: `vcpkg_installed/vcpkg/blds/mpg123/x64-windows-rel/src/l
 - **Undo de gain (`-u`):** FUNCIONANDO
 - **Aplicação de gain de álbum (`-a`):** FUNCIONANDO
 - **REPLAYGAIN_REFERENCE_LOUDNESS:** Corrigido de 89.0 para 95.5 dB
-- **Git:** 5 commits no master
+- **Smoke tests:** adicionados com fixtures reproduzíveis em `test/fixtures/`
+- **CI:** workflow Windows criado; estabilização final ainda depende da validação da run mais recente
 
 ## Bugs Corrigidos na Fase 3 (2026-03-16)
 Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
@@ -110,15 +111,17 @@ Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
    Fix: não sobrescrever `*ok` com o retorno da loop; deixar `*ok = 1`.
 
 ## Próximos Passos
-1. Adicionar testes smoke automatizados
-2. Configurar CI (GitHub Actions para Windows)
+1. Confirmar e estabilizar o CI do Windows
+2. Adicionar cobertura automatizada para tag read/write, undo e clipping
 3. Verificar build no Linux (via WSL ou CI)
-4. Publicar no GitHub como fork LGPL oficial
+4. Alinhar a documentação pública ao estado real do repositório e decidir a publicação do acervo em `archive/`
 5. Criar pacote de release com binário + DLL
 
 ## Problemas Conhecidos
 - A DLL do mpg123 precisa ser distribuída junto com o executável
 - O build do vcpkg local usa a build de debug do mpg123 para dbg e release compilada manualmente
-- Não há testes automatizados ainda
+- A cobertura automatizada ainda é parcial; smoke tests existem, mas a verificação completa de Phase 3 não
+  terminou
 - O build Linux ainda não foi validado neste workspace
 - O código de suporte a DLL (replaygaindll.c) não está no path de build principal
+- O acervo histórico em `archive/` está organizado localmente, mas ainda não foi publicado integralmente via Git

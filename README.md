@@ -60,16 +60,17 @@ This repository is being rebuilt from archived MP3Gain materials with the goal o
 - No Git history was recovered
 - The Visual Studio project references `mpglibDBL/*` files that are not present in the extracted source package
 - The Unix `Makefile` expects an external `libmpg123`
-- Build validation has not been completed in this workspace
+- Windows build validation has been completed locally, but CI stabilization and cross-platform validation are still incomplete
 - The historical Windows GUI source is not present in this archive set
+- The local `archive/` tree is organized in this workspace but has not yet been fully published to Git
 - The local dependency tree in `vcpkg_installed/` can become very large and is not part of the active source review path
 
 ## Recommended Next Steps
-1. Normalize the active source tree in `project/`
-2. Publish the repository position clearly as an LGPL fork of MP3Gain
-3. Restore a working build on at least one target platform
-4. Split the monolithic processing path into portable modules
-5. Add CI, tests, release notes, and contributor documentation
+1. Stabilize the Windows CI workflow and confirm the new smoke-test fixture path
+2. Extend verification to tag read/write, undo, clipping, and Linux build validation
+3. Continue reducing orchestration and global-state coupling between `mp3gain.c` and `process.c`
+4. Decide what historical material from `archive/` should be published in Git versus kept only in the local recovery workspace
+5. Prepare release notes, packaging, and contributor-facing documentation once verification is credible
 
 ## License
 The recovered source package includes the LGPL text. A copy is available at the repository root in `LICENSE`.
