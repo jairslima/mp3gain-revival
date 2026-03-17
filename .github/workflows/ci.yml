@@ -14,18 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install mpg123 via vcpkg
+      - name: Configure CMake (vcpkg manifest installs mpg123 automatically)
         run: |
-          vcpkg install mpg123:x64-windows
-          echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" >> $env:GITHUB_ENV
-        shell: pwsh
-
-      - name: Configure CMake
-        run: |
-          $vcpkg = $env:VCPKG_INSTALLATION_ROOT
           cmake -S project -B build `
-            -DMPG123_INCLUDE_DIR="$vcpkg/installed/x64-windows/include" `
-            -DMPG123_LIBRARY="$vcpkg/installed/x64-windows/lib/mpg123.lib"
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows
         shell: pwsh
 
       - name: Build
@@ -34,8 +27,14 @@ jobs:
 
       - name: Copy runtime DLL
         run: |
-          $vcpkg = $env:VCPKG_INSTALLATION_ROOT
-          Copy-Item "$vcpkg/installed/x64-windows/bin/mpg123.dll" "build/Release/"
+          $dll = Get-ChildItem "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows\bin\mpg123.dll" -ErrorAction SilentlyContinue
+          if ($dll) {
+            Copy-Item $dll.FullName "build\Release\"
+          } else {
+            # fallback: search vcpkg_installed in repo
+            $dll2 = Get-ChildItem "vcpkg_installed" -Recurse -Filter "mpg123.dll" | Select-Object -First 1
+            if ($dll2) { Copy-Item $dll2.FullName "build\Release\" }
+          }
         shell: pwsh
 
       - name: Run smoke tests
