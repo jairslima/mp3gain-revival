@@ -14,10 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure CMake (vcpkg manifest installs mpg123 automatically)
+      - name: Setup vcpkg at baseline commit
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 'efa4634bd526b87559684607d2cbbdeeec0f07d8'
+
+      - name: Configure CMake
         run: |
           cmake -S project -B build `
-            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows `
             -DVCPKG_MANIFEST_DIR="${{ github.workspace }}"
         shell: pwsh
@@ -28,13 +33,11 @@ jobs:
 
       - name: Copy runtime DLL
         run: |
-          $dll = Get-ChildItem "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows\bin\mpg123.dll" -ErrorAction SilentlyContinue
+          $dll = Get-ChildItem "${{ github.workspace }}\vcpkg\installed\x64-windows\bin\mpg123.dll" -ErrorAction SilentlyContinue
           if ($dll) {
             Copy-Item $dll.FullName "build\Release\"
           } else {
-            # fallback: search vcpkg_installed in repo
-            $dll2 = Get-ChildItem "vcpkg_installed" -Recurse -Filter "mpg123.dll" | Select-Object -First 1
-            if ($dll2) { Copy-Item $dll2.FullName "build\Release\" }
+            Write-Warning "mpg123.dll not found in vcpkg installed -- smoke tests may fail"
           }
         shell: pwsh
 
