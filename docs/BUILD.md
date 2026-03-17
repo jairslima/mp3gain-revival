@@ -33,6 +33,12 @@ cmake -S project -B build `
 cmake --build build --config Release
 ```
 
+## Smoke Tests
+
+- The CI smoke test script uses immutable fixtures from `test/fixtures/`
+- Each run copies those fixtures to a temporary directory before applying gain changes or undo operations
+- Do not depend on local working copies in `test/` for CI correctness
+
 ## Known Issues
 - The recovered Visual Studio project references missing `mpglibDBL/*` files
 - The legacy `VerInfo.rc` is preserved for reference, but the CMake path now generates a fresh Windows version resource

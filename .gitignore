@@ -21,3 +21,12 @@ dist/
 build/
 vcpkg_installed/
 .vs/
+
+# Local smoke-test artifacts
+test/test1.mp3
+test/test1_backup.mp3
+test/test2.mp3
+test/stdout.txt
+test/stdout_dbg.txt
+test/stderr.txt
+test/stderr_dbg.txt

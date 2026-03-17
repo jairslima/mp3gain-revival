@@ -6,10 +6,10 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 EXE="$REPO_ROOT/build/Release/mp3gain.exe"
-T1="$REPO_ROOT/test/test1.mp3"
-T1B="$REPO_ROOT/test/test1_backup.mp3"
-T2="$REPO_ROOT/test/test2.mp3"
-T2B="$REPO_ROOT/test/test2_backup.mp3"
+FIXTURE_DIR="$REPO_ROOT/test/fixtures"
+TMP_DIR="$(mktemp -d)"
+T1="$TMP_DIR/test1.mp3"
+T2="$TMP_DIR/test2.mp3"
 
 PASS=0
 FAIL=0
@@ -41,15 +41,18 @@ check_absent() {
     fi
 }
 
-restore() {
-    cp "$T1B" "$T1"
-    cp "$T2B" "$T2"
+cleanup() {
+    rm -rf "$TMP_DIR"
 }
 
-require_backup() {
-    if [ ! -f "$T1B" ] || [ ! -f "$T2B" ]; then
-        echo "ERROR: backup files not found ($T1B, $T2B)"
-        echo "Run: cp test/test1.mp3 test/test1_backup.mp3 && cp test/test2.mp3 test/test2_backup.mp3"
+restore() {
+    cp "$FIXTURE_DIR/test1.mp3" "$T1"
+    cp "$FIXTURE_DIR/test2.mp3" "$T2"
+}
+
+require_fixtures() {
+    if [ ! -f "$FIXTURE_DIR/test1.mp3" ] || [ ! -f "$FIXTURE_DIR/test2.mp3" ]; then
+        echo "ERROR: fixture files not found in $FIXTURE_DIR"
         exit 1
     fi
 }
@@ -68,8 +71,10 @@ echo "==========================="
 echo "EXE: $EXE"
 echo ""
 
+trap cleanup EXIT
+
 require_exe
-require_backup
+require_fixtures
 restore
 
 # --- Test 1: version ---
