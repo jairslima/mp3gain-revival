@@ -113,7 +113,7 @@ Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
 ## Próximos Passos
 1. Confirmar e estabilizar o CI do Windows
 2. Adicionar cobertura automatizada para tag read/write, undo e clipping
-3. Verificar build no Linux (via WSL ou CI)
+3. Verificar build no Linux em ambiente Linux real e capturar os primeiros erros concretos de portabilidade
 4. Alinhar a documentação pública ao estado real do repositório e manter o acervo em `archive/` curado
 5. Criar pacote de release com binário + DLL
 
@@ -124,3 +124,17 @@ Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
   terminou
 - O build Linux ainda não foi validado neste workspace
 - O código de suporte a DLL (replaygaindll.c) não está no path de build principal
+
+## Ponto de Retomada Para Ambiente Linux
+- O próximo corte técnico recomendado é **configure/build Linux primeiro**, sem começar por smoke tests.
+- O objetivo é descobrir os primeiros erros reais de portabilidade antes de qualquer refatoração maior.
+- Prováveis pontos de atrito:
+  - globais `extern` cruzando `cli.c`, `prep.c`, `exec.c`, `process.c` e `mp3gain.c`
+  - helpers críticos ainda presos em `mp3gain.c`
+  - lógica condicional de plataforma em `mp3gain.c`, `apetag.c`, `id3tag.c` e `rg_error.h`
+- Ordem sugerida:
+  1. instalar/confirmar `cmake`, compilador C e `libmpg123` dev
+  2. rodar `cmake -S project -B build`
+  3. rodar `cmake --build build`
+  4. corrigir o primeiro erro concreto
+  5. só depois discutir job Linux no CI ou smoke tests Linux

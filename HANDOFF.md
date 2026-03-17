@@ -127,6 +127,77 @@ mp3gain.exe version 1.6.2   (powershell -Command "& 'build/Release/mp3gain.exe' 
 - Linux/macOS build not yet validated.
 - LGPL compliance should remain explicit in docs and release process.
 
+## 2026-03-17 Status Update
+
+### Recent Commits Now On `master`
+- `0269f0d` `test: make smoke fixtures reproducible in CI`
+- `539c051` `docs: align project status with current workspace`
+- `2ff9b19` `docs: publish archived project materials`
+- `527e9c1` `test: cover tags and auto-clip flows`
+
+### Verification State
+- Windows local build remains working.
+- Windows CI was updated to use reproducible fixtures in `test/fixtures/`.
+- Smoke coverage now includes:
+  - version
+  - track analysis
+  - album analysis
+  - apply track gain
+  - undo
+  - apply album gain
+  - APE tag round-trip (`-r`, `-s c`, `-s d`)
+  - ID3/APE mode separation (`-s i` vs `-s a`)
+  - auto-clip flow (`-k -d 20 -r`)
+- The local shell environment in this Windows workspace could not run `bash` or WSL reliably, so Linux validation was not performed here.
+
+### Archive Publication
+- `archive/` is now published in Git and matches the repository documentation.
+- Historical source ZIP, binary ZIP, translation ZIPs, and mirrored site/reference pages are now part of the remote repository.
+
+### Documentation Alignment
+- `README.md` and `PROJECT.md` were corrected to stop overstating Phase 3 completion.
+- Current position is:
+  - Phase 2: strongly advanced
+  - Phase 3: in progress
+  - Windows local validation: done
+  - Windows CI stabilization: in progress
+  - Linux validation: still pending
+
+## Next Developer Focus: Linux Environment
+
+The next most valuable step is to continue from a real Linux-capable environment.
+
+### Immediate Goal
+- Add or validate a Linux configure/build path before attempting full Linux smoke coverage.
+
+### Recommended First Actions
+1. Install or confirm presence of `cmake`, a C compiler, and `libmpg123` development files.
+2. Run `cmake -S project -B build` on Linux.
+3. Run `cmake --build build`.
+4. Fix the first real portability errors instead of pre-emptive large refactors.
+5. Only after successful build, decide whether to add a Linux CI build job or Linux smoke tests.
+
+### Most Likely Technical Friction Points
+- Cross-translation-unit global state shared via many `extern` declarations between:
+  - `project\cli.c`
+  - `project\prep.c`
+  - `project\exec.c`
+  - `project\process.c`
+  - `project\mp3gain.c`
+- Remaining critical helpers still living in `project\mp3gain.c`, especially:
+  - `WriteMP3GainTag(...)`
+  - `queryUserForClipping(...)`
+- Residual platform-specific logic in:
+  - `project\mp3gain.c`
+  - `project\apetag.c`
+  - `project\id3tag.c`
+  - `project\rg_error.h`
+- Historical Windows DLL support in `project\replaygaindll.c` is not in the main build path, but should remain treated as legacy-only context.
+
+### Important Constraint
+- Do not treat lack of Linux success yet as a documentation problem first.
+- The next developer should extract the first actual Linux compiler/configure failures, then correct the code and docs based on those results.
+
 ## Recommended Next Steps
 1. Test actual MP3 analysis: `mp3gain.exe somefile.mp3`
 2. Test gain application: `mp3gain.exe -r somefile.mp3`
