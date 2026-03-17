@@ -137,6 +137,40 @@ restore
 code=$?
 if [ "$code" -eq 0 ]; then pass "analysis exits 0"; else fail "analysis exits 0 (got $code)"; fi
 
+# --- Test 8: APE tag write/read/delete ---
+echo ""
+echo "[8] APE tag round-trip"
+restore
+"$EXE" -r "$T1" > /dev/null 2>&1
+out=$("$EXE" -s c "$T1" 2>&1)
+check "APE tag stores zero-step track gain" "Track\" mp3 gain change: 0" "$out"
+check "APE tag stores updated max gain" "Max mp3 global gain field: 204" "$out"
+"$EXE" -s d "$T1" > /dev/null 2>&1
+out=$("$EXE" -s c "$T1" 2>&1)
+check_absent "deleted APE tag removes stored track gain" "Track\" mp3 gain change:" "$out"
+check_absent "deleted APE tag removes stored min/max gain" "Max mp3 global gain field:" "$out"
+
+# --- Test 9: ID3/APE tag mode separation ---
+echo ""
+echo "[9] ID3 tag mode separation"
+restore
+"$EXE" -s i -r "$T1" > /dev/null 2>&1
+out_id3=$("$EXE" -s i -s c "$T1" 2>&1)
+out_ape=$("$EXE" -s a -s c "$T1" 2>&1)
+check "ID3 mode reads stored track gain" "Track\" mp3 gain change: 0" "$out_id3"
+check "ID3 mode reads stored max gain" "Max mp3 global gain field: 204" "$out_id3"
+check_absent "APE mode stays empty after ID3-only write" "Track\" mp3 gain change:" "$out_ape"
+
+# --- Test 10: auto-clip path ---
+echo ""
+echo "[10] Auto-clip apply (-k)"
+restore
+out=$("$EXE" -k -d 20 -r "$T1" 2>&1)
+check "auto-clip reports clipped gain" "Applying auto-clipped mp3 gain change of -4" "$out"
+check "auto-clip reports original suggestion" "Original suggested gain was 7" "$out"
+out=$("$EXE" "$T1" 2>&1)
+check "auto-clip leaves adjusted max gain" "Max mp3 global gain field: 206" "$out"
+
 # --- cleanup ---
 restore
 
