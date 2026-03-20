@@ -30,3 +30,7 @@ test/stdout.txt
 test/stdout_dbg.txt
 test/stderr.txt
 test/stderr_dbg.txt
+test/_tmp_corrupt_probe/
+
+# Local assistant state
+.claude/

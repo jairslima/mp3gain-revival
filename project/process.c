@@ -25,23 +25,12 @@ extern int checkTagOnly;
 extern int undoChanges;
 extern double lastfreq;
 extern int totFiles;
-extern unsigned char *wrdpntr;
-extern unsigned char buffer[];
-extern unsigned char *minGain;
-extern unsigned char *maxGain;
-extern long inbuffer;
-extern unsigned long bitidx;
-extern unsigned long filepos;
-extern unsigned char *curframe;
-extern long arrbytesinframe[16];
 extern const double frequency[4][4];
 extern FILE *inf;
 
 int getSizeOfFile(char *filename);
 unsigned long fillBuffer(long savelastbytes);
 unsigned long reportPercentAnalyzed(unsigned long percent, unsigned long bytes);
-unsigned long skipID3v2(void);
-unsigned long frameSearch(int newfile);
 void WriteMP3GainTag(char *filename
 #ifdef AACGAIN
     , AACGainHandle aacH
@@ -58,7 +47,6 @@ int changeGain(char *filename
 #endif
     , int leftgainchange, int rightgainchange);
 int queryUserForClipping(char *argv_mainloop, int intGainChange);
-void scanFrameGain(void);
 void convert_decout(float *decout, int nprocsamp, int nchan, Float_t *lsamples, Float_t *rsamples);
 float find_maxsample(float *decout, int nsamples, float maxsample);
 
@@ -111,13 +99,13 @@ int mp3gain_init_decoder(mpg123_handle **mh, int *decodeSuccess)
     ) {
         fprintf(stderr, "Failed to create/setup mpg123 handle: %s\n",
             *mh ? mpg123_strerror(*mh) : mpg123_plain_strerror(*decodeSuccess));
-        exit(1);
+        return 0;
     }
 
     return 1;
 }
 
-void mp3gain_prepare_runtime_batch(
+int mp3gain_prepare_runtime_batch(
     int argc,
     char **argv,
     int fileStart,
@@ -137,6 +125,25 @@ void mp3gain_prepare_runtime_batch(
     *aacInfo = (AACGainHandle *)malloc(sizeof(AACGainHandle) * argc);
 #endif
 
+    if (!(*fileok) || !(*tagInfo) || !(*fileTags)
+#ifdef AACGAIN
+        || !(*aacInfo)
+#endif
+    ) {
+        fprintf(stderr, "Out of memory while preparing runtime state.\n");
+        free(*fileok);
+        free(*tagInfo);
+        free(*fileTags);
+        *fileok = NULL;
+        *tagInfo = NULL;
+        *fileTags = NULL;
+#ifdef AACGAIN
+        free(*aacInfo);
+        *aacInfo = NULL;
+#endif
+        return 0;
+    }
+
     mp3gain_cli_print_table_header(databaseFormat, checkTagOnly, undoChanges);
     totFiles = argc - fileStart;
     mp3gain_prepare_files_batch(
@@ -145,6 +152,7 @@ void mp3gain_prepare_runtime_batch(
             , *aacInfo
 #endif
     );
+    return 1;
 }
 
 void mp3gain_prepare_files_batch(
@@ -208,6 +216,7 @@ int mp3gain_run_batch(
 )
 {
     int albumRecalc;
+    struct MP3GainBatchContext batch = { gSuccess, first, numFiles, &lastfreq };
 
     albumRecalc = mp3gain_compute_recalc_flags(
         argc, fileStart, tagInfo, applyTrack, analysisTrack, maxAmpOnly
@@ -217,8 +226,7 @@ int mp3gain_run_batch(
         argc, argv, fileStart, tagInfo, fileTags, fileok, albumRecalc,
         databaseFormat, maxAmpOnly, dBGainMod, mp3GainMod, applyTrack,
         applyAlbum, saveTime, skipTag, autoClip, ignoreClipWarning,
-        directSingleChannelGain, directGainVal, directGain, gSuccess,
-        first, numFiles, dBchange, intGainChange
+        directSingleChannelGain, directGainVal, directGain, &batch, dBchange, intGainChange
 #ifdef AACGAIN
         , aacInfo
 #endif
@@ -271,9 +279,7 @@ unsigned long mp3gain_begin_mp3_scan(
     LayerSet = Reckless;
     *maxgain = 0;
     *mingain = 255;
-    inbuffer = 0;
-    filepos = 0;
-    bitidx = 0;
+    mp3gain_reset_mp3_scan_state();
     return fillBuffer(0);
 }
 
@@ -282,9 +288,8 @@ unsigned long mp3gain_prime_mp3_frames(int recalc)
     unsigned long ok = !0;
 
     if (recalc > 0) {
-        wrdpntr = buffer;
-        ok = skipID3v2();
-        ok = frameSearch(!0);
+        mp3gain_prime_mp3_buffer_pointer();
+        ok = mp3gain_skip_id3_and_find_first_frame();
     }
 
     return ok;
@@ -338,79 +343,24 @@ void mp3gain_sync_mp3_frequency(
     int mpegver,
     int freqidx,
     int maxAmpOnly,
-    int *first,
-    double *lastfreq,
+    struct MP3GainBatchContext *batch,
     char *analysisError,
     const double frequency[4][4]
 )
 {
     if (!maxAmpOnly) {
-        if (*first) {
-            *lastfreq = frequency[mpegver][freqidx];
-            InitGainAnalysis((long)(*lastfreq * 1000.0));
+        if (*(batch->first)) {
+            *(batch->lastfreq) = frequency[mpegver][freqidx];
+            InitGainAnalysis((long)(*(batch->lastfreq) * 1000.0));
             *analysisError = 0;
-            *first = 0;
-        } else if (frequency[mpegver][freqidx] != *lastfreq) {
-            *lastfreq = frequency[mpegver][freqidx];
-            ResetSampleFrequency((long)(*lastfreq * 1000.0));
+            *(batch->first) = 0;
+        } else if (frequency[mpegver][freqidx] != *(batch->lastfreq)) {
+            *(batch->lastfreq) = frequency[mpegver][freqidx];
+            ResetSampleFrequency((long)(*(batch->lastfreq) * 1000.0));
         }
     } else {
         *analysisError = 0;
     }
-}
-
-unsigned long mp3gain_prepare_first_mp3_frame(
-    unsigned char *curframe,
-    char *filename,
-    int *mode,
-    int *mpegver,
-    int *freqidx,
-    unsigned long *frame,
-    long arrbytesinframe[16]
-)
-{
-    unsigned char *xingcheck;
-    int sideinfo_len;
-    unsigned long ok = !0;
-    bitidx = (curframe[2] >> 4) & 0x0F;
-
-    *mode = (curframe[3] >> 6) & 3;
-
-    if ((curframe[1] & 0x08) == 0x08) {
-        sideinfo_len = (*mode == 3) ? 4 + 17 : 4 + 32;
-    } else {
-        sideinfo_len = (*mode == 3) ? 4 + 9 : 4 + 17;
-    }
-
-    if (!(curframe[1] & 0x01)) {
-        sideinfo_len += 2;
-    }
-
-    xingcheck = curframe + sideinfo_len;
-    if ((xingcheck[0] == 'X' && xingcheck[1] == 'i' && xingcheck[2] == 'n' && xingcheck[3] == 'g') ||
-        (xingcheck[0] == 'I' && xingcheck[1] == 'n' && xingcheck[2] == 'f' && xingcheck[3] == 'o')) {
-        if (bitidx == 0) {
-            fprintf(stderr, "%s is free format (not currently supported)\n", filename);
-            fflush(stderr);
-            ok = 0;
-        } else {
-            int bytesinframe;
-
-            *mpegver = (curframe[1] >> 3) & 0x03;
-            *freqidx = (curframe[2] >> 2) & 0x03;
-            bytesinframe = arrbytesinframe[bitidx] + ((curframe[2] >> 1) & 0x01);
-            wrdpntr = curframe + bytesinframe;
-            ok = frameSearch(0);
-        }
-    }
-
-    *frame = 1;
-    if (ok) {
-        *mpegver = (curframe[1] >> 3) & 0x03;
-        *freqidx = (curframe[2] >> 2) & 0x03;
-    }
-
-    return ok;
 }
 
 int mp3gain_finalize_track_analysis(
@@ -748,8 +698,9 @@ void mp3gain_write_dirty_tags(
     }
 }
 
-void mp3gain_process_frame_audio(
+int mp3gain_process_frame_audio(
     mpg123_handle *mh,
+    char *filename,
     long bytesinframe,
     int nchan,
     int recalc,
@@ -759,17 +710,21 @@ void mp3gain_process_frame_audio(
     Float_t *lsamples,
     Float_t *rsamples,
     Float_t *maxsample,
-    char *analysisError
+    char *analysisError,
+    int *gSuccess,
+    int *fileError
 )
 {
     if ((recalc & MP3GAIN_AMP_RECALC) || (recalc & MP3GAIN_FULL_RECALC)) {
         size_t decbytes = 0;
         unsigned char *decout;
 
-        scanFrameGain();
-        if (MPG123_OK != mpg123_feed(mh, curframe, bytesinframe)) {
-            fprintf(stderr, "Feeding mpg123 failed: %s\n", mpg123_strerror(mh));
-            exit(1);
+        mp3gain_scan_current_frame_gain();
+        if (MPG123_OK != mpg123_feed(mh, mp3gain_get_current_frame_pointer(), bytesinframe)) {
+            fprintf(stderr, "Feeding mpg123 failed for %s: %s\n", filename, mpg123_strerror(mh));
+            *gSuccess = 0;
+            *fileError = 1;
+            return 0;
         }
 
         *decodeSuccess = mpg123_decode_frame(mh, NULL, &decout, &decbytes);
@@ -782,8 +737,10 @@ void mp3gain_process_frame_audio(
 
             mpg123_getformat(mh, NULL, &channels, &enc);
             if (enc != MPG123_ENC_FLOAT_32 || channels != nchan) {
-                fprintf(stderr, "Unexpected format returned by libmpg123.\n");
-                exit(1);
+                fprintf(stderr, "Unexpected format returned by libmpg123 for %s.\n", filename);
+                *gSuccess = 0;
+                *fileError = 1;
+                return 0;
             }
         } else {
 #if (MPG123_API_VERSION < 45)
@@ -792,8 +749,10 @@ void mp3gain_process_frame_audio(
                 decbytes = 0;
             } else {
 #endif
-                fprintf(stderr, "Failed to decode MPEG frame: %s\n", mpg123_strerror(mh));
-                exit(1);
+                fprintf(stderr, "Failed to decode MPEG frame in %s: %s\n", filename, mpg123_strerror(mh));
+                *gSuccess = 0;
+                *fileError = 1;
+                return 0;
 #if (MPG123_API_VERSION < 45)
             }
 #endif
@@ -801,15 +760,17 @@ void mp3gain_process_frame_audio(
 
         *nprocsamp = decbytes / sizeof(float) / nchan;
         if (*nprocsamp > sizeof(Float_t[1152]) / sizeof(Float_t)) {
-            fprintf(stderr, "Too many samples in libmpg123 output.\n");
-            exit(1);
+            fprintf(stderr, "Too many samples in libmpg123 output for %s.\n", filename);
+            *gSuccess = 0;
+            *fileError = 1;
+            return 0;
         }
 
         convert_decout((float*)decout, *nprocsamp, nchan, lsamples, rsamples);
         *maxsample = find_maxsample((float*)decout, (*nprocsamp) * nchan, *maxsample);
     } else {
         *decodeSuccess = !MPG123_OK;
-        scanFrameGain();
+        mp3gain_scan_current_frame_gain();
     }
 
     if (*decodeSuccess == MPG123_OK) {
@@ -820,10 +781,13 @@ void mp3gain_process_frame_audio(
             }
         }
     }
+
+    return 1;
 }
 
 unsigned long mp3gain_process_mp3_frame_iteration(
     mpg123_handle *mh,
+    char *filename,
     long bytesinframe,
     int nchan,
     int recalc,
@@ -836,17 +800,20 @@ unsigned long mp3gain_process_mp3_frame_iteration(
     unsigned char *maxgain,
     unsigned char *mingain,
     char *analysisError,
+    int *gSuccess,
+    int *fileError,
     unsigned long frame,
     long gFilesize
 )
 {
-    if (inbuffer >= bytesinframe) {
-        maxGain = maxgain;
-        minGain = mingain;
-        mp3gain_process_frame_audio(
-            mh, bytesinframe, nchan, recalc, maxAmpOnly,
-            decodeSuccess, nprocsamp, lsamples, rsamples, maxsample, analysisError
-        );
+    if (mp3gain_can_process_frame(bytesinframe)) {
+        mp3gain_set_current_frame_minmax(mingain, maxgain);
+        if (!mp3gain_process_frame_audio(
+            mh, filename, bytesinframe, nchan, recalc, maxAmpOnly,
+            decodeSuccess, nprocsamp, lsamples, rsamples, maxsample, analysisError, gSuccess, fileError
+        )) {
+            return 0;
+        }
         if (*analysisError) {
             return 0;
         }
@@ -870,6 +837,8 @@ unsigned long mp3gain_process_mp3_frame_iteration_safe(
     unsigned char *maxgain,
     unsigned char *mingain,
     char *analysisError,
+    int *gSuccess,
+    int *fileError,
     unsigned long frame,
     long gFilesize
 )
@@ -880,18 +849,18 @@ unsigned long mp3gain_process_mp3_frame_iteration_safe(
 #endif
 #endif
         return mp3gain_process_mp3_frame_iteration(
-            mh, bytesinframe, nchan, recalc, maxAmpOnly,
+            mh, filename, bytesinframe, nchan, recalc, maxAmpOnly,
             decodeSuccess, nprocsamp, lsamples, rsamples, maxsample,
-            maxgain, mingain, analysisError, frame, gFilesize
+            maxgain, mingain, analysisError, gSuccess, fileError, frame, gFilesize
         );
 #ifdef WIN32
 #ifndef __GNUC__
     }
     __except(1) {
         fprintf(stderr, "Error analyzing %s. This mp3 has some very corrupt data.\n", filename);
-        fclose(stdout);
-        fclose(stderr);
-        exit(1);
+        *gSuccess = 0;
+        *fileError = 1;
+        return 0;
     }
 #endif
 #endif
@@ -907,49 +876,13 @@ unsigned long mp3gain_advance_frame_scan(
     unsigned long ok = !0;
 
     if (!analysisError) {
-        wrdpntr = curframe + bytesinframe;
-        ok = frameSearch(0);
+        mp3gain_advance_frame_pointer(bytesinframe);
+        ok = mp3gain_find_next_mp3_frame();
     }
 
-    if (!QuietMode) {
-        if (!(frame % 200)) {
-            reportPercentAnalyzed(
-                (int)(((double)(filepos - (inbuffer - (curframe + bytesinframe - buffer))) * 100.0) / gFilesize),
-                gFilesize
-            );
-        }
-    }
+    mp3gain_report_frame_progress(frame, bytesinframe, gFilesize);
 
     return ok;
-}
-
-unsigned long mp3gain_prepare_mp3_frame(
-    char *filename,
-    int *bitridx,
-    int *mpegver,
-    int *crcflag,
-    int *freqidx,
-    long *bytesinframe,
-    int *mode,
-    int *nchan,
-    long arrbytesinframe[16]
-)
-{
-    *bitridx = (curframe[2] >> 4) & 0x0F;
-    if (*bitridx == 0) {
-        fprintf(stderr, "%s is free format (not currently supported)\n", filename);
-        fflush(stderr);
-        return 0;
-    }
-
-    *mpegver = (curframe[1] >> 3) & 0x03;
-    *crcflag = curframe[1] & 0x01;
-    *freqidx = (curframe[2] >> 2) & 0x03;
-    *bytesinframe = arrbytesinframe[*bitridx] + ((curframe[2] >> 1) & 0x01);
-    *mode = (curframe[3] >> 6) & 0x03;
-    *nchan = (*mode == 3) ? 1 : 2;
-
-    return !0;
 }
 
 unsigned long mp3gain_process_mp3_frames(
@@ -973,8 +906,9 @@ unsigned long mp3gain_process_mp3_frames(
     long *bytesinframe,
     int *mode,
     int *nchan,
-    long arrbytesinframe[16],
-    long gFilesize
+    long gFilesize,
+    int *gSuccess,
+    int *fileError
 )
 {
     unsigned long ok = !0;
@@ -982,14 +916,14 @@ unsigned long mp3gain_process_mp3_frames(
     while (ok) {
         ok = mp3gain_prepare_mp3_frame(
             filename, bitridx, mpegver, crcflag, freqidx,
-            bytesinframe, mode, nchan, arrbytesinframe
+            bytesinframe, mode, nchan
         );
 
         if (ok) {
             ok = mp3gain_process_mp3_frame_iteration_safe(
                 mh, filename, *bytesinframe, *nchan, recalc, maxAmpOnly,
                 decodeSuccess, nprocsamp, lsamples, rsamples, maxsample,
-                maxgain, mingain, analysisError, ++(*frame), gFilesize
+                maxgain, mingain, analysisError, gSuccess, fileError, ++(*frame), gFilesize
             );
         }
     }
@@ -1010,11 +944,9 @@ unsigned long mp3gain_run_file_recalc(
     unsigned char *maxgain,
     unsigned char *mingain,
     char *analysisError,
-    int *first,
-    double *lastfreq,
-    int *numFiles,
+    struct MP3GainBatchContext *batch,
     int *fileok,
-    int *gSuccess,
+    int *fileError,
     unsigned long *ok,
     unsigned long *frame,
     int *bitridx,
@@ -1024,7 +956,6 @@ unsigned long mp3gain_run_file_recalc(
     long *bytesinframe,
     int *mode,
     int *nchan,
-    long arrbytesinframe[16],
     const double frequency[4][4],
     long gFilesize
 #ifdef AACGAIN
@@ -1032,6 +963,8 @@ unsigned long mp3gain_run_file_recalc(
 #endif
 )
 {
+    *fileError = 0;
+
     if (recalc == 0) {
         return *ok;
     }
@@ -1040,7 +973,7 @@ unsigned long mp3gain_run_file_recalc(
     if (aacH) {
         *ok = mp3gain_process_aac_recalc(
             aacH, maxAmpOnly, maxsample, mingain, maxgain,
-            first, lastfreq, analysisError, numFiles, filename
+            batch, analysisError, filename
         );
     } else
 #endif
@@ -1053,7 +986,7 @@ unsigned long mp3gain_run_file_recalc(
     }
 
     *ok = mp3gain_prime_mp3_frames(recalc);
-    if (mp3gain_handle_missing_mp3_frames(*ok, gSuccess, filename
+    if (mp3gain_handle_missing_mp3_frames(*ok, batch->gSuccess, filename
 #ifdef AACGAIN
         , aacH
 #endif
@@ -1061,7 +994,7 @@ unsigned long mp3gain_run_file_recalc(
         return *ok;
     }
 
-    mp3gain_mark_valid_file(fileok, numFiles, recalc
+    mp3gain_mark_valid_file(fileok, batch->numFiles, recalc
 #ifdef AACGAIN
         , aacH
 #endif
@@ -1072,14 +1005,21 @@ unsigned long mp3gain_run_file_recalc(
 #else
     if (recalc > 0) {
 #endif
-        *ok = mp3gain_prepare_first_mp3_frame(curframe, filename, mode, mpegver, freqidx, frame, arrbytesinframe);
-        mp3gain_sync_mp3_frequency(*mpegver, *freqidx, maxAmpOnly, first, lastfreq, analysisError, frequency);
-        mp3gain_process_mp3_frames(
+        unsigned long frameLoopOk;
+
+        *ok = mp3gain_prepare_first_mp3_frame(filename, mode, mpegver, freqidx, frame);
+        mp3gain_sync_mp3_frequency(*mpegver, *freqidx, maxAmpOnly, batch, analysisError, frequency);
+        frameLoopOk = mp3gain_process_mp3_frames(
             mh, filename, recalc, maxAmpOnly,
             decodeSuccess, nprocsamp, lsamples, rsamples, maxsample,
             maxgain, mingain, analysisError, frame, bitridx, mpegver,
-            crcflag, freqidx, bytesinframe, mode, nchan, arrbytesinframe, gFilesize
+            crcflag, freqidx, bytesinframe, mode, nchan, gFilesize, batch->gSuccess, fileError
         );
+        if (*fileError) {
+            *ok = 0;
+        } else if (!frameLoopOk) {
+            *ok = 1;
+        }
         /* Normal EOF from the frame loop is not an error; leave *ok = 1. */
     }
 
@@ -1103,10 +1043,7 @@ void mp3gain_finish_track_recalc(
     int skipTag,
     int autoClip,
     int ignoreClipWarning,
-    int *first,
-    double *lastfreq,
-    int *gSuccess,
-    int *numFiles,
+    struct MP3GainBatchContext *batch,
     Float_t *dBchange,
     int *intGainChange
 #ifdef AACGAIN
@@ -1124,8 +1061,8 @@ void mp3gain_finish_track_recalc(
     )) {
         fprintf(stderr, "Not enough samples in %s to do analysis\n", filename);
         fflush(stderr);
-        *gSuccess = 0;
-        (*numFiles)--;
+        *(batch->gSuccess) = 0;
+        (*(batch->numFiles))--;
         return;
     }
 
@@ -1137,10 +1074,10 @@ void mp3gain_finish_track_recalc(
     }
 
     if (applyTrack) {
-        *first = !0;
+        *(batch->first) = !0;
         mp3gain_apply_track_change(
             filename, tagInfo, fileTags, saveTime, skipTag, autoClip,
-            ignoreClipWarning, maxsample, intGainChange, first
+            ignoreClipWarning, maxsample, intGainChange, batch->first
 #ifdef AACGAIN
             , aacH
 #endif
@@ -1166,6 +1103,7 @@ void mp3gain_finish_album_analysis(
     int autoClip,
     int ignoreClipWarning,
     int numFiles,
+    int *gSuccess,
     Float_t *dBchange,
     int *intGainChange
 #ifdef AACGAIN
@@ -1195,6 +1133,7 @@ void mp3gain_finish_album_analysis(
     if (*dBchange == GAIN_NOT_ENOUGH_SAMPLES) {
         fprintf(stderr, "Not enough samples in mp3 files to do analysis\n");
         fflush(stderr);
+        *gSuccess = 0;
         return;
     }
 
@@ -1278,10 +1217,7 @@ void mp3gain_process_file_analysis(
     int skipTag,
     int autoClip,
     int ignoreClipWarning,
-    int *first,
-    double *lastfreq,
-    int *gSuccess,
-    int *numFiles,
+    struct MP3GainBatchContext *batch,
     Float_t *dBchange,
     int *intGainChange,
     long *gFilesize,
@@ -1304,24 +1240,28 @@ void mp3gain_process_file_analysis(
     long *bytesinframe,
     int *mode,
     int *nchan,
-    long arrbytesinframe[16],
     const double frequency[4][4]
 #ifdef AACGAIN
     , AACGainHandle aacH
 #endif
 )
 {
+    int fileError = 0;
+
 #ifdef AACGAIN
     if (!aacH)
 #endif
     {
-        mp3gain_init_decoder(mh, decodeSuccess);
+        if (!mp3gain_init_decoder(mh, decodeSuccess)) {
+            *(batch->gSuccess) = 0;
+            return;
+        }
     }
 
     if (tagInfo->recalc == 0) {
         mp3gain_load_existing_track_data(tagInfo, maxsample, maxgain, mingain, ok);
         if (*ok) {
-            mp3gain_mark_valid_file(fileok, numFiles, 0
+            mp3gain_mark_valid_file(fileok, batch->numFiles, 0
 #ifdef AACGAIN
                 , aacH
 #endif
@@ -1332,21 +1272,21 @@ void mp3gain_process_file_analysis(
         *ok = mp3gain_run_file_recalc(
             *mh, filename, tagInfo->recalc, maxAmpOnly, decodeSuccess,
             nprocsamp, lsamples, rsamples, maxsample, maxgain, mingain,
-            analysisError, first, lastfreq, numFiles, fileok, gSuccess, ok,
+            analysisError, batch, fileok, &fileError, ok,
             frame, bitridx, mpegver, crcflag, freqidx, bytesinframe, mode,
-            nchan, arrbytesinframe, frequency, *gFilesize
+            nchan, frequency, *gFilesize
 #ifdef AACGAIN
             , aacH
 #endif
         );
     }
 
-    if (*ok) {
+    if (*ok && !fileError) {
         mp3gain_finish_track_recalc(
             filename, tagInfo, fileTags, maxAmpOnly, dBGainMod, mp3GainMod,
             *maxsample, *mingain, *maxgain, databaseFormat, applyTrack,
             applyAlbum, saveTime, skipTag, autoClip, ignoreClipWarning,
-            first, lastfreq, gSuccess, numFiles, dBchange, intGainChange
+            batch, dBchange, intGainChange
 #ifdef AACGAIN
             , aacH
 #endif
@@ -1390,9 +1330,7 @@ void mp3gain_process_files_batch(
     int directSingleChannelGain,
     int directGainVal,
     int *directGain,
-    int *gSuccess,
-    int *first,
-    int *numFiles,
+    struct MP3GainBatchContext *batch,
     Float_t *dBchange,
     int *intGainChange
 #ifdef AACGAIN
@@ -1438,7 +1376,7 @@ void mp3gain_process_files_batch(
             directGain,
             directSingleChannelGain,
             directGainVal,
-            gSuccess
+            batch->gSuccess
 #ifdef AACGAIN
             , aacH
 #endif
@@ -1450,7 +1388,7 @@ void mp3gain_process_files_batch(
             fprintf(stdout, "%s\n", argv[mainloop]);
         }
 
-        if (!mp3gain_open_input_file(argv[mainloop], tagInfo[mainloop].recalc, &gFilesize, &inf, gSuccess
+        if (!mp3gain_open_input_file(argv[mainloop], tagInfo[mainloop].recalc, &gFilesize, &inf, batch->gSuccess
 #ifdef AACGAIN
             , aacH
 #endif
@@ -1461,11 +1399,11 @@ void mp3gain_process_files_batch(
         mp3gain_process_file_analysis(
             curfilename, tagInfo + mainloop, fileTags + mainloop, &fileok[mainloop],
             maxAmpOnly, dBGainMod, mp3GainMod, databaseFormat, applyTrack, applyAlbum,
-            saveTime, skipTag, autoClip, ignoreClipWarning, first, &lastfreq, gSuccess,
-            numFiles, dBchange, intGainChange, &gFilesize, &inf, &mh, &decodeSuccess, &ok,
+            saveTime, skipTag, autoClip, ignoreClipWarning, batch,
+            dBchange, intGainChange, &gFilesize, &inf, &mh, &decodeSuccess, &ok,
             &nprocsamp, lsamples, rsamples, &maxsample, &maxgain, &mingain, &analysisError,
             &frame, &bitridx, &mpegver, &crcflag, &freqidx, &bytesinframe, &mode, &nchan,
-            arrbytesinframe, frequency
+            frequency
 #ifdef AACGAIN
             , aacH
 #endif
@@ -1546,7 +1484,7 @@ int mp3gain_finalize_batch(
         mp3gain_finish_album_analysis(
             argv, argc, fileStart, fileok, tagInfo, fileTags, albumRecalc,
             maxAmpOnly, dBGainMod, mp3GainMod, databaseFormat, applyAlbum,
-            skipTag, saveTime, autoClip, ignoreClipWarning, numFiles,
+            skipTag, saveTime, autoClip, ignoreClipWarning, numFiles, &gSuccess,
             dBchange, intGainChange
 #ifdef AACGAIN
             , aacInfo
@@ -1586,26 +1524,24 @@ unsigned long mp3gain_process_aac_recalc(
     Float_t *maxsample,
     unsigned char *mingain,
     unsigned char *maxgain,
-    int *first,
-    double *lastfreq,
+    struct MP3GainBatchContext *batch,
     char *analysisError,
-    int *numFiles,
     char *filename
 )
 {
     int rc;
 
-    if (*first) {
-        *lastfreq = aac_get_sample_rate(aacH);
-        InitGainAnalysis((long)*lastfreq);
+    if (*(batch->first)) {
+        *(batch->lastfreq) = aac_get_sample_rate(aacH);
+        InitGainAnalysis((long)*(batch->lastfreq));
         *analysisError = 0;
-        *first = 0;
-    } else if (aac_get_sample_rate(aacH) != *lastfreq) {
-        *lastfreq = aac_get_sample_rate(aacH);
-        ResetSampleFrequency((long)*lastfreq);
+        *(batch->first) = 0;
+    } else if (aac_get_sample_rate(aacH) != *(batch->lastfreq)) {
+        *(batch->lastfreq) = aac_get_sample_rate(aacH);
+        ResetSampleFrequency((long)*(batch->lastfreq));
     }
 
-    (*numFiles)++;
+    (*(batch->numFiles))++;
 
     if (maxAmpOnly) {
         rc = aac_compute_peak(aacH, maxsample, mingain, maxgain,
@@ -1618,7 +1554,7 @@ unsigned long mp3gain_process_aac_recalc(
     if (rc != 0) {
         passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
             filename, " is not a valid mp4/m4a file.\n");
-        exit(1);
+        return 0;
     }
 
     return !0;

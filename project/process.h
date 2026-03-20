@@ -11,6 +11,13 @@
 #include "aacgain.h"
 #endif
 
+struct MP3GainBatchContext {
+    int *gSuccess;
+    int *first;
+    int *numFiles;
+    double *lastfreq;
+};
+
 int mp3gain_open_input_file(
     char *filename,
     int recalc,
@@ -24,7 +31,18 @@ int mp3gain_open_input_file(
 
 int mp3gain_init_decoder(mpg123_handle **mh, int *decodeSuccess);
 
-void mp3gain_prepare_runtime_batch(
+void mp3gain_reset_mp3_scan_state(void);
+void mp3gain_prime_mp3_buffer_pointer(void);
+unsigned char *mp3gain_get_current_frame_pointer(void);
+void mp3gain_set_current_frame_minmax(unsigned char *mingain, unsigned char *maxgain);
+int mp3gain_can_process_frame(long bytesinframe);
+void mp3gain_advance_frame_pointer(long bytesinframe);
+unsigned long mp3gain_skip_id3_and_find_first_frame(void);
+unsigned long mp3gain_find_next_mp3_frame(void);
+void mp3gain_scan_current_frame_gain(void);
+unsigned long mp3gain_report_frame_progress(unsigned long frame, long bytesinframe, long gFilesize);
+
+int mp3gain_prepare_runtime_batch(
     int argc,
     char **argv,
     int fileStart,
@@ -124,20 +142,17 @@ void mp3gain_sync_mp3_frequency(
     int mpegver,
     int freqidx,
     int maxAmpOnly,
-    int *first,
-    double *lastfreq,
+    struct MP3GainBatchContext *batch,
     char *analysisError,
     const double frequency[4][4]
 );
 
 unsigned long mp3gain_prepare_first_mp3_frame(
-    unsigned char *curframe,
     char *filename,
     int *mode,
     int *mpegver,
     int *freqidx,
-    unsigned long *frame,
-    long arrbytesinframe[16]
+    unsigned long *frame
 );
 
 int mp3gain_finalize_track_analysis(
@@ -232,8 +247,9 @@ void mp3gain_write_dirty_tags(
 #endif
 );
 
-void mp3gain_process_frame_audio(
+int mp3gain_process_frame_audio(
     mpg123_handle *mh,
+    char *filename,
     long bytesinframe,
     int nchan,
     int recalc,
@@ -243,11 +259,14 @@ void mp3gain_process_frame_audio(
     Float_t *lsamples,
     Float_t *rsamples,
     Float_t *maxsample,
-    char *analysisError
+    char *analysisError,
+    int *gSuccess,
+    int *fileError
 );
 
 unsigned long mp3gain_process_mp3_frame_iteration(
     mpg123_handle *mh,
+    char *filename,
     long bytesinframe,
     int nchan,
     int recalc,
@@ -260,6 +279,8 @@ unsigned long mp3gain_process_mp3_frame_iteration(
     unsigned char *maxgain,
     unsigned char *mingain,
     char *analysisError,
+    int *gSuccess,
+    int *fileError,
     unsigned long frame,
     long gFilesize
 );
@@ -279,6 +300,8 @@ unsigned long mp3gain_process_mp3_frame_iteration_safe(
     unsigned char *maxgain,
     unsigned char *mingain,
     char *analysisError,
+    int *gSuccess,
+    int *fileError,
     unsigned long frame,
     long gFilesize
 );
@@ -298,8 +321,7 @@ unsigned long mp3gain_prepare_mp3_frame(
     int *freqidx,
     long *bytesinframe,
     int *mode,
-    int *nchan,
-    long arrbytesinframe[16]
+    int *nchan
 );
 
 unsigned long mp3gain_process_mp3_frames(
@@ -323,8 +345,9 @@ unsigned long mp3gain_process_mp3_frames(
     long *bytesinframe,
     int *mode,
     int *nchan,
-    long arrbytesinframe[16],
-    long gFilesize
+    long gFilesize,
+    int *gSuccess,
+    int *fileError
 );
 
 unsigned long mp3gain_run_file_recalc(
@@ -340,11 +363,9 @@ unsigned long mp3gain_run_file_recalc(
     unsigned char *maxgain,
     unsigned char *mingain,
     char *analysisError,
-    int *first,
-    double *lastfreq,
-    int *numFiles,
+    struct MP3GainBatchContext *batch,
     int *fileok,
-    int *gSuccess,
+    int *fileError,
     unsigned long *ok,
     unsigned long *frame,
     int *bitridx,
@@ -354,7 +375,6 @@ unsigned long mp3gain_run_file_recalc(
     long *bytesinframe,
     int *mode,
     int *nchan,
-    long arrbytesinframe[16],
     const double frequency[4][4],
     long gFilesize
 #ifdef AACGAIN
@@ -379,10 +399,7 @@ void mp3gain_finish_track_recalc(
     int skipTag,
     int autoClip,
     int ignoreClipWarning,
-    int *first,
-    double *lastfreq,
-    int *gSuccess,
-    int *numFiles,
+    struct MP3GainBatchContext *batch,
     Float_t *dBchange,
     int *intGainChange
 #ifdef AACGAIN
@@ -408,6 +425,7 @@ void mp3gain_finish_album_analysis(
     int autoClip,
     int ignoreClipWarning,
     int numFiles,
+    int *gSuccess,
     Float_t *dBchange,
     int *intGainChange
 #ifdef AACGAIN
@@ -430,10 +448,7 @@ void mp3gain_process_file_analysis(
     int skipTag,
     int autoClip,
     int ignoreClipWarning,
-    int *first,
-    double *lastfreq,
-    int *gSuccess,
-    int *numFiles,
+    struct MP3GainBatchContext *batch,
     Float_t *dBchange,
     int *intGainChange,
     long *gFilesize,
@@ -456,7 +471,6 @@ void mp3gain_process_file_analysis(
     long *bytesinframe,
     int *mode,
     int *nchan,
-    long arrbytesinframe[16],
     const double frequency[4][4]
 #ifdef AACGAIN
     , AACGainHandle aacH
@@ -484,9 +498,7 @@ void mp3gain_process_files_batch(
     int directSingleChannelGain,
     int directGainVal,
     int *directGain,
-    int *gSuccess,
-    int *first,
-    int *numFiles,
+    struct MP3GainBatchContext *batch,
     Float_t *dBchange,
     int *intGainChange
 #ifdef AACGAIN
@@ -544,10 +556,8 @@ unsigned long mp3gain_process_aac_recalc(
     Float_t *maxsample,
     unsigned char *mingain,
     unsigned char *maxgain,
-    int *first,
-    double *lastfreq,
+    struct MP3GainBatchContext *batch,
     char *analysisError,
-    int *numFiles,
     char *filename
 );
 #endif

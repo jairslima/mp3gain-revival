@@ -19,7 +19,8 @@ This repository is being rebuilt from archived MP3Gain materials with the goal o
 - Modernize the legacy CLI into a smaller, maintainable, cross-platform tool.
 - Reduce platform-specific legacy code and obsolete project files over time.
 - Prefer a portable core with a thin CLI entry point.
-- Target Windows, Linux, and macOS as supported platforms once the build and test paths are stable.
+- Current supported release baseline: Windows and Linux.
+- Revisit macOS support only after a validated build-and-smoke baseline exists there.
 
 ## Working Scope
 - Active code lives in `project/`
@@ -50,11 +51,20 @@ This repository is being rebuilt from archived MP3Gain materials with the goal o
 - Active build target: the CLI in `project/`
 - Preferred build system: CMake
 - Build notes: `docs/BUILD.md`
+- Validation status: `docs/VALIDATION.md`
 - Refactoring direction: `docs/ARCHITECTURE.md`
+
+## Validation Snapshot
+- Windows: build + smoke validated
+- Linux: build + smoke validated
+- macOS: exploratory, not in the immediate release support baseline
+- Current smoke baseline: `27/27`
+- Current corruption probe baseline: only the truncated missing-frame candidate fails; the synthetic decode-corruption candidates still analyze successfully
 
 ## Planning
 - Recovery plan: `ROADMAP.md`
 - Historical material guide: `archive/README.md`
+- Contributor guide: `CONTRIBUTING.md`
 
 ## Known Gaps
 - No Git history was recovered
@@ -65,11 +75,17 @@ This repository is being rebuilt from archived MP3Gain materials with the goal o
 - The local dependency tree in `vcpkg_installed/` can become very large and is not part of the active source review path
 
 ## Recommended Next Steps
-1. Stabilize the Windows CI workflow and confirm the new smoke-test fixture path
-2. Extend verification to tag read/write, undo, clipping, and Linux build validation
-3. Continue reducing orchestration and global-state coupling between `mp3gain.c` and `process.c`
-4. Keep the published `archive/` tree curated and clearly separated from the active source tree
-5. Prepare release notes, packaging, and contributor-facing documentation once verification is credible
+1. Execute Phase 4 release-readiness work for the Windows/Linux baseline
+2. Prepare packaging and release notes for the first public recovery release
+3. Keep the published `archive/` tree curated and clearly separated from the active source tree
+4. Continue reducing global-state coupling where it materially improves release confidence
+5. Revisit macOS only after a validated baseline exists there
+
+## Release Baseline
+
+- first public recovery release target: Windows and Linux
+- macOS: explicitly outside the first release support claim
+- known limitation: the current MP3Gain/libmpg123 path may tolerate some corruption classes that the `ffmpeg` oracle rejects
 
 ## License
 The recovered source package includes the LGPL text. A copy is available at the repository root in `LICENSE`.

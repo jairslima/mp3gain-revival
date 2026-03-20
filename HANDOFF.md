@@ -252,3 +252,124 @@ The next most valuable step is to continue from a real Linux-capable environment
 - Do not assume the Visual Studio project builds without restoring or replacing missing references.
 - Confirm the target platform before changing build logic.
 - Preserve LGPL notices and keep derivative-fork positioning explicit when editing docs or release material.
+
+## 2026-03-18 Status Update
+
+### Verification and CI
+- Linux build continues to compile successfully in the active workspace.
+- The smoke suite now passes `27/27`.
+- The corruption probe now persists both MP3Gain results and an `ffmpeg` oracle comparison in `test\probe_corruptions.results.json`.
+- A Linux Phase 4 dev package was generated successfully as `dist\mp3gain-linux-phase4-dev.zip`.
+- Windows packaging remains blocked in the current snapshot because `build\Release\mp3gain.exe` and `build\Release\mpg123.dll` are not present, and the local PowerShell path does not expose `cmake`/MSBuild directly.
+- Re-running `scripts\package_release.ps1` confirms the immediate Windows blocker is still `Missing Windows executable: build\Release\mp3gain.exe`.
+- Smoke coverage now explicitly includes a mixed batch with one valid MP3 and one invalid/corrupted fixture, verifying:
+  - non-zero final exit code on partial failure
+  - stderr for the bad file
+  - continued processing of the good file
+- Fixture set now includes `test\fixtures\corrupt-truncated.mp3`.
+- Additional synthetic corruption probes were attempted to reach a true decoder/frame failure path,
+  but none were stable enough yet to add as a CI fixture.
+- `test\probe_corruptions.ps1` now exists as a deterministic probe harness; current results are:
+  - truncated corruption: exit `1`, missing-frame rejection
+  - payload corruption with preserved headers: exit `0`
+  - scattered zeroed regions: exit `0`
+  - header-window corruption: exit `0`
+  - sync-byte corruption: exit `0`
+  - CRC/side-info corruption: exit `0`
+  - transition-gap corruption: exit `0`
+  - main-data-begin corruption: exit `0`
+- `test\probe_corruptions.results.json` now persists the latest reproducible matrix from that probe harness.
+
+### Error-Handling Changes
+- The main MP3 processing path in `project\process.[ch]` no longer aborts the whole process on the first decoder/frame failure in the active batch path.
+- `project\prep.c` and the AAC recalc path were softened so invalid AAC input does not immediately `exit(1)` in those touched paths.
+- Recoverable file-level failures now route through batch status more consistently.
+
+### Structural Refactor Progress
+- `project\process.[ch]` now has a small `MP3GainBatchContext` carrying:
+  - `gSuccess`
+  - `first`
+  - `numFiles`
+  - `lastfreq`
+- `project\process.c` now depends less directly on low-level globals in `project\mp3gain.c`.
+- Additional frame-scan access has been hidden behind helpers in `project\mp3gain.c`, including:
+  - scan-state reset
+  - buffer-pointer priming
+  - current-frame pointer access
+  - current-frame min/max binding
+  - frame pointer advance
+  - ID3-skip + first-frame sync wrapper
+  - next-frame search wrapper
+  - current-frame gain scan wrapper
+  - frame progress reporting
+  - first-frame preparation
+  - current-frame header preparation
+- `changeGain(...)` has started to be split into smaller local helpers for the write path:
+  - modify-stream open/setup
+  - modify scan-state reset
+  - initial modify-frame scan bootstrap
+  - first writable frame preparation
+  - current-frame validation
+  - current-frame parse + bitstream priming
+  - current-frame processing/apply orchestration
+  - write-offset/progress calculation helpers
+  - bitstream priming/advance helpers
+  - shared frame-channel gain application helper
+  - shared frame-channel gain tracking helper
+  - shared MPEG side-info skipping helpers
+  - shared MPEG channel/granule loop helpers
+  - shared global-gain cursor/read/write helpers
+  - shared modified-frame CRC/header finalization helper
+  - shared scan-frame bitstream preparation helper
+  - shared analyze-progress percentage helper
+  - MPEG1 frame gain application
+  - MPEG2/2.5 frame gain application
+  - frame finalization/progress/advance
+  - final progress/report flush
+  - temp-file close/replace finalization
+  - in-place close/flush finalization
+  - Win32 cancel cleanup
+  - shared write-result finalization helper
+  - shared modify-open failure helper
+- `project\process.c` no longer `exit(1)` on runtime batch allocation failure; setup now returns failure and `main()` exits cleanly with status `1`.
+
+### Current Technical Position
+- The project is still in Phase 3, but verification is materially stronger than the older docs indicate.
+- Phase 3 is now best read as smaller verification slices:
+  - 3.1 baseline smoke coverage: complete
+  - 3.2 stateful CLI behavior: complete
+  - 3.3 partial-failure and batch safety: complete
+  - 3.4 CI and cross-platform validation: complete for the Windows/Linux supported baseline
+  - 3.5 corruption/decode regression coverage: complete
+  - 3.6 verification-to-release handoff: complete
+- Phase 3.5 is now best read as smaller corruption-investigation slices:
+  - 3.5.1 corruption classes worth probing: complete, with a documented taxonomy now covering discovery, payload, scattered, header-window, sync-byte, CRC/side-info, transition-gap, main-data-begin, reservoir-burst, cross-frame-stitch, side-info shear, late payload scramble, late header poison, and clustered multi-frame poisoning classes
+  - 3.5.2 deterministic probe harness: complete
+  - 3.5.3 repeatable results matrix: complete, now including an external decoder oracle
+  - 3.5.4 promotion of a stable corruption baseline: complete
+  - 3.5.5 explicit documentation of the current decoder mismatch: complete
+- The deterministic probe harness now records both MP3Gain behavior and an `ffmpeg` decoder oracle.
+- Multiple stable corruption candidates trigger real decoder errors in `ffmpeg` while still surviving analysis under the current MP3Gain/libmpg123 path; that mismatch is now a documented limitation rather than an unmeasured gap.
+- The dominant remaining engineering debt is `extern`-driven shared state between `project\process.c` and `project\mp3gain.c`, especially around:
+  - `skipID3v2`
+  - `frameSearch`
+  - the remaining bit-cursor helpers in the legacy write path
+  - legacy write-context state in `changeGain(...)`
+- Remaining `exit(...)` calls in active code are now primarily CLI/usage exits rather than the main per-file processing path.
+- Contributor/release docs are now in better shape via `CONTRIBUTING.md`, `docs\BUILD.md`, and `docs\RELEASE.md`.
+- Phase 3.4 is now split more explicitly into:
+  - validated-platform matrix: complete
+  - CI coverage for validated platforms: complete
+  - local reproduction commands: complete
+  - explicit pending-platform policy: complete, with macOS now outside the immediate release support claim
+- Phase 3.6 is now split more explicitly into:
+  - release checklist: complete
+  - package shape for validated platforms: complete
+  - explicit blockers list: complete
+  - concrete Phase 4 gate: complete
+
+### Recommended Next Steps
+1. Execute Phase 4 release-readiness work for the Windows/Linux supported baseline.
+2. Keep macOS outside the release support claim until a validated build + smoke path exists there.
+3. Treat the MP3Gain/libmpg123 vs `ffmpeg` corruption mismatch as a documented release limitation unless a follow-on corrective effort is explicitly chosen.
+4. Continue structural cleanup of remaining low-level state in `project\mp3gain.c` as follow-on refactor work.

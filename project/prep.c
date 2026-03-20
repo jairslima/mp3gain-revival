@@ -81,7 +81,8 @@ void mp3gain_prepare_file(
     if (aac_open(filename, UsingTemp, saveTime, aacInfo) != 0) {
         passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
             filename, " is not a valid mp4/m4a file.\n");
-        exit(1);
+        *aacInfo = NULL;
+        return;
     }
 #endif
 

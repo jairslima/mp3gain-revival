@@ -129,6 +129,34 @@ typedef struct {
 	unsigned char val[2];
 } wbuffer;
 
+unsigned long reportPercentAnalyzed(unsigned long percent, unsigned long bytes);
+unsigned long reportPercentWritten(unsigned long percent, unsigned long bytes);
+unsigned long skipID3v2(void);
+unsigned long frameSearch(int startup);
+void scanFrameGain(void);
+static void mp3gain_reset_modify_scan_state(void);
+static void mp3gain_prime_modify_frame_bits(int crcflag);
+static void mp3gain_skip_mpeg1_sideinfo_bits(int mode, int nchan);
+static void mp3gain_skip_mpeg2_sideinfo_bits(int mode);
+static void mp3gain_set_bit_cursor(unsigned char *ptr, unsigned long bit_offset);
+static void mp3gain_advance_bit_cursor(int nbits);
+static void mp3gain_skip_to_global_gain_bits(void);
+static void mp3gain_skip_past_global_gain_bits(int trailing_bits);
+static unsigned char mp3gain_read_current_frame_gain(void);
+static void mp3gain_write_current_frame_gain(unsigned char gain);
+static void mp3gain_apply_mpeg1_granule_channels(int nchan, int gainchange[2]);
+static void mp3gain_apply_mpeg2_channels(int nchan, int gainchange[2]);
+static void mp3gain_track_mpeg1_granule_channels(int nchan);
+static void mp3gain_track_mpeg2_channels(int nchan);
+static void mp3gain_apply_mpeg1_frame(int mode, int nchan, int crcflag, int gainchange[2]);
+static void mp3gain_apply_mpeg2_frame(int mode, int nchan, int crcflag, int gainchange[2]);
+static unsigned long mp3gain_finish_modify_frame(unsigned long *frame, long bytesinframe, long gFilesize);
+static int mp3gain_fail_modify_open(char **outfilename, int error_code, int numStrings, ...);
+static void set8Bits(unsigned short val);
+static void skipBits(int nbits);
+static unsigned char peek8Bits(void);
+static void crcWriteHeader(int headerlength, char *header);
+
 /* Yes, yes, I know I should do something about these globals */
 
 wbuffer writebuffer[WRITEBUFFERSIZE];
@@ -215,6 +243,19 @@ void addWriteBuff(unsigned long pos, unsigned char *vals) {
 	
 };
 
+static int mp3gain_should_stream_temp_output(void)
+{
+	return UsingTemp && NowWriting;
+}
+
+static int mp3gain_write_temp_output_chunk(const unsigned char *data, size_t len)
+{
+	if (!mp3gain_should_stream_temp_output())
+		return 1;
+
+	return fwrite(data, 1, len, outf) == len;
+}
+
 
 /* fill the mp3 buffer */
 unsigned long fillBuffer(long savelastbytes) {
@@ -228,9 +269,8 @@ unsigned long fillBuffer(long savelastbytes) {
 		savelastbytes = 0;
 	}
 
-	if (UsingTemp && NowWriting) {
-		if (fwrite(buffer,1,inbuffer-savelastbytes,outf) != (size_t)(inbuffer-savelastbytes))
-            return 0;
+	if (!mp3gain_write_temp_output_chunk(buffer, (size_t)(inbuffer - savelastbytes))) {
+		return 0;
 	}
 
 	if (savelastbytes != 0) /* save some of the bytes at the end of the buffer */
@@ -243,9 +283,8 @@ unsigned long fillBuffer(long savelastbytes) {
         if (i != skipbuf)
             return 0;
 
-		if (UsingTemp && NowWriting) {
-			if (fwrite(buffer,1,skipbuf,outf) != skipbuf)
-            			return 0;
+		if (!mp3gain_write_temp_output_chunk(buffer, (size_t)skipbuf)) {
+			return 0;
 		}
 		filepos += i;
         skip -= skipbuf;
@@ -255,6 +294,721 @@ unsigned long fillBuffer(long savelastbytes) {
 	filepos = filepos + i;
 	inbuffer = i + savelastbytes;
 	return i;
+}
+
+void mp3gain_reset_mp3_scan_state(void)
+{
+	inbuffer = 0;
+	filepos = 0;
+	bitidx = 0;
+}
+
+void mp3gain_prime_mp3_buffer_pointer(void)
+{
+	wrdpntr = buffer;
+}
+
+unsigned char *mp3gain_get_current_frame_pointer(void)
+{
+	return curframe;
+}
+
+void mp3gain_set_current_frame_minmax(unsigned char *mingain, unsigned char *maxgain)
+{
+	minGain = mingain;
+	maxGain = maxgain;
+}
+
+int mp3gain_can_process_frame(long bytesinframe)
+{
+	return inbuffer >= bytesinframe;
+}
+
+void mp3gain_advance_frame_pointer(long bytesinframe)
+{
+	wrdpntr = curframe + bytesinframe;
+}
+
+unsigned long mp3gain_skip_id3_and_find_first_frame(void)
+{
+	unsigned long ok;
+
+	ok = skipID3v2();
+	if (!ok)
+		return ok;
+
+	return frameSearch(!0);
+}
+
+unsigned long mp3gain_find_next_mp3_frame(void)
+{
+	return frameSearch(0);
+}
+
+void mp3gain_scan_current_frame_gain(void)
+{
+	scanFrameGain();
+}
+
+static int mp3gain_open_modify_streams(char *filename, char **outfilename)
+{
+	long outlength;
+
+	if (UsingTemp) {
+		fflush(stderr);
+		fflush(stdout);
+		outlength = (long)strlen(filename);
+		*outfilename = (char *)malloc(outlength + 5);
+		strcpy(*outfilename, filename);
+		if ((filename[outlength-3] == 'T' || filename[outlength-3] == 't') &&
+				(filename[outlength-2] == 'M' || filename[outlength-2] == 'm') &&
+				(filename[outlength-1] == 'P' || filename[outlength-1] == 'p')) {
+			strcat(*outfilename, ".TMP");
+		}
+		else {
+			(*outfilename)[outlength-3] = 'T';
+			(*outfilename)[outlength-2] = 'M';
+			(*outfilename)[outlength-1] = 'P';
+		}
+
+		inf = fopen(filename, "r+b");
+		if (inf != NULL) {
+			outf = fopen(*outfilename, "wb");
+			if (outf == NULL) {
+				return mp3gain_fail_modify_open(
+					outfilename, M3G_ERR_CANT_MAKE_TMP, 3,
+					"\nCan't open ", *outfilename, " for temp writing\n"
+				);
+			}
+		}
+	}
+	else {
+		inf = fopen(filename, "r+b");
+	}
+
+	if (inf == NULL) {
+		return mp3gain_fail_modify_open(
+			outfilename, M3G_ERR_CANT_MODIFY_FILE, 3,
+			"\nCan't open ", filename, " for modifying\n"
+		);
+	}
+
+	return 0;
+}
+
+static unsigned long mp3gain_prepare_modify_scan_bootstrap(void)
+{
+	unsigned long ok;
+
+	mp3gain_reset_modify_scan_state();
+	ok = fillBuffer(0);
+	if (!ok)
+		return ok;
+
+	mp3gain_prime_mp3_buffer_pointer();
+	return !0;
+}
+
+static unsigned long mp3gain_prepare_modify_first_frame(
+	char *filename,
+	unsigned long *frame,
+	int *mode,
+	int *bitridx,
+	int *mpegver,
+	long *bytesinframe)
+{
+	unsigned char *xingcheck;
+	int sideinfo_len;
+	unsigned long ok;
+
+	ok = mp3gain_skip_id3_and_find_first_frame();
+	if (!ok)
+		return ok;
+
+	LayerSet = 1; /* We've found at least one valid layer 3 frame.
+				   * Assume any later layer 1 or 2 frames are just
+				   * bitstream corruption
+				   */
+	*mode = (curframe[3] >> 6) & 3;
+
+	if ((curframe[1] & 0x08) == 0x08)
+		sideinfo_len = (*mode == 3) ? 4 + 17 : 4 + 32;
+	else
+		sideinfo_len = (*mode == 3) ? 4 + 9 : 4 + 17;
+
+	if (!(curframe[1] & 0x01))
+		sideinfo_len += 2;
+
+	xingcheck = curframe + sideinfo_len;
+
+	/* LAME CBR files have "Info" tags, not "Xing" tags. */
+	if ((xingcheck[0] == 'X' && xingcheck[1] == 'i' && xingcheck[2] == 'n' && xingcheck[3] == 'g') ||
+		(xingcheck[0] == 'I' && xingcheck[1] == 'n' && xingcheck[2] == 'f' && xingcheck[3] == 'o')) {
+		*bitridx = (curframe[2] >> 4) & 0x0F;
+		if (*bitridx == 0) {
+			passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
+				filename, " is free format (not currently supported)\n");
+			return 0;
+		}
+
+		*mpegver = (curframe[1] >> 3) & 0x03;
+		*bytesinframe = arrbytesinframe[*bitridx] + ((curframe[2] >> 1) & 0x01);
+		mp3gain_advance_frame_pointer(*bytesinframe);
+		ok = mp3gain_find_next_mp3_frame();
+		if (!ok)
+			return ok;
+	}
+
+	*frame = 1;
+	return ok;
+}
+
+static unsigned long mp3gain_begin_modify_frames(
+	char *filename,
+	unsigned long *frame,
+	int *mode,
+	int *bitridx,
+	int *mpegver,
+	long *bytesinframe)
+{
+	unsigned long ok;
+
+	ok = mp3gain_prepare_modify_scan_bootstrap();
+	if (!ok)
+		return ok;
+	ok = mp3gain_prepare_modify_first_frame(
+		filename, frame, mode, bitridx, mpegver, bytesinframe
+	);
+	if (!ok && !BadLayer) {
+		passError(MP3GAIN_UNSPECIFED_ERROR, 3,
+			"Can't find any valid MP3 frames in file ", filename, "\n");
+	}
+
+	return ok;
+}
+
+static unsigned long mp3gain_validate_modify_frame(
+	char *filename,
+	int singlechannel,
+	int *bitridx)
+{
+	*bitridx = (curframe[2] >> 4) & 0x0F;
+
+	if (singlechannel) {
+		if ((curframe[3] >> 6) & 0x01) {
+			passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
+				filename, ": Can't adjust single channel for mono or joint stereo\n");
+			return 0;
+		}
+	}
+
+	if (*bitridx == 0) {
+		passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
+			filename, " is free format (not currently supported)\n");
+		return 0;
+	}
+
+	return !0;
+}
+
+static unsigned long mp3gain_prepare_modify_current_frame(
+	char *filename,
+	int singlechannel,
+	int *bitridx,
+	int *mpegver,
+	int *crcflag,
+	long *bytesinframe,
+	int *mode,
+	int *nchan)
+{
+	unsigned long ok;
+	int freqidx;
+
+	ok = mp3gain_validate_modify_frame(filename, singlechannel, bitridx);
+	if (!ok)
+		return ok;
+
+	ok = mp3gain_prepare_mp3_frame(
+		filename, bitridx, mpegver, crcflag, &freqidx, bytesinframe, mode, nchan
+	);
+	if (!ok)
+		return ok;
+
+	mp3gain_prime_modify_frame_bits(*crcflag);
+	return !0;
+}
+
+static unsigned long mp3gain_process_modify_frame(
+	char *filename,
+	int singlechannel,
+	int gainchange[2],
+	unsigned long *frame,
+	long gFilesize)
+{
+	unsigned long ok;
+	int bitridx;
+	int mpegver;
+	int crcflag;
+	int mode;
+	int nchan;
+	long bytesinframe;
+
+	ok = mp3gain_prepare_modify_current_frame(
+		filename, singlechannel, &bitridx, &mpegver, &crcflag, &bytesinframe, &mode, &nchan
+	);
+	if (!ok)
+		return ok;
+
+	if (mpegver == 3)
+		mp3gain_apply_mpeg1_frame(mode, nchan, crcflag, gainchange);
+	else
+		mp3gain_apply_mpeg2_frame(mode, nchan, crcflag, gainchange);
+
+	return mp3gain_finish_modify_frame(frame, bytesinframe, gFilesize);
+}
+
+static unsigned char mp3gain_apply_channel_gain(unsigned char gain, int gainchange)
+{
+	if (wrapGain)
+		return gain + (unsigned char)gainchange;
+
+	if (gain == 0)
+		return gain;
+
+	if ((int)gain + gainchange > 255)
+		return 255;
+	if ((int)gain + gainchange < 0)
+		return 0;
+
+	return gain + (unsigned char)gainchange;
+}
+
+static unsigned long mp3gain_current_file_offset(unsigned char *ptr)
+{
+	return filepos - (inbuffer - (ptr - buffer));
+}
+
+static void mp3gain_buffer_write_pair(unsigned char *ptr)
+{
+	addWriteBuff(mp3gain_current_file_offset(ptr), ptr);
+}
+
+static unsigned long mp3gain_modify_progress_percent(long bytesinframe, long gFilesize)
+{
+	return (unsigned long)(((double)mp3gain_current_file_offset(curframe + bytesinframe) * 100.0) / gFilesize);
+}
+
+static unsigned long mp3gain_analyze_progress_percent(long bytesinframe, long gFilesize)
+{
+	return (unsigned long)(((double)mp3gain_current_file_offset(curframe + bytesinframe) * 100.0) / gFilesize);
+}
+
+static void mp3gain_prime_modify_frame_bits(int crcflag)
+{
+	if (!crcflag)
+		mp3gain_set_bit_cursor(curframe + 6, 0);
+	else
+		mp3gain_set_bit_cursor(curframe + 4, 0);
+}
+
+static void mp3gain_prime_mpeg1_global_gain_bits(int mode, int nchan)
+{
+	mp3gain_set_bit_cursor(wrdpntr + 1, 1);
+	mp3gain_skip_mpeg1_sideinfo_bits(mode, nchan);
+}
+
+static void mp3gain_prime_mpeg2_global_gain_bits(int mode)
+{
+	mp3gain_set_bit_cursor(wrdpntr + 1, bitidx);
+	mp3gain_skip_mpeg2_sideinfo_bits(mode);
+}
+
+static void mp3gain_set_bit_cursor(unsigned char *ptr, unsigned long bit_offset)
+{
+	wrdpntr = ptr;
+	bitidx = bit_offset;
+}
+
+static void mp3gain_advance_bit_cursor(int nbits)
+{
+	skipBits(nbits);
+}
+
+static void mp3gain_skip_mpeg1_sideinfo_bits(int mode, int nchan)
+{
+	if (mode == 3)
+		mp3gain_advance_bit_cursor(5);
+	else
+		mp3gain_advance_bit_cursor(3);
+
+	mp3gain_advance_bit_cursor(nchan * 4);
+}
+
+static void mp3gain_skip_mpeg2_sideinfo_bits(int mode)
+{
+	if (mode == 3)
+		mp3gain_advance_bit_cursor(1);
+	else
+		mp3gain_advance_bit_cursor(2);
+}
+
+static void mp3gain_skip_to_global_gain_bits(void)
+{
+	mp3gain_advance_bit_cursor(21);
+}
+
+static void mp3gain_skip_past_global_gain_bits(int trailing_bits)
+{
+	mp3gain_advance_bit_cursor(trailing_bits);
+}
+
+static unsigned char mp3gain_read_current_frame_gain(void)
+{
+	return peek8Bits();
+}
+
+static void mp3gain_write_current_frame_gain(unsigned char gain)
+{
+	set8Bits(gain);
+}
+
+static void mp3gain_prepare_scan_frame_bits(int mpegver, int mode, int nchan, int crcflag)
+{
+	mp3gain_prime_modify_frame_bits(crcflag);
+
+	if (mpegver == 3)
+		mp3gain_prime_mpeg1_global_gain_bits(mode, nchan);
+	else
+		mp3gain_prime_mpeg2_global_gain_bits(mode);
+}
+
+static void mp3gain_apply_frame_channel_gain(int gainchange, int trailing_bits)
+{
+	unsigned char gain;
+
+	mp3gain_skip_to_global_gain_bits();
+	gain = mp3gain_read_current_frame_gain();
+	gain = mp3gain_apply_channel_gain(gain, gainchange);
+	mp3gain_write_current_frame_gain(gain);
+	mp3gain_skip_past_global_gain_bits(trailing_bits);
+}
+
+static void mp3gain_track_frame_channel_gain(int trailing_bits)
+{
+	int gain;
+
+	mp3gain_skip_to_global_gain_bits();
+	gain = mp3gain_read_current_frame_gain();
+	if (*minGain > gain) {
+		*minGain = gain;
+	}
+	if (*maxGain < gain) {
+		*maxGain = gain;
+	}
+	mp3gain_skip_past_global_gain_bits(trailing_bits);
+}
+
+static void mp3gain_apply_mpeg1_granule_channels(int nchan, int gainchange[2])
+{
+	int ch;
+
+	for (ch = 0; ch < nchan; ch++) {
+		mp3gain_apply_frame_channel_gain(gainchange[ch], 38);
+	}
+}
+
+static void mp3gain_apply_mpeg2_channels(int nchan, int gainchange[2])
+{
+	int ch;
+
+	for (ch = 0; ch < nchan; ch++) {
+		mp3gain_apply_frame_channel_gain(gainchange[ch], 42);
+	}
+}
+
+static void mp3gain_track_mpeg1_granule_channels(int nchan)
+{
+	int ch;
+
+	for (ch = 0; ch < nchan; ch++) {
+		mp3gain_track_frame_channel_gain(38);
+	}
+}
+
+static void mp3gain_track_mpeg2_channels(int nchan)
+{
+	int ch;
+
+	for (ch = 0; ch < nchan; ch++) {
+		mp3gain_track_frame_channel_gain(42);
+	}
+}
+
+static void mp3gain_finalize_modified_frame_header(int nchan, int crcflag, int mono_header_bits, int stereo_header_bits)
+{
+	if (!crcflag) {
+		if (nchan == 1)
+			crcWriteHeader(mono_header_bits, (char*)curframe);
+		else
+			crcWriteHeader(stereo_header_bits, (char*)curframe);
+		if (!UsingTemp)
+			mp3gain_buffer_write_pair(curframe + 4);
+	}
+}
+
+static unsigned long mp3gain_advance_modify_frame_pointer(long bytesinframe)
+{
+	wrdpntr = curframe + bytesinframe;
+	return frameSearch(0);
+}
+
+static void mp3gain_apply_mpeg1_frame(int mode, int nchan, int crcflag, int gainchange[2])
+{
+	int gr;
+
+	mp3gain_prime_mpeg1_global_gain_bits(mode, nchan);
+	for (gr = 0; gr < 2; gr++) {
+		mp3gain_apply_mpeg1_granule_channels(nchan, gainchange);
+	}
+
+	mp3gain_finalize_modified_frame_header(nchan, crcflag, 23, 38);
+}
+
+static void mp3gain_apply_mpeg2_frame(int mode, int nchan, int crcflag, int gainchange[2])
+{
+	mp3gain_prime_mpeg2_global_gain_bits(mode);
+	mp3gain_apply_mpeg2_channels(nchan, gainchange);
+
+	mp3gain_finalize_modified_frame_header(nchan, crcflag, 15, 23);
+}
+
+static unsigned long mp3gain_finish_modify_frame(
+	unsigned long *frame,
+	long bytesinframe,
+	long gFilesize)
+{
+	unsigned long ok = !0;
+
+	if (!QuietMode) {
+		(*frame)++;
+		if ((*frame) % 200 == 0) {
+			ok = reportPercentWritten(mp3gain_modify_progress_percent(bytesinframe, gFilesize), gFilesize);
+			if (!ok)
+				return ok;
+		}
+	}
+
+	return mp3gain_advance_modify_frame_pointer(bytesinframe);
+}
+
+static void mp3gain_reset_modify_scan_state(void)
+{
+	writebuffercnt = 0;
+	inbuffer = 0;
+	filepos = 0;
+	bitidx = 0;
+}
+
+static void mp3gain_finish_modify_reporting(long gFilesize)
+{
+	if (!QuietMode) {
+#ifndef asWIN32DLL
+		fprintf(stderr, "                                                   \r");
+#else
+		sendpercentdone(100, gFilesize);
+#endif
+	}
+	fflush(stderr);
+	fflush(stdout);
+}
+
+static int mp3gain_finish_modify_result(int result)
+{
+	NowWriting = 0;
+	return result;
+}
+
+static void mp3gain_close_modify_streams(void)
+{
+	if (outf != NULL) {
+		fclose(outf);
+		outf = NULL;
+	}
+	if (inf != NULL) {
+		fclose(inf);
+		inf = NULL;
+	}
+}
+
+static int mp3gain_fail_modify_open(char **outfilename, int error_code, int numStrings, ...)
+{
+	va_list marker;
+
+	if (UsingTemp && (outf != NULL)) {
+		fclose(outf);
+		outf = NULL;
+	}
+	if (inf != NULL) {
+		fclose(inf);
+		inf = NULL;
+	}
+
+	va_start(marker, numStrings);
+	{
+		char *errstr;
+		size_t totalStrLen = 0;
+		int i;
+		va_list copy;
+
+		va_copy(copy, marker);
+		for (i = 0; i < numStrings; i++) {
+			totalStrLen += strlen(va_arg(copy, const char *));
+		}
+		va_end(copy);
+
+		errstr = (char *)malloc(totalStrLen + 1);
+		errstr[0] = '\0';
+		for (i = 0; i < numStrings; i++) {
+			strcat(errstr, va_arg(marker, const char *));
+		}
+		DoError(errstr, MP3GAIN_UNSPECIFED_ERROR);
+		free(errstr);
+	}
+	va_end(marker);
+
+	free(*outfilename);
+	*outfilename = NULL;
+	NowWriting = 0;
+	return error_code;
+}
+
+static int mp3gain_finalize_temp_modify(char *filename, char *outfilename)
+{
+	long outlength, inlength;
+
+	while (fillBuffer(0))
+		;
+	fflush(outf);
+#ifdef WIN32
+	outlength = _filelength(_fileno(outf));
+	inlength = _filelength(_fileno(inf));
+#else
+	fseek(outf, 0, SEEK_END);
+	fseek(inf, 0, SEEK_END);
+	outlength = ftell(outf);
+	inlength = ftell(inf);
+#endif
+#ifdef __BEOS__
+	/* some stuff to preserve attributes */
+	do {
+		DIR *attrs = NULL;
+		struct dirent *de;
+		struct attr_info ai;
+		int infd, outfd;
+		void *attrdata;
+
+		infd = fileno(inf);
+		if (infd < 0)
+			goto attrerror;
+		outfd = fileno(outf);
+		if (outfd < 0)
+			goto attrerror;
+		attrs = fs_fopen_attr_dir(infd);
+		while ((de = fs_read_attr_dir(attrs)) != NULL) {
+			if (fs_stat_attr(infd, de->d_name, &ai) < B_OK)
+				goto attrerror;
+			if ((attrdata = malloc(ai.size)) == NULL)
+				goto attrerror;
+			fs_read_attr(infd, de->d_name, ai.type, 0, attrdata, ai.size);
+			fs_write_attr(outfd, de->d_name, ai.type, 0, attrdata, ai.size);
+			free(attrdata);
+		}
+		fs_close_attr_dir(attrs);
+		break;
+attrerror:
+		if (attrdata)
+			free(attrdata);
+		if (attrs)
+			fs_close_attr_dir(attrs);
+		fprintf(stderr, "can't preserve attributes for '%s': %s\n", filename, strerror(errno));
+	} while (0);
+#endif
+	mp3gain_close_modify_streams();
+
+	if (outlength != inlength) {
+		deleteFile(outfilename);
+		passError(MP3GAIN_UNSPECIFED_ERROR, 3,
+			"Not enough temp space on disk to modify ", filename,
+			"\nEither free some space, or switch off \"temp file\" option with -T\n");
+		return M3G_ERR_NOT_ENOUGH_TMP_SPACE;
+	}
+
+	if (deleteFile(filename)) {
+		deleteFile(outfilename);
+		passError(MP3GAIN_UNSPECIFED_ERROR, 3,
+			"Can't open ", filename, " for modifying\n");
+		return M3G_ERR_CANT_MODIFY_FILE;
+	}
+
+	if (moveFile(outfilename, filename)) {
+		passError(MP3GAIN_UNSPECIFED_ERROR, 9,
+			"Problem re-naming ", outfilename, " to ", filename,
+			"\nThe mp3 was correctly modified, but you will need to re-name ",
+			outfilename, " to ", filename,
+			" yourself.\n");
+		return M3G_ERR_RENAME_TMP;
+	}
+
+	if (saveTime)
+		fileTime(filename, setStoredTime);
+
+	return 0;
+}
+
+static void mp3gain_finalize_inplace_modify(char *filename)
+{
+	flushWriteBuff();
+	mp3gain_close_modify_streams();
+	if (saveTime)
+		fileTime(filename, setStoredTime);
+}
+
+#ifdef asWIN32DLL
+static void mp3gain_cancel_modify(char *filename, char *outfilename)
+{
+	if (inf != NULL) {
+		fclose(inf);
+		inf = NULL;
+	}
+	if (UsingTemp) {
+		if (outf != NULL) {
+			fclose(outf);
+			outf = NULL;
+		}
+		deleteFile(outfilename);
+		free(outfilename);
+		passError(MP3GAIN_CANCELLED, 2, "Cancelled processing of ", filename);
+	}
+	else {
+		passError(MP3GAIN_CANCELLED, 3, "Cancelled processing.\n", filename, " is probably corrupted now.");
+	}
+	if (saveTime)
+		fileTime(filename, setStoredTime);
+}
+#endif
+
+unsigned long mp3gain_report_frame_progress(unsigned long frame, long bytesinframe, long gFilesize)
+{
+	if (!QuietMode) {
+		if (!(frame % 200)) {
+			return reportPercentAnalyzed(
+				(int)mp3gain_analyze_progress_percent(bytesinframe, gFilesize),
+				gFilesize
+			);
+		}
+	}
+
+	return !0;
 }
 
 
@@ -274,7 +1028,7 @@ void set8Bits(unsigned short val) {
 	wrdpntr[1] |= (val  & 0xFF);
 	
 	if (!UsingTemp) 
-		addWriteBuff(filepos-(inbuffer-(wrdpntr-buffer)),wrdpntr);
+		mp3gain_buffer_write_pair(wrdpntr);
 }
 
 
@@ -460,6 +1214,82 @@ unsigned long frameSearch(int startup) {
 	return ok;
 }
 
+unsigned long mp3gain_prepare_first_mp3_frame(
+	char *filename,
+	int *mode,
+	int *mpegver,
+	int *freqidx,
+	unsigned long *frame)
+{
+	unsigned char *xingcheck;
+	int sideinfo_len;
+	unsigned long ok = !0;
+
+	bitidx = (curframe[2] >> 4) & 0x0F;
+	*mode = (curframe[3] >> 6) & 3;
+
+	if ((curframe[1] & 0x08) == 0x08)
+		sideinfo_len = (*mode == 3) ? 4 + 17 : 4 + 32;
+	else
+		sideinfo_len = (*mode == 3) ? 4 + 9 : 4 + 17;
+
+	if (!(curframe[1] & 0x01))
+		sideinfo_len += 2;
+
+	xingcheck = curframe + sideinfo_len;
+	if ((xingcheck[0] == 'X' && xingcheck[1] == 'i' && xingcheck[2] == 'n' && xingcheck[3] == 'g') ||
+		(xingcheck[0] == 'I' && xingcheck[1] == 'n' && xingcheck[2] == 'f' && xingcheck[3] == 'o')) {
+		if (bitidx == 0) {
+			fprintf(stderr, "%s is free format (not currently supported)\n", filename);
+			fflush(stderr);
+			ok = 0;
+		} else {
+			int bytesinframe;
+
+			*mpegver = (curframe[1] >> 3) & 0x03;
+			*freqidx = (curframe[2] >> 2) & 0x03;
+			bytesinframe = arrbytesinframe[bitidx] + ((curframe[2] >> 1) & 0x01);
+			mp3gain_advance_frame_pointer(bytesinframe);
+			ok = frameSearch(0);
+		}
+	}
+
+	*frame = 1;
+	if (ok) {
+		*mpegver = (curframe[1] >> 3) & 0x03;
+		*freqidx = (curframe[2] >> 2) & 0x03;
+	}
+
+	return ok;
+}
+
+unsigned long mp3gain_prepare_mp3_frame(
+	char *filename,
+	int *bitridx,
+	int *mpegver,
+	int *crcflag,
+	int *freqidx,
+	long *bytesinframe,
+	int *mode,
+	int *nchan)
+{
+	*bitridx = (curframe[2] >> 4) & 0x0F;
+	if (*bitridx == 0) {
+		fprintf(stderr, "%s is free format (not currently supported)\n", filename);
+		fflush(stderr);
+		return 0;
+	}
+
+	*mpegver = (curframe[1] >> 3) & 0x03;
+	*crcflag = curframe[1] & 0x01;
+	*freqidx = (curframe[2] >> 2) & 0x03;
+	*bytesinframe = arrbytesinframe[*bitridx] + ((curframe[2] >> 1) & 0x01);
+	*mode = (curframe[3] >> 6) & 0x03;
+	*nchan = (*mode == 3) ? 1 : 2;
+
+	return !0;
+}
+
 
 
 static
@@ -625,86 +1455,38 @@ void scanFrameGain() {
 	int mpegver;
 	int mode;
 	int nchan;
-	int gr, ch;
-	int gain;
+	int gr;
 
 	mpegver = (curframe[1] >> 3) & 0x03;
 	crcflag = curframe[1] & 0x01;
 	mode = (curframe[3] >> 6) & 0x03;
 	nchan = (mode == 3) ? 1 : 2;
 
-	if (!crcflag)
-		wrdpntr = curframe + 6;
-	else
-		wrdpntr = curframe + 4;
-
-	bitidx = 0;
+	mp3gain_prepare_scan_frame_bits(mpegver, mode, nchan, crcflag);
 
 	if (mpegver == 3) { /* 9 bit main_data_begin */
-		wrdpntr++;
-		bitidx = 1;
-
-		if (mode == 3)
-			skipBits(5); /* private bits */
-		else
-			skipBits(3); /* private bits */
-
-		skipBits(nchan * 4);  /* scfsi[ch][band] */
 		for (gr = 0; gr < 2; gr++) {
-			for (ch = 0; ch < nchan; ch++) {
-				skipBits(21);
-				gain = peek8Bits();
-				if (*minGain > gain) {
-					*minGain = gain;
-				}
-				if (*maxGain < gain) {
-					*maxGain = gain;
-				}
-				skipBits(38);
-			}
+			mp3gain_track_mpeg1_granule_channels(nchan);
 		}
 	} else { /* mpegver != 3 */
-		wrdpntr++; /* 8 bit main_data_begin */
-
-		if (mode == 3)
-			skipBits(1);
-		else
-			skipBits(2);
-
 		/* only one granule, so no loop */
-		for (ch = 0; ch < nchan; ch++) {
-			skipBits(21);
-			gain = peek8Bits();
-			if (*minGain > gain) {
-				*minGain = gain;
-			}
-			if (*maxGain < gain) {
-				*maxGain = gain;
-			}
-			skipBits(42);
-		}
+		mp3gain_track_mpeg2_channels(nchan);
 	}
 }
 
 int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchange, int rightgainchange) {
   unsigned long ok;
+  int modifyResult;
+  int openResult;
   int mode;
-  int crcflag;
-  unsigned char *Xingcheck;
   unsigned long frame;
-  int nchan;
-  int ch;
-  int gr;
-  unsigned char gain;
   int bitridx;
   long bytesinframe;
-  int sideinfo_len;
   int mpegver;
   long gFilesize = 0;
   char *outfilename;
   int gainchange[2];
   int singlechannel;
-  long outlength, inlength; /* size checker when using Temp files */
 
   outfilename = NULL;
   frame = 0;
@@ -721,10 +1503,9 @@ int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchang
   {
       int rc = aac_modify_gain(aacH, leftgainchange, rightgainchange, 
           QuietMode ? NULL : reportPercentWritten);
-      NowWriting = 0;
       if (rc)
           passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 1, "failed to modify gain\n");
-      return rc;
+      return mp3gain_finish_modify_result(rc);
   }
 #endif
 
@@ -737,363 +1518,49 @@ int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchang
   
   gFilesize = getSizeOfFile(filename);
 
-  if (UsingTemp) {
-	  fflush(stderr);
-	  fflush(stdout);
- 	  outlength = (long)strlen(filename);
- 	  outfilename = (char *)malloc(outlength+5);
-	  strcpy(outfilename,filename);
- 	  if ((filename[outlength-3] == 'T' || filename[outlength-3] == 't') &&
- 			(filename[outlength-2] == 'M' || filename[outlength-2] == 'm') &&
- 			(filename[outlength-1] == 'P' || filename[outlength-1] == 'p')) {
- 		  strcat(outfilename,".TMP");
- 	  }
- 	  else {
- 		  outfilename[outlength-3] = 'T';
- 		  outfilename[outlength-2] = 'M';
- 		  outfilename[outlength-1] = 'P';
- 	  }
-
-      inf = fopen(filename,"r+b");
-
-	  if (inf != NULL) {
-	    outf = fopen(outfilename, "wb");
-		
-		if (outf == NULL) {
-		        fclose(inf); 
-			inf = NULL;
-            passError(MP3GAIN_UNSPECIFED_ERROR, 3,
-                "\nCan't open ", outfilename, " for temp writing\n");
-			NowWriting = 0;
-			free(outfilename);
-			return M3G_ERR_CANT_MAKE_TMP;
-		} 
- 
-	  }
+  openResult = mp3gain_open_modify_streams(filename, &outfilename);
+  if (openResult != 0) {
+	  return openResult;
   }
   else {
-      inf = fopen(filename,"r+b");
-  }
-
-  if (inf == NULL) {
-	  if (UsingTemp && (outf != NULL)) {
-		  fclose(outf);
-		  outf = NULL;
-	  }
-	  passError( MP3GAIN_UNSPECIFED_ERROR, 3,
-          "\nCan't open ", filename, " for modifying\n");
-	  NowWriting = 0;
-	  free(outfilename);
-	  return M3G_ERR_CANT_MODIFY_FILE;
-  }
-  else {
-	writebuffercnt = 0;
-	inbuffer = 0;
-	filepos = 0;
-	bitidx = 0;
-	ok = fillBuffer(0);
+	ok = mp3gain_begin_modify_frames(
+		filename, &frame, &mode, &bitridx, &mpegver, &bytesinframe
+	);
 	if (ok) {
-
-		wrdpntr = buffer;
-
-		ok = skipID3v2();
-
-		ok = frameSearch(!0);
-		if (!ok) {
-            if (!BadLayer)
-				passError( MP3GAIN_UNSPECIFED_ERROR, 3,
-                    "Can't find any valid MP3 frames in file ", filename, "\n");
-		}
-		else {
-			LayerSet = 1; /* We've found at least one valid layer 3 frame.
-						   * Assume any later layer 1 or 2 frames are just
-						   * bitstream corruption
-						   */
-			mode = (curframe[3] >> 6) & 3;
-
-			if ((curframe[1] & 0x08) == 0x08) /* MPEG 1 */
-				sideinfo_len = (mode == 3) ? 4 + 17 : 4 + 32;
-			else                /* MPEG 2 */
-				sideinfo_len = (mode == 3) ? 4 + 9 : 4 + 17;
-
-			if (!(curframe[1] & 0x01))
-				sideinfo_len += 2;
-
-			Xingcheck = curframe + sideinfo_len;
-
-			//LAME CBR files have "Info" tags, not "Xing" tags
-			if ((Xingcheck[0] == 'X' && Xingcheck[1] == 'i' && Xingcheck[2] == 'n' && Xingcheck[3] == 'g') ||
-					(Xingcheck[0] == 'I' && Xingcheck[1] == 'n' && Xingcheck[2] == 'f' && Xingcheck[3] == 'o')) {
-				bitridx = (curframe[2] >> 4) & 0x0F;
-				if (bitridx == 0) {
-					passError( MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
-                        filename, " is free format (not currently supported)\n");
-					ok = 0;
-				}
-				else {
-					mpegver = (curframe[1] >> 3) & 0x03;
-
-					bytesinframe = arrbytesinframe[bitridx] + ((curframe[2] >> 1) & 0x01);
-
-					wrdpntr = curframe + bytesinframe;
-
-					ok = frameSearch(0);
-				}
-			}
-			
-			frame = 1;
-		} /* if (!ok) else */
 		
 #ifdef asWIN32DLL
 		while (ok && (!blnCancel)) {
 #else
 		while (ok) {
 #endif
-			bitridx = (curframe[2] >> 4) & 0x0F;
-			if (singlechannel) {
-				if ((curframe[3] >> 6) & 0x01) { /* if mode is NOT stereo or dual channel */
-					passError( MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
-                        filename, ": Can't adjust single channel for mono or joint stereo\n");
-					ok = 0;
-				}
-			}
-			if (bitridx == 0) {
-				passError( MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
-                    filename, " is free format (not currently supported)\n");
-				ok = 0;
-			}
-			if (ok) {
-				mpegver = (curframe[1] >> 3) & 0x03;
-				crcflag = curframe[1] & 0x01;
-
-				bytesinframe = arrbytesinframe[bitridx] + ((curframe[2] >> 1) & 0x01);
-				mode = (curframe[3] >> 6) & 0x03;
-				nchan = (mode == 3) ? 1 : 2;
-
-				if (!crcflag) /* we DO have a crc field */
-					wrdpntr = curframe + 6; /* 4-byte header, 2-byte CRC */
-				else
-					wrdpntr = curframe + 4; /* 4-byte header */
-
-				bitidx = 0;
-
-				if (mpegver == 3) { /* 9 bit main_data_begin */
-					wrdpntr++;
-					bitidx = 1;
-
-					if (mode == 3)
-						skipBits(5); /* private bits */
-					else
-						skipBits(3); /* private bits */
-
-					skipBits(nchan*4); /* scfsi[ch][band] */
-					for (gr = 0; gr < 2; gr++)
-						for (ch = 0; ch < nchan; ch++) {
-							skipBits(21);
-							gain = peek8Bits();
-							if (wrapGain)
-                                gain += (unsigned char)(gainchange[ch]);
-                            else {
-                                if (gain != 0) {
-                                    if ((int)(gain) + gainchange[ch] > 255)
-                                        gain = 255;
-                                    else if ((int)gain + gainchange[ch] < 0)
-                                        gain = 0;
-                                    else
-                                        gain += (unsigned char)(gainchange[ch]);
-                                }
-                            }
-							set8Bits(gain);
-							skipBits(38);
-						}
-						if (!crcflag) {
-							if (nchan == 1)
-								crcWriteHeader(23,(char*)curframe);
-							else
-								crcWriteHeader(38,(char*)curframe);
-							/* WRITETOFILE */
-							if (!UsingTemp) 
-								addWriteBuff(filepos-(inbuffer-(curframe+4-buffer)),curframe+4);
-						}
-				}
-				else { /* mpegver != 3 */
-					wrdpntr++; /* 8 bit main_data_begin */
-
-					if (mode == 3)
-						skipBits(1);
-					else
-						skipBits(2);
-
-					/* only one granule, so no loop */
-					for (ch = 0; ch < nchan; ch++) {
-						skipBits(21);
-						gain = peek8Bits();
-						if (wrapGain)
-                            gain += (unsigned char)(gainchange[ch]);
-                        else {
-                            if (gain != 0) {
-                                if ((int)(gain) + gainchange[ch] > 255)
-                                    gain = 255;
-                                else if ((int)gain + gainchange[ch] < 0)
-                                    gain = 0;
-                                else
-                                    gain += (unsigned char)(gainchange[ch]);
-                            }
-                        }
-						set8Bits(gain);
-						skipBits(42);
-					}
-					if (!crcflag) {
-						if (nchan == 1)
-							crcWriteHeader(15,(char*)curframe);
-						else
-							crcWriteHeader(23,(char*)curframe);
-						/* WRITETOFILE */
-						if (!UsingTemp) 
-							addWriteBuff(filepos-(inbuffer-(curframe+4-buffer)),curframe+4);
-					}
-
-				}
-				if (!QuietMode) 
-				{
-					frame++;
-					if (frame%200 == 0) {
-                        ok = reportPercentWritten((unsigned long)(((double)(filepos-(inbuffer-(curframe+bytesinframe-buffer))) * 100.0) / gFilesize),gFilesize);
-                        if (!ok)
-                            return ok;
-					}
-				}
-				wrdpntr = curframe+bytesinframe;
-				ok = frameSearch(0);
-			}
+			ok = mp3gain_process_modify_frame(
+				filename, singlechannel, gainchange, &frame, gFilesize
+			);
 		}
 	}
 
 #ifdef asWIN32DLL
 	if (blnCancel) { //need to clean up as best as possible
-		fclose(inf);
-		if (UsingTemp) {
-			fclose(outf);
-			outf = NULL;
-			deleteFile(outfilename);
-			free(outfilename);
-			passError(MP3GAIN_CANCELLED,2,"Cancelled processing of ",filename);
-		}
-		else {
-			passError(MP3GAIN_CANCELLED,3,"Cancelled processing.\n", filename, " is probably corrupted now.");
-		}
-		if (saveTime) 
-		  fileTime(filename, setStoredTime);		
+		mp3gain_cancel_modify(filename, outfilename);
 		NowWriting = 0;
 		return;
 	}
 #endif
 
-	if (!QuietMode) {
-#ifndef asWIN32DLL
-		fprintf(stderr,"                                                   \r");
-#else
-		 /* report DONE (100%) message back to calling app */
-		sendpercentdone( 100, gFilesize );
-#endif
-	}
-	fflush(stderr);
-	fflush(stdout);
+	mp3gain_finish_modify_reporting(gFilesize);
 	if (UsingTemp) {
-		while (fillBuffer(0));
-        fflush(outf);
-#ifdef WIN32
-        outlength = _filelength(_fileno(outf));
-        inlength = _filelength(_fileno(inf));
-#else
-		fseek(outf, 0, SEEK_END);
-		fseek(inf, 0, SEEK_END);
-		outlength=ftell(outf);
-		inlength =ftell(inf); 
-#endif
-#ifdef __BEOS__
-       /* some stuff to preserve attributes */
-       do {
-           DIR *attrs = NULL;
-           struct dirent *de;
-           struct attr_info ai;
-           int infd, outfd;
-           void *attrdata;
-
-           infd = fileno(inf);
-           if (infd < 0)
-               goto attrerror;
-           outfd = fileno(outf);
-           if (outfd < 0)
-               goto attrerror;
-           attrs = fs_fopen_attr_dir(infd);
-           while ((de = fs_read_attr_dir(attrs)) != NULL) {
-               if (fs_stat_attr(infd, de->d_name, &ai) < B_OK)
-                   goto attrerror;
-               if ((attrdata = malloc(ai.size)) == NULL)
-                   goto attrerror;
-               fs_read_attr(infd, de->d_name, ai.type, 0, attrdata, ai.size);
-               fs_write_attr(outfd, de->d_name, ai.type, 0, attrdata, ai.size);
-               free(attrdata);
-           }
-           fs_close_attr_dir(attrs);
-           break;
-       attrerror:
-           if (attrdata)
-               free(attrdata);
-           if (attrs)
-               fs_close_attr_dir(attrs);
-           fprintf(stderr, "can't preserve attributes for '%s': %s\n", filename, strerror(errno));
-       } while (0);
-#endif
-		fclose(outf);
-		fclose(inf);
-		inf = NULL;
-		outf = NULL;
-        
-        if (outlength != inlength) {
-            deleteFile(outfilename);
-			passError( MP3GAIN_UNSPECIFED_ERROR, 3,
-                "Not enough temp space on disk to modify ", filename, 
-                "\nEither free some space, or switch off \"temp file\" option with -T\n");
-            NowWriting = 0;
-            return M3G_ERR_NOT_ENOUGH_TMP_SPACE;
-        }
-        else {
-
-		    if (deleteFile(filename)) {
-				deleteFile(outfilename); //try to delete tmp file
-				passError( MP3GAIN_UNSPECIFED_ERROR, 3,
-                    "Can't open ", filename, " for modifying\n");
-			    NowWriting = 0;
-			    return M3G_ERR_CANT_MODIFY_FILE;
-		    }
-		    if (moveFile(outfilename, filename)) {
-				passError( MP3GAIN_UNSPECIFED_ERROR, 9,
-                    "Problem re-naming ", outfilename, " to ", filename, 
-                    "\nThe mp3 was correctly modified, but you will need to re-name ", 
-                    outfilename, " to ", filename, 
-                    " yourself.\n");
-		            NowWriting = 0;
-			    return M3G_ERR_RENAME_TMP;
-		    };
-		    if (saveTime)
-		       fileTime(filename, setStoredTime);
-        }
+		modifyResult = mp3gain_finalize_temp_modify(filename, outfilename);
 		free(outfilename);
+		if (modifyResult != 0) {
+			return mp3gain_finish_modify_result(modifyResult);
+		}
 	}
 	else {
-		flushWriteBuff();
-		fclose(inf);
-		inf = NULL;
-		if (saveTime) 
-		  fileTime(filename, setStoredTime);		
+		mp3gain_finalize_inplace_modify(filename);
 	}
   }
 
-  NowWriting = 0;
-
-  return 0;
+  return mp3gain_finish_modify_result(0);
 }
 
 
@@ -1484,7 +1951,8 @@ int main(int argc, char **argv) {
 	/* now stored in tagInfo---  maxsample = malloc(sizeof(Float_t) * argc); */
     /* now stored in tagInfo---  maxgain = malloc(sizeof(unsigned char) * argc); */
     /* now stored in tagInfo---  mingain = malloc(sizeof(unsigned char) * argc); */
-	mp3gain_prepare_runtime_batch(argc, argv, fileStart, databaseFormat, &fileok, &tagInfo, &fileTags AACGAIN_ARG(aacInfo));
+	if (!mp3gain_prepare_runtime_batch(argc, argv, fileStart, databaseFormat, &fileok, &tagInfo, &fileTags AACGAIN_ARG(aacInfo)))
+		return 1;
 	return mp3gain_run_batch(argv, argc, fileStart, tagInfo, fileTags, fileok, maxAmpOnly, dBGainMod, mp3GainMod, applyTrack, analysisTrack, applyAlbum, databaseFormat, saveTime, skipTag, autoClip, ignoreClipWarning, &directGain, directSingleChannelGain, directGainVal, &gSuccess, &first, &numFiles, &dBchange, &intGainChange, deleteTag, checkTagOnly AACGAIN_ARG(aacInfo));
 }
 #endif /* asWIN32DLL */

@@ -16,6 +16,7 @@ FIXTURE_DIR="$REPO_ROOT/test/fixtures"
 TMP_DIR="$(mktemp -d)"
 T1="$TMP_DIR/test1.mp3"
 T2="$TMP_DIR/test2.mp3"
+BAD="$TMP_DIR/corrupt-truncated.mp3"
 
 PASS=0
 FAIL=0
@@ -54,10 +55,11 @@ cleanup() {
 restore() {
     cp "$FIXTURE_DIR/test1.mp3" "$T1"
     cp "$FIXTURE_DIR/test2.mp3" "$T2"
+    cp "$FIXTURE_DIR/corrupt-truncated.mp3" "$BAD"
 }
 
 require_fixtures() {
-    if [ ! -f "$FIXTURE_DIR/test1.mp3" ] || [ ! -f "$FIXTURE_DIR/test2.mp3" ]; then
+    if [ ! -f "$FIXTURE_DIR/test1.mp3" ] || [ ! -f "$FIXTURE_DIR/test2.mp3" ] || [ ! -f "$FIXTURE_DIR/corrupt-truncated.mp3" ]; then
         echo "ERROR: fixture files not found in $FIXTURE_DIR"
         exit 1
     fi
@@ -145,7 +147,19 @@ if [ "$code" -eq 0 ]; then pass "analysis exits 0"; else fail "analysis exits 0 
 
 # --- Test 8: APE tag write/read/delete ---
 echo ""
-echo "[8] APE tag round-trip"
+echo "[8] Mixed batch with invalid file"
+restore
+set +e
+out=$("$EXE" "$BAD" "$T1" 2>&1)
+code=$?
+set -e
+if [ "$code" -eq 1 ]; then pass "mixed batch exits 1"; else fail "mixed batch exits 1 (got $code)"; fi
+check "corrupted fixture reports missing frames" "Can't find any valid MP3 frames in file $BAD" "$out"
+check "valid file still analyzed after invalid input" "Track\" dB change: -8.760000" "$out"
+
+# --- Test 9: APE tag write/read/delete ---
+echo ""
+echo "[9] APE tag round-trip"
 restore
 "$EXE" -r "$T1" > /dev/null 2>&1
 out=$("$EXE" -s c "$T1" 2>&1)
@@ -156,9 +170,9 @@ out=$("$EXE" -s c "$T1" 2>&1)
 check_absent "deleted APE tag removes stored track gain" "Track\" mp3 gain change:" "$out"
 check_absent "deleted APE tag removes stored min/max gain" "Max mp3 global gain field:" "$out"
 
-# --- Test 9: ID3/APE tag mode separation ---
+# --- Test 10: ID3/APE tag mode separation ---
 echo ""
-echo "[9] ID3 tag mode separation"
+echo "[10] ID3 tag mode separation"
 restore
 "$EXE" -s i -r "$T1" > /dev/null 2>&1
 out_id3=$("$EXE" -s i -s c "$T1" 2>&1)
@@ -167,9 +181,9 @@ check "ID3 mode reads stored track gain" "Track\" mp3 gain change: 0" "$out_id3"
 check "ID3 mode reads stored max gain" "Max mp3 global gain field: 204" "$out_id3"
 check_absent "APE mode stays empty after ID3-only write" "Track\" mp3 gain change:" "$out_ape"
 
-# --- Test 10: auto-clip path ---
+# --- Test 11: auto-clip path ---
 echo ""
-echo "[10] Auto-clip apply (-k)"
+echo "[11] Auto-clip apply (-k)"
 restore
 out=$("$EXE" -k -d 20 -r "$T1" 2>&1)
 check "auto-clip reports clipped gain" "Applying auto-clipped mp3 gain change of -4" "$out"

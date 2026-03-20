@@ -38,9 +38,67 @@ cmake --build build --config Release
 - The CI smoke test script uses immutable fixtures from `test/fixtures/`
 - Each run copies those fixtures to a temporary directory before applying gain changes or undo operations
 - Do not depend on local working copies in `test/` for CI correctness
+- Current baseline: `27/27` smoke checks passing in the active workspace
+- Current validated platforms:
+  - Windows local build + CI
+  - Linux local build + CI
+  - macOS exploratory only, outside the immediate release support baseline
+- Current smoke coverage includes:
+  - version
+  - track analysis
+  - album analysis
+  - apply track gain
+  - undo
+  - apply album gain
+  - APE tag round-trip
+  - ID3/APE mode separation
+  - auto-clip flow
+  - mixed valid/invalid batch handling via `test/fixtures/corrupt-truncated.mp3`
+- A stable fixture that forces a true frame/decode failure path is still not locked in;
+  several synthetic corruption candidates have been probed, but current coverage still
+  reliably enforces missing-frame rejection and partial batch failure
+- `test/probe_corruptions.ps1` exists as a deterministic probe harness for comparing
+  corruption candidates while that fixture gap remains open
+- Overall validation snapshot is summarized in `docs/VALIDATION.md`
+
+## Reproduction by Platform
+
+### Windows
+
+```powershell
+cmake -S project -B build `
+  -DMPG123_INCLUDE_DIR="vcpkg_installed/vcpkg/blds/mpg123/src/-0852196a3c.clean/src/include" `
+  -DMPG123_LIBRARY="vcpkg_installed/vcpkg/blds/mpg123/x64-windows-rel/src/libmpg123/mpg123.lib"
+cmake --build build --config Release
+bash test/smoke_test.sh
+```
+
+### Linux
+
+```bash
+cmake -S project -B build
+cmake --build build
+bash test/smoke_test.sh
+```
+
+### macOS
+
+- exploratory only until a validated local baseline exists
+
+## Release Packaging Notes
+
+### Windows
+- Build with `cmake --build build --config Release`
+- Ship `build/Release/mp3gain.exe` together with `build/Release/mpg123.dll`
+- Keep `LICENSE` with binary redistributions and publish corresponding source
+
+### Linux
+- Build with `cmake --build build`
+- Ship `build/mp3gain`
+- Document the target distro/toolchain used for the release build
 
 ## Known Issues
 - The recovered Visual Studio project references missing `mpglibDBL/*` files
 - The legacy `VerInfo.rc` is preserved for reference, but the CMake path now generates a fresh Windows version resource
-- This workspace has not yet completed a real compile validation
 - A broad recursive scan of the repository can be expensive because `vcpkg_installed/` contains a large dependency tree
+- Legacy shared state is still concentrated in `project/mp3gain.c`, especially around low-level frame and write-path mutation

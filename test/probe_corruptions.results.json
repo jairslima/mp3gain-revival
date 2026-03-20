@@ -1,0 +1,100 @@
+[
+  {
+    "name": "corrupt-truncated-probe.mp3",
+    "exit_code": 1,
+    "output": "/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/corrupt-truncated-probe.mp3\nCan't find any valid MP3 frames in file /mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/corrupt-truncated-probe.mp3",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3 @ 0x57acb5424f40] Failed to read frame size: Could not seek to 1026.\n[in#0 @ 0x57acb5424e40] Error opening input: Invalid argument\nError opening input file /mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/corrupt-truncated-probe.mp3.\nError opening input files: Invalid argument"
+  },
+  {
+    "name": "payload-corrupt-probe.mp3",
+    "exit_code": 0,
+    "output": "/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/payload-corrupt-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6\n                                                 ",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x6144b3690240] big_values too big\n[mp3float @ 0x6144b3690240] Error while decoding MPEG audio frame.\n[mp3float @ 0x6144b3691ec0] big_values too big\n[mp3float @ 0x6144b3691ec0] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x6144b36cd640] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x6144b3691ec0] big_values too big\n[mp3float @ 0x6144b3691ec0] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x6144b36cd640] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x6144b3691ec0] big_values too big\n[mp3float @ 0x6144b3691ec0] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x6144b36cd640] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x6144b3691ec0] big_values too big"
+  },
+  {
+    "name": "scattered-zero-probe.mp3",
+    "exit_code": 0,
+    "output": "/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/scattered-zero-probe.mp3\n                                                 \nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x5aa982b0ef00] Header missing\n[aist#0:0/mp3 @ 0x5aa982b1ae80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5aa982b0ef00] Header missing\n[aist#0:0/mp3 @ 0x5aa982b1ae80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5aa982b0ef00] Header missing\n[aist#0:0/mp3 @ 0x5aa982b1ae80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5aa982b0ef00] Header missing\n[aist#0:0/mp3 @ 0x5aa982b1ae80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5aa982b0ef00] Header missing\n[aist#0:0/mp3 @ 0x5aa982b1ae80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5aa982b0ef00] Header missing\n[aist#0:0/mp3 @ 0x5aa982b1ae80] Error submitting packet to decoder: Invalid data found when processing input"
+  },
+  {
+    "name": "header-window-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/header-window-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[aist#0:0/mp3 @ 0x58d785d29140] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x58d785d19f00] Header missing\n[aist#0:0/mp3 @ 0x58d785d29140] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x58d785d19f00] Header missing\n[aist#0:0/mp3 @ 0x58d785d29140] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x58d785d19f00] Header missing\n[aist#0:0/mp3 @ 0x58d785d29140] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x58d785d19f00] Header missing\n[aist#0:0/mp3 @ 0x58d785d29140] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x58d785d19f00] Header missing\n[aist#0:0/mp3 @ 0x58d785d29140] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x58d785d19f00] Header missing"
+  },
+  {
+    "name": "sync-byte-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/sync-byte-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x56e654152b00] Header missing\n[aist#0:0/mp3 @ 0x56e654121b40] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x56e654152b00] Header missing\n[aist#0:0/mp3 @ 0x56e654121b40] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x56e654152b00] Header missing\n[aist#0:0/mp3 @ 0x56e654121b40] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x56e654152b00] Header missing\n[aist#0:0/mp3 @ 0x56e654121b40] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x56e654152b00] Header missing\n[aist#0:0/mp3 @ 0x56e654121b40] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x56e654152b00] Header missing\n[aist#0:0/mp3 @ 0x56e654121b40] Error submitting packet to decoder: Invalid data found when processing input"
+  },
+  {
+    "name": "crc-sideinfo-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/crc-sideinfo-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x64f455539f00] big_values too big\n[mp3float @ 0x64f455539f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x64f455545e80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x64f455539f00] big_values too big\n[mp3float @ 0x64f455539f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x64f455545e80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x64f455539f00] big_values too big\n[mp3float @ 0x64f455539f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x64f455545e80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x64f455539f00] big_values too big\n[mp3float @ 0x64f455539f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x64f455545e80] Error submitting packet to decoder: Invalid data found when processing input"
+  },
+  {
+    "name": "transition-gap-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/transition-gap-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x56b074ae9f00] Header missing\n[aist#0:0/mp3 @ 0x56b074af6240] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x56b074ae9f00] Header missing\n[aist#0:0/mp3 @ 0x56b074af6240] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x56b074ae9f00] Header missing\n[aist#0:0/mp3 @ 0x56b074af6240] Error submitting packet to decoder: Invalid data found when processing input"
+  },
+  {
+    "name": "main-data-begin-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/main-data-begin-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": false,
+    "ffmpeg_output": ""
+  },
+  {
+    "name": "reservoir-burst-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/reservoir-burst-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x5cbf98d52f00] big_values too big\n[mp3float @ 0x5cbf98d52f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x5cbf98d5ee80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5cbf98d52f00] big_values too big\n[mp3float @ 0x5cbf98d52f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x5cbf98d5ee80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5cbf98d52f00] big_values too big\n[mp3float @ 0x5cbf98d52f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x5cbf98d5ee80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5cbf98d52f00] big_values too big\n[mp3float @ 0x5cbf98d52f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x5cbf98d5ee80] Error submitting packet to decoder: Invalid data found when processing input"
+  },
+  {
+    "name": "cross-frame-stitch-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/cross-frame-stitch-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x5e2d84a3af00] Header missing\n[aist#0:0/mp3 @ 0x5e2d84a47240] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5e2d84a3af00] Header missing\n[aist#0:0/mp3 @ 0x5e2d84a47240] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5e2d84a3af00] Header missing\n[aist#0:0/mp3 @ 0x5e2d84a47240] Error submitting packet to decoder: Invalid data found when processing input"
+  },
+  {
+    "name": "sideinfo-shear-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/sideinfo-shear-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x61e3d5994f00] big_values too big\n[mp3float @ 0x61e3d5994f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x61e3d59a0e80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x61e3d5994f00] big_values too big\n[mp3float @ 0x61e3d5994f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x61e3d59a0e80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x61e3d5994f00] big_values too big\n[mp3float @ 0x61e3d5994f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x61e3d59a0e80] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x61e3d5994f00] big_values too big\n[mp3float @ 0x61e3d5994f00] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x61e3d59a0e80] Error submitting packet to decoder: Invalid data found when processing input"
+  },
+  {
+    "name": "late-payload-scramble-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/late-payload-scramble-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x61ae29a66f40] big_values too big\n[mp3float @ 0x61ae29a66f40] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x61ae29a72ec0] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x61ae29a66f40] big_values too big\n[mp3float @ 0x61ae29a66f40] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x61ae29a72ec0] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x61ae29a66f40] invalid new backstep -1\n    Last message repeated 2 times\n[mp3float @ 0x61ae29a66f40] big_values too big\n[mp3float @ 0x61ae29a66f40] Error while decoding MPEG audio frame.\n[aist#0:0/mp3 @ 0x61ae29a72ec0] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x61ae29a66f40] big_values too big"
+  },
+  {
+    "name": "late-header-poison-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/late-header-poison-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": true,
+    "ffmpeg_output": "[mp3float @ 0x5ac3c2643f00] Header missing\n[aist#0:0/mp3 @ 0x5ac3c2650a00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5ac3c2643f00] Header missing\n[aist#0:0/mp3 @ 0x5ac3c2650a00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5ac3c2643f00] Header missing\n[aist#0:0/mp3 @ 0x5ac3c2650a00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5ac3c2643f00] Header missing\n[aist#0:0/mp3 @ 0x5ac3c2650a00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5ac3c2643f00] Header missing\n[aist#0:0/mp3 @ 0x5ac3c2650a00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x5ac3c2643f00] Header missing\n[aist#0:0/mp3 @ 0x5ac3c2650a00] Error submitting packet to decoder: Invalid data found when processing input"
+  },
+  {
+    "name": "frame-cluster-poison-probe.mp3",
+    "exit_code": 0,
+    "output": "                                                 \n/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/frame-cluster-poison-probe.mp3\nRecommended \"Track\" dB change: -8.760000\nRecommended \"Track\" mp3 gain change: -6\nMax PCM sample at current gain: 57757.932162\nMax mp3 global gain field: 210\nMin mp3 global gain field: 130\n\n\nRecommended \"Album\" dB change for all files: -8.760000\nRecommended \"Album\" mp3 gain change for all files: -6",
+    "ffmpeg_decode_error": false,
+    "ffmpeg_output": ""
+  }
+]
