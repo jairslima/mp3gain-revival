@@ -78,7 +78,7 @@ A DLL de runtime do mpg123 deve estar no mesmo diretório que mp3gain.exe.
 Localização original: `vcpkg_installed/vcpkg/blds/mpg123/x64-windows-rel/src/libmpg123/mpg123.dll`
 
 ## Estado Atual
-- **Fase:** 4 do Roadmap (Release Readiness) - **EM ANDAMENTO**
+- **Fase:** 4 do Roadmap (Release Readiness) - **CONCLUÍDA (v1.6.2-revival1)**
 - **Subfases da Phase 3:**
   - **3.1 Baseline smoke:** concluída
   - **3.2 Comportamento stateful do CLI:** concluída
@@ -147,11 +147,9 @@ Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
    Fix: não sobrescrever `*ok` com o retorno da loop; deixar `*ok = 1`.
 
 ## Próximos Passos
-1. Executar a **Phase 4** para a baseline suportada de Windows/Linux
-2. Preparar packaging e notas da primeira release pública
-3. Continuar o cleanup estrutural do estado legado como refactor contínuo, sem tratá-lo como bloqueio da verificação já concluída
-4. Manter macOS fora da promessa de suporte imediato até validação real
-5. Reavaliar depois se a discrepância entre MP3Gain/libmpg123 e o oráculo `ffmpeg` precisa de trabalho corretivo pós-release
+1. Continuar o cleanup estrutural do estado legado (desacoplamento do frame-scan) como refatoração contínua, sem tratá-lo como bloqueio da release.
+2. Manter macOS fora da promessa de suporte imediato até validação real.
+3. Reavaliar depois se a discrepância entre MP3Gain/libmpg123 e o oráculo `ffmpeg` precisa de trabalho corretivo pós-release.
 
 Observação:
 - os `exit(...)` restantes no código ativo estão agora concentrados principalmente em caminhos de CLI/usage, não no fluxo principal por arquivo
@@ -168,11 +166,11 @@ Observação:
 - O próximo corte técnico recomendado agora é **continuar o desacoplamento do frame-scan**.
 - O objetivo é reduzir dependência de globais compartilhadas sem alterar comportamento.
 - Focos imediatos:
-  - helpers ainda presos em `mp3gain.c`, especialmente `skipID3v2`, `frameSearch` e o restante do cursor de bits do write path
-  - estado global cruzando `cli.c`, `prep.c`, `exec.c`, `process.c` e `mp3gain.c`
+  - ~~helpers ainda presos em `mp3gain.c`, especialmente `skipID3v2`, `frameSearch` e o restante do cursor de bits do write path~~ -> **CONCLUÍDO:** Cursor de bits e arrays locais consolidados na estrutura `MP3ScanState`.
+  - estado global cruzando `cli.c`, `prep.c`, `exec.c`, `process.c` e `mp3gain.c` (próximo alvo: mover flags `extern` para `MP3GainCliOptions`).
   - conversão de falhas recuperáveis restantes para tratamento por arquivo
 - Ordem sugerida:
-  1. continuar escondendo estado de scan atrás de helpers/contextos
+  1. ~~continuar escondendo estado de scan atrás de helpers/contextos~~ -> **CONCLUÍDO:** Isolado usando Macro Bridge para preservar a compatibilidade e modularizar o bitstream.
   2. adicionar regressão para corrupção real de frame/decode
   3. manter a história de plataformas explícita: Windows/Linux validados, macOS pendente
   4. só depois partir para empacotamento/release

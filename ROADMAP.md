@@ -147,10 +147,12 @@ Current state:
 - Add packaging instructions
 - Publish the first public recovery release
 - Document LGPL compliance expectations for source and binary releases
+- Status: complete
 
 Current state:
-- the project has now entered Phase 4 for the Windows/Linux supported baseline
-- remaining work is release packaging, release notes, and deciding whether any legacy structural cleanup must happen before the first public release
+- the project has completed Phase 4 for the Windows/Linux supported baseline (v1.6.2-revival1 release docs updated)
+- actual binary packaging for Windows will require a runner with msbuild/cmake
+- remaining work focuses on Phase 5 and continuous structural cleanup
 
 ## Phase 5: Optional Expansion
 - Investigate missing historical GUI source
@@ -159,7 +161,6 @@ Current state:
 - Consider whether a future GUI should be a separate frontend over the same portable core
 
 ## Immediate Next Slice
-1. Execute Phase 4 release-readiness work for the Windows/Linux supported baseline.
+1. Continue structural cleanup of remaining legacy low-level state (frame-scan decoupling).
 2. Keep macOS outside the release support claim until it is validated separately.
-3. Continue structural cleanup of remaining legacy low-level state as follow-on refactor work where it materially improves release confidence.
-4. Prepare the first public recovery release with an explicit limitations statement.
+3. Determine if the corruption mismatch against `ffmpeg` requires work or remains a permanent known limitation.

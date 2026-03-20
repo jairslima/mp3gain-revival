@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [1.6.2-revival1] - 2026-03-20
 
 - revived the CMake-based CLI build as the active project path
 - validated Windows and Linux build + smoke coverage

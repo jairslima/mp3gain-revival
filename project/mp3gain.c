@@ -163,7 +163,22 @@ wbuffer writebuffer[WRITEBUFFERSIZE];
 
 unsigned long writebuffercnt;
 
-unsigned char buffer[BUFFERSIZE];
+struct MP3ScanState {
+    unsigned char buffer[BUFFERSIZE];
+    long inbuffer;
+    unsigned long bitidx;
+    unsigned char *wrdpntr;
+    unsigned char *curframe;
+    unsigned long filepos;
+};
+static struct MP3ScanState g_scan_state;
+
+#define buffer (g_scan_state.buffer)
+#define inbuffer (g_scan_state.inbuffer)
+#define bitidx (g_scan_state.bitidx)
+#define wrdpntr (g_scan_state.wrdpntr)
+#define curframe (g_scan_state.curframe)
+#define filepos (g_scan_state.filepos)
 
 int writeself = 0;
 int QuietMode = 0;
@@ -187,11 +202,6 @@ int useId3 = 0;
 
 int gSuccess;
 
-long inbuffer;
-unsigned long bitidx;
-unsigned char *wrdpntr;
-unsigned char *curframe;
-
 char *curfilename;
 
 FILE *inf = NULL;
@@ -199,8 +209,6 @@ FILE *inf = NULL;
 FILE *outf;
 
 short int saveTime;
-
-unsigned long filepos;
 
 static const double bitrate[4][16] = {
 	{ 1,  8, 16, 24, 32, 40, 48, 56,  64,  80,  96, 112, 128, 144, 160, 1 },
