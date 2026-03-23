@@ -149,7 +149,7 @@ Três bugs de aliasing cross-TU foram encontrados e corrigidos em `process.c`:
 ## Próximos Passos
 1. Continuar o cleanup estrutural do estado legado (desacoplamento do frame-scan) como refatoração contínua, sem tratá-lo como bloqueio da release.
 2. Manter macOS fora da promessa de suporte imediato até validação real.
-3. Reavaliar depois se a discrepância entre MP3Gain/libmpg123 e o oráculo `ffmpeg` precisa de trabalho corretivo pós-release.
+3. ~~Reavaliar depois se a discrepância entre MP3Gain/libmpg123 e o oráculo `ffmpeg` precisa de trabalho corretivo pós-release.~~ -> **DECISÃO (2026-03-20):** Declarado como limitação permanente aceita da engine `libmpg123`, que prioriza tolerância a falhas na decodificação em vez do rigor rígido do `ffmpeg`. Reimplementar decodificador foge do escopo da CLI.
 
 Observação:
 - os `exit(...)` restantes no código ativo estão agora concentrados principalmente em caminhos de CLI/usage, não no fluxo principal por arquivo
@@ -160,7 +160,7 @@ Observação:
 - O build do vcpkg local usa a build de debug do mpg123 para dbg e release compilada manualmente
 - A cobertura automatizada ainda é parcial; os smoke tests estão fortes, mas ainda faltam regressões mais específicas para corrupção de frame/decode
 - O código de suporte a DLL (replaygaindll.c) não está no path de build principal
-- O núcleo legado ainda mantém bastante estado global em `mp3gain.c`
+- A interface gráfica (GUI) antiga não existe neste repositório. O código-fonte visual nunca foi incluído nos arquivos originais recuperados e está permanentemente descartado. Qualquer GUI no futuro será um projeto externo invocando o executável.
 
 ## Ponto de Retomada Técnico
 - O próximo corte técnico recomendado agora é **continuar o desacoplamento do frame-scan**.

@@ -155,12 +155,12 @@ Current state:
 - remaining work focuses on Phase 5 and continuous structural cleanup
 
 ## Phase 5: Optional Expansion
-- Investigate missing historical GUI source
-- Decide whether to recover, replace, or drop the legacy GUI
+- ~~Investigate missing historical GUI source~~ -> **Status: Verified missing.** The original source archives only contain the C core.
+- ~~Decide whether to recover, replace, or drop the legacy GUI~~ -> **Status: Dropped.** The project will focus exclusively on the cross-platform CLI.
 - Revisit localization strategy beyond archived `.chm` help files
-- Consider whether a future GUI should be a separate frontend over the same portable core
+- ~~Consider whether a future GUI should be a separate frontend over the same portable core~~ -> **Status: Decided.** Any future GUI will be an external project interacting with the CLI.
 
 ## Immediate Next Slice
 1. Continue structural cleanup of remaining legacy low-level state (frame-scan decoupling).
 2. Keep macOS outside the release support claim until it is validated separately.
-3. Determine if the corruption mismatch against `ffmpeg` requires work or remains a permanent known limitation.
+3. The corruption mismatch against `ffmpeg` has been evaluated and is now accepted as a permanent characteristic of `libmpg123` tolerance. No further C code changes will be made to emulate `ffmpeg` strictness.
