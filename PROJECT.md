@@ -35,6 +35,11 @@ vcpkg_installed/  <- Dependências (ignorar em buscas)
 ## Comandos Essenciais
 
 ### Configurar build (primeira vez ou após --fresh)
+> **Nota de Ambiente (Windows):** Se o terminal acusar que o `cmake` não é reconhecido, saiba que múltiplas instalações estão presentes na máquina, e a mais recente (v4.1.2) foi adicionada ao PATH do Usuário:
+> - `C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe` *(Versão 4.1.2)*
+> - `C:\Users\jairs\AppData\Local\vcpkg\downloads\tools\cmake-3.31.10-windows\cmake-3.31.10-windows-x86_64\bin\cmake.exe` *(Versão 3.31.10 - vcpkg)*
+> - `C:\Users\jairs\AppData\Local\Android\Sdk\cmake\3.22.1\bin\cmake.exe` *(Versão 3.22.1 - Android SDK)*
+
 ```powershell
 cmake -S project -B build `
   -DMPG123_INCLUDE_DIR="vcpkg_installed/vcpkg/blds/mpg123/src/-0852196a3c.clean/src/include" `
