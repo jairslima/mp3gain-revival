@@ -155,10 +155,12 @@ Current state:
 - remaining work focuses on Phase 5 and continuous structural cleanup
 
 ## Phase 5: Optional Expansion
-- ~~Investigate missing historical GUI source~~ -> **Status: Verified missing.** The original source archives only contain the C core.
-- ~~Decide whether to recover, replace, or drop the legacy GUI~~ -> **Status: Hijacked.** The project will focus on the cross-platform CLI, but we discovered the legacy `MP3GainGUI.exe` is a direct wrapper. Our modern CLI can be used as a "Drop-in Replacement" inside the classic installation folder.
+- ~~Investigate missing historical GUI source~~ -> **Status: Verified missing.**
+- ~~Decide whether to recover, replace, or drop the legacy GUI~~ -> **Status: Recreate.** The legacy GUI acts as a wrapper but is visually outdated (2005). The new goal is to build a modern, cross-platform UI wrapper that controls the 2026 CLI.
 - Revisit localization strategy beyond archived `.chm` help files
-- ~~Consider whether a future GUI should be a separate frontend over the same portable core~~ -> **Status: Solved.** The classic Windows GUI already acts as an external frontend and is fully compatible with our 2026 engine.
+- Plan the modern GUI stack:
+  - **Core Logic:** The robust `mp3gain` CLI (C99).
+  - **Frontend:** A lightweight modern framework (e.g. Python/Tkinter, PyQt, Electron, or Tauri) that calls the CLI silently and parses its standard output/errors.
 
 ## Immediate Next Slice
 1. Continue structural cleanup of remaining legacy low-level state (frame-scan decoupling).
