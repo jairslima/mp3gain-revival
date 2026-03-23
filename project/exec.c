@@ -11,15 +11,9 @@
 #define AACGAIN_ARG(x)
 #endif
 
-extern int QuietMode;
-extern int whichChannel;
-extern int undoChanges;
-extern int skipTag;
-extern int deleteTag;
-extern int checkTagOnly;
-extern short int saveTime;
-extern int useId3;
+#include "mp3gain_config.h"
 
+extern int gSuccess;
 int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchange, int rightgainchange);
 void changeGainAndTag(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchange, int rightgainchange, struct MP3GainTagInfo *tag, struct FileTagsStruct *fileTag);
 
@@ -130,15 +124,15 @@ int mp3gain_handle_simple_action(
 #endif
 )
 {
-    if (checkTagOnly) {
+    if (g_mp3gain_config.checkTagOnly) {
         mp3gain_print_tag_only(filename, tagInfo, databaseFormat);
         return 1;
     }
 
-    if (undoChanges) {
+    if (g_mp3gain_config.undoChanges) {
         *directGain = !0;
         if (tagInfo->haveUndo && (tagInfo->undoLeft || tagInfo->undoRight)) {
-            if ((!QuietMode) && (!databaseFormat)) {
+            if ((!g_mp3gain_config.QuietMode) && (!databaseFormat)) {
                 fprintf(stderr, "Undoing mp3gain changes (%d,%d) to %s...\n", tagInfo->undoLeft, tagInfo->undoRight, filename);
             }
             if (databaseFormat) {
@@ -148,7 +142,7 @@ int mp3gain_handle_simple_action(
         } else {
             if (databaseFormat) {
                 fprintf(stdout, "%s\t0\t0\n", filename);
-            } else if (!QuietMode) {
+            } else if (!g_mp3gain_config.QuietMode) {
                 if (tagInfo->haveUndo) {
                     fprintf(stderr, "No changes to undo in %s\n", filename);
                 } else {
@@ -161,56 +155,56 @@ int mp3gain_handle_simple_action(
     }
 
     if (directSingleChannelGain) {
-        if (!QuietMode) {
-            fprintf(stderr, "Applying gain change of %d to CHANNEL %d of %s...\n", directGainVal, whichChannel, filename);
+        if (!g_mp3gain_config.QuietMode) {
+            fprintf(stderr, "Applying gain change of %d to CHANNEL %d of %s...\n", directGainVal, g_mp3gain_config.whichChannel, filename);
         }
-        if (whichChannel) {
-            if (skipTag) {
+        if (g_mp3gain_config.whichChannel) {
+            if (g_mp3gain_config.skipTag) {
                 changeGain(filename AACGAIN_ARG(aacH), 0, directGainVal);
             } else {
                 changeGainAndTag(filename AACGAIN_ARG(aacH), 0, directGainVal, tagInfo, fileTags);
             }
         } else {
-            if (skipTag) {
+            if (g_mp3gain_config.skipTag) {
                 changeGain(filename AACGAIN_ARG(aacH), directGainVal, 0);
             } else {
                 changeGainAndTag(filename AACGAIN_ARG(aacH), directGainVal, 0, tagInfo, fileTags);
             }
         }
-        if ((!QuietMode) && (*gSuccess == 1)) {
+        if ((!g_mp3gain_config.QuietMode) && (*gSuccess == 1)) {
             fprintf(stderr, "\ndone\n");
         }
         return 1;
     }
 
     if (*directGain) {
-        if (!QuietMode) {
+        if (!g_mp3gain_config.QuietMode) {
             fprintf(stderr, "Applying gain change of %d to %s...\n", directGainVal, filename);
         }
-        if (skipTag) {
+        if (g_mp3gain_config.skipTag) {
             changeGain(filename AACGAIN_ARG(aacH), directGainVal, directGainVal);
         } else {
             changeGainAndTag(filename AACGAIN_ARG(aacH), directGainVal, directGainVal, tagInfo, fileTags);
         }
-        if ((!QuietMode) && (*gSuccess == 1)) {
+        if ((!g_mp3gain_config.QuietMode) && (*gSuccess == 1)) {
             fprintf(stderr, "\ndone\n");
         }
         return 1;
     }
 
-    if (deleteTag) {
+    if (g_mp3gain_config.deleteTag) {
 #ifdef AACGAIN
         if (aacH) {
             aac_clear_rg_tags(aacH);
         } else
 #endif
         {
-            RemoveMP3GainAPETag(filename, saveTime);
-            if (useId3) {
-                RemoveMP3GainID3Tag(filename, saveTime);
+            RemoveMP3GainAPETag(filename, g_mp3gain_config.saveTime);
+            if (g_mp3gain_config.useId3) {
+                RemoveMP3GainID3Tag(filename, g_mp3gain_config.saveTime);
             }
         }
-        if ((!QuietMode) && (!databaseFormat)) {
+        if ((!g_mp3gain_config.QuietMode) && (!databaseFormat)) {
             fprintf(stderr, "Deleting tag info of %s...\n", filename);
         }
         if (databaseFormat) {

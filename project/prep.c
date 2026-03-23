@@ -5,14 +5,7 @@
 #include "id3tag.h"
 #include "mp3gain.h"
 #include "prep.h"
-
-extern int UsingTemp;
-extern int skipTag;
-extern int deleteTag;
-extern int forceRecalculateTag;
-extern int forceUpdateTag;
-extern short int saveTime;
-extern int useId3;
+#include "mp3gain_config.h"
 
 enum {
     MP3GAIN_FULL_RECALC = 1,
@@ -34,7 +27,7 @@ static void mp3gain_reset_runtime_state(
     memset(tagInfo, 0, sizeof(*tagInfo));
     memset(fileTags, 0, sizeof(*fileTags));
 
-    tagInfo->dirty = forceUpdateTag;
+    tagInfo->dirty = g_mp3gain_config.forceUpdateTag;
 }
 
 static void mp3gain_clear_recalculated_fields(struct MP3GainTagInfo *tagInfo)
@@ -78,7 +71,7 @@ void mp3gain_prepare_file(
     mp3gain_reset_runtime_state(fileok, tagInfo, fileTags);
 
 #ifdef AACGAIN
-    if (aac_open(filename, UsingTemp, saveTime, aacInfo) != 0) {
+    if (aac_open(filename, g_mp3gain_config.UsingTemp, g_mp3gain_config.saveTime, aacInfo) != 0) {
         passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
             filename, " is not a valid mp4/m4a file.\n");
         *aacInfo = NULL;
@@ -86,17 +79,17 @@ void mp3gain_prepare_file(
     }
 #endif
 
-    if ((!skipTag) && (!deleteTag)) {
+    if ((!g_mp3gain_config.skipTag) && (!g_mp3gain_config.deleteTag)) {
 #ifdef AACGAIN
         if (*aacInfo) {
-            if (!skipTag) {
+            if (!g_mp3gain_config.skipTag) {
                 ReadAacTags(*aacInfo, tagInfo);
             }
         } else
 #endif
         {
             ReadMP3GainAPETag(filename, tagInfo, fileTags);
-            if (useId3) {
+            if (g_mp3gain_config.useId3) {
                 if (tagInfo->haveTrackGain || tagInfo->haveAlbumGain ||
                     tagInfo->haveMinMaxGain || tagInfo->haveAlbumMinMaxGain ||
                     tagInfo->haveUndo) {
@@ -106,7 +99,7 @@ void mp3gain_prepare_file(
             }
         }
 
-        if (forceRecalculateTag) {
+        if (g_mp3gain_config.forceRecalculateTag) {
             mp3gain_clear_recalculated_fields(tagInfo);
         }
     }
@@ -128,8 +121,8 @@ int mp3gain_compute_recalc_flags(
     unsigned char curAlbumMinGain = 0;
     unsigned char curAlbumMaxGain = 0;
 
-    albumRecalc = forceRecalculateTag || skipTag ? MP3GAIN_FULL_RECALC : 0;
-    if ((!skipTag) && (!deleteTag) && (!forceRecalculateTag)) {
+    albumRecalc = g_mp3gain_config.forceRecalculateTag || g_mp3gain_config.skipTag ? MP3GAIN_FULL_RECALC : 0;
+    if ((!g_mp3gain_config.skipTag) && (!g_mp3gain_config.deleteTag) && (!g_mp3gain_config.forceRecalculateTag)) {
         if (argc - fileStart > 1) {
             curAlbumGain = tagInfo[fileStart].albumGain;
             curAlbumPeak = tagInfo[fileStart].albumPeak;

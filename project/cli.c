@@ -3,26 +3,13 @@
 #include <string.h>
 
 #include "cli.h"
+#include "mp3gain_config.h"
 
 void errUsage(char *progname);
 void fullUsage(char *progname);
 void wrapExplanation(void);
 void showVersion(char *argv0);
 
-extern unsigned char maxAmpOnly;
-extern short int saveTime;
-extern int whichChannel;
-extern int Reckless;
-extern int wrapGain;
-extern int undoChanges;
-extern int skipTag;
-extern int deleteTag;
-extern int forceRecalculateTag;
-extern int forceUpdateTag;
-extern int checkTagOnly;
-extern int QuietMode;
-extern int UsingTemp;
-extern int useId3;
 
 static int is_single_char_option(char *arg)
 {
@@ -88,8 +75,8 @@ void mp3gain_cli_parse(int argc, char **argv, struct MP3GainCliOptions *options)
         errUsage(argv[0]);
     }
 
-    maxAmpOnly = 0;
-    saveTime = 0;
+    g_mp3gain_config.maxAmpOnly = 0;
+    g_mp3gain_config.saveTime = 0;
 
     for (i = 1; i < argc; i++) {
         if (is_single_char_option(argv[i])) {
@@ -118,7 +105,7 @@ void mp3gain_cli_parse(int argc, char **argv, struct MP3GainCliOptions *options)
                     break;
                 case 'f':
                 case 'F':
-                    Reckless = 1;
+                    g_mp3gain_config.Reckless = 1;
                     break;
                 case 'g':
                 case 'G':
@@ -157,7 +144,7 @@ void mp3gain_cli_parse(int argc, char **argv, struct MP3GainCliOptions *options)
                     options->directSingleChannelGain = !0;
                     options->directGain = 0;
                     if (argv[i][2] != '\0') {
-                        whichChannel = atoi(argv[i] + 2);
+                        g_mp3gain_config.whichChannel = atoi(argv[i] + 2);
                         if (i + 1 < argc) {
                             options->directGainVal = atoi(argv[i + 1]);
                             i++;
@@ -166,7 +153,7 @@ void mp3gain_cli_parse(int argc, char **argv, struct MP3GainCliOptions *options)
                             errUsage(argv[0]);
                         }
                     } else if (i + 2 < argc) {
-                        whichChannel = atoi(argv[i + 1]);
+                        g_mp3gain_config.whichChannel = atoi(argv[i + 1]);
                         i++;
                         options->fileStart++;
                         options->directGainVal = atoi(argv[i + 1]);
@@ -194,11 +181,11 @@ void mp3gain_cli_parse(int argc, char **argv, struct MP3GainCliOptions *options)
                     break;
                 case 'p':
                 case 'P':
-                    saveTime = !0;
+                    g_mp3gain_config.saveTime = !0;
                     break;
                 case 'q':
                 case 'Q':
-                    QuietMode = !0;
+                    g_mp3gain_config.QuietMode = !0;
                     break;
                 case 'r':
                 case 'R':
@@ -222,45 +209,45 @@ void mp3gain_cli_parse(int argc, char **argv, struct MP3GainCliOptions *options)
                     switch (chtmp) {
                         case 'c':
                         case 'C':
-                            checkTagOnly = !0;
+                            g_mp3gain_config.checkTagOnly = !0;
                             break;
                         case 'd':
                         case 'D':
-                            deleteTag = !0;
+                            g_mp3gain_config.deleteTag = !0;
                             break;
                         case 's':
                         case 'S':
-                            skipTag = !0;
+                            g_mp3gain_config.skipTag = !0;
                             break;
                         case 'u':
                         case 'U':
-                            forceUpdateTag = !0;
+                            g_mp3gain_config.forceUpdateTag = !0;
                             break;
                         case 'r':
                         case 'R':
-                            forceRecalculateTag = !0;
+                            g_mp3gain_config.forceRecalculateTag = !0;
                             break;
                         case 'i':
                         case 'I':
-                            useId3 = 1;
+                            g_mp3gain_config.useId3 = 1;
                             break;
                         case 'a':
                         case 'A':
-                            useId3 = 0;
+                            g_mp3gain_config.useId3 = 0;
                             break;
                         default:
                             errUsage(argv[0]);
                     }
                     break;
                 case 't':
-                    UsingTemp = !0;
+                    g_mp3gain_config.UsingTemp = !0;
                     break;
                 case 'T':
-                    UsingTemp = 0;
+                    g_mp3gain_config.UsingTemp = 0;
                     break;
                 case 'u':
                 case 'U':
-                    undoChanges = !0;
+                    g_mp3gain_config.undoChanges = !0;
                     break;
                 case 'v':
                 case 'V':
@@ -270,11 +257,11 @@ void mp3gain_cli_parse(int argc, char **argv, struct MP3GainCliOptions *options)
                     exit(0);
                 case 'w':
                 case 'W':
-                    wrapGain = !0;
+                    g_mp3gain_config.wrapGain = !0;
                     break;
                 case 'x':
                 case 'X':
-                    maxAmpOnly = !0;
+                    g_mp3gain_config.maxAmpOnly = !0;
                     break;
                 case 'e':
                 case 'E':
@@ -295,7 +282,7 @@ void mp3gain_cli_print_table_header(int databaseFormat, int checkTagOnly, int un
 
     if (checkTagOnly) {
         fprintf(stdout, "File\tMP3 gain\tdB gain\tMax Amplitude\tMax global_gain\tMin global_gain\tAlbum gain\tAlbum dB gain\tAlbum Max Amplitude\tAlbum Max global_gain\tAlbum Min global_gain\n");
-    } else if (undoChanges) {
+    } else if (g_mp3gain_config.undoChanges) {
         fprintf(stdout, "File\tleft global_gain change\tright global_gain change\n");
     } else {
         fprintf(stdout, "File\tMP3 gain\tdB gain\tMax Amplitude\tMax global_gain\tMin global_gain\n");

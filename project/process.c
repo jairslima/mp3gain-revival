@@ -11,19 +11,13 @@
 #include <mpg123.h>
 
 #include "process.h"
+#include "mp3gain_config.h"
 
 enum {
     MP3GAIN_FULL_RECALC = 1,
     MP3GAIN_AMP_RECALC = 2
 };
 
-extern int BadLayer;
-extern int LayerSet;
-extern int Reckless;
-extern int QuietMode;
-extern int checkTagOnly;
-extern int undoChanges;
-extern double lastfreq;
 extern int totFiles;
 extern const double frequency[4][4];
 extern FILE *inf;
@@ -144,7 +138,7 @@ int mp3gain_prepare_runtime_batch(
         return 0;
     }
 
-    mp3gain_cli_print_table_header(databaseFormat, checkTagOnly, undoChanges);
+    mp3gain_cli_print_table_header(databaseFormat, g_mp3gain_config.checkTagOnly, g_mp3gain_config.undoChanges);
     totFiles = argc - fileStart;
     mp3gain_prepare_files_batch(
         argc, argv, fileStart, *fileok, *tagInfo, *fileTags
@@ -216,7 +210,7 @@ int mp3gain_run_batch(
 )
 {
     int albumRecalc;
-    struct MP3GainBatchContext batch = { gSuccess, first, numFiles, &lastfreq };
+    struct MP3GainBatchContext batch = { gSuccess, first, numFiles, &g_mp3gain_config.lastfreq };
 
     albumRecalc = mp3gain_compute_recalc_flags(
         argc, fileStart, tagInfo, applyTrack, analysisTrack, maxAmpOnly
@@ -275,8 +269,8 @@ unsigned long mp3gain_begin_mp3_scan(
     unsigned char *mingain
 )
 {
-    BadLayer = 0;
-    LayerSet = Reckless;
+    g_mp3gain_config.BadLayer = 0;
+    g_mp3gain_config.LayerSet = g_mp3gain_config.Reckless;
     *maxgain = 0;
     *mingain = 255;
     mp3gain_reset_mp3_scan_state();
@@ -309,7 +303,7 @@ int mp3gain_handle_missing_mp3_frames(
 #else
     if (!ok) {
 #endif
-        if (!BadLayer) {
+        if (!g_mp3gain_config.BadLayer) {
             fprintf(stderr, "Can't find any valid MP3 frames in file %s\n", filename);
             fflush(stderr);
             *gSuccess = 0;
@@ -329,7 +323,7 @@ void mp3gain_mark_valid_file(
 #endif
 )
 {
-    LayerSet = 1;
+    g_mp3gain_config.LayerSet = 1;
     *fileok = !0;
 #ifdef AACGAIN
     if (!aacH || (recalc == 0))
@@ -1051,7 +1045,7 @@ void mp3gain_finish_track_recalc(
 #endif
 )
 {
-    if (!QuietMode) {
+    if (!g_mp3gain_config.QuietMode) {
         fprintf(stderr, "                                                 \r");
     }
 
@@ -1545,10 +1539,10 @@ unsigned long mp3gain_process_aac_recalc(
 
     if (maxAmpOnly) {
         rc = aac_compute_peak(aacH, maxsample, mingain, maxgain,
-            QuietMode ? NULL : reportPercentAnalyzed);
+            g_mp3gain_config.QuietMode ? NULL : reportPercentAnalyzed);
     } else {
         rc = aac_compute_gain(aacH, maxsample, mingain, maxgain,
-            QuietMode ? NULL : reportPercentAnalyzed);
+            g_mp3gain_config.QuietMode ? NULL : reportPercentAnalyzed);
     }
 
     if (rc != 0) {

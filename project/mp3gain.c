@@ -95,7 +95,6 @@
 #include <stdarg.h>
 
 /* Used to be part of decode_i386. */
-unsigned char maxAmpOnly;
 /* layer3.c */
 unsigned char *minGain;
 unsigned char *maxGain;
@@ -180,25 +179,29 @@ static struct MP3ScanState g_scan_state;
 #define curframe (g_scan_state.curframe)
 #define filepos (g_scan_state.filepos)
 
-int writeself = 0;
-int QuietMode = 0;
-int UsingTemp = 1;
-int NowWriting = 0;
-double lastfreq = -1.0;
+#include "mp3gain_config.h"
 
-int whichChannel = 0;
-int BadLayer = 0;
-int LayerSet = 0;
-int Reckless = 0;
-int wrapGain = 0;
-int undoChanges = 0;
-
-int skipTag = 0;
-int deleteTag = 0;
-int forceRecalculateTag = 0;
-int forceUpdateTag = 0;
-int checkTagOnly = 0;
-int useId3 = 0;
+struct MP3GainGlobalConfig g_mp3gain_config = {
+    0, /* g_mp3gain_config.maxAmpOnly */
+    0, /* g_mp3gain_config.saveTime */
+    0, /* g_mp3gain_config.whichChannel */
+    0, /* g_mp3gain_config.BadLayer */
+    0, /* g_mp3gain_config.LayerSet */
+    0, /* g_mp3gain_config.Reckless */
+    0, /* g_mp3gain_config.wrapGain */
+    0, /* g_mp3gain_config.undoChanges */
+    0, /* g_mp3gain_config.skipTag */
+    0, /* g_mp3gain_config.deleteTag */
+    0, /* g_mp3gain_config.forceRecalculateTag */
+    0, /* g_mp3gain_config.forceUpdateTag */
+    0, /* g_mp3gain_config.checkTagOnly */
+    0, /* g_mp3gain_config.QuietMode */
+    1, /* g_mp3gain_config.UsingTemp */
+    0, /* g_mp3gain_config.useId3 */
+    0, /* g_mp3gain_config.writeself */
+    0, /* g_mp3gain_config.NowWriting */
+    -1.0 /* g_mp3gain_config.lastfreq */
+};
 
 int gSuccess;
 
@@ -207,8 +210,6 @@ char *curfilename;
 FILE *inf = NULL;
 
 FILE *outf;
-
-short int saveTime;
 
 static const double bitrate[4][16] = {
 	{ 1,  8, 16, 24, 32, 40, 48, 56,  64,  80,  96, 112, 128, 144, 160, 1 },
@@ -253,7 +254,7 @@ void addWriteBuff(unsigned long pos, unsigned char *vals) {
 
 static int mp3gain_should_stream_temp_output(void)
 {
-	return UsingTemp && NowWriting;
+	return g_mp3gain_config.UsingTemp && g_mp3gain_config.NowWriting;
 }
 
 static int mp3gain_write_temp_output_chunk(const unsigned char *data, size_t len)
@@ -362,7 +363,7 @@ static int mp3gain_open_modify_streams(char *filename, char **outfilename)
 {
 	long outlength;
 
-	if (UsingTemp) {
+	if (g_mp3gain_config.UsingTemp) {
 		fflush(stderr);
 		fflush(stdout);
 		outlength = (long)strlen(filename);
@@ -433,7 +434,7 @@ static unsigned long mp3gain_prepare_modify_first_frame(
 	if (!ok)
 		return ok;
 
-	LayerSet = 1; /* We've found at least one valid layer 3 frame.
+	g_mp3gain_config.LayerSet = 1; /* We've found at least one valid layer 3 frame.
 				   * Assume any later layer 1 or 2 frames are just
 				   * bitstream corruption
 				   */
@@ -487,7 +488,7 @@ static unsigned long mp3gain_begin_modify_frames(
 	ok = mp3gain_prepare_modify_first_frame(
 		filename, frame, mode, bitridx, mpegver, bytesinframe
 	);
-	if (!ok && !BadLayer) {
+	if (!ok && !g_mp3gain_config.BadLayer) {
 		passError(MP3GAIN_UNSPECIFED_ERROR, 3,
 			"Can't find any valid MP3 frames in file ", filename, "\n");
 	}
@@ -577,7 +578,7 @@ static unsigned long mp3gain_process_modify_frame(
 
 static unsigned char mp3gain_apply_channel_gain(unsigned char gain, int gainchange)
 {
-	if (wrapGain)
+	if (g_mp3gain_config.wrapGain)
 		return gain + (unsigned char)gainchange;
 
 	if (gain == 0)
@@ -759,7 +760,7 @@ static void mp3gain_finalize_modified_frame_header(int nchan, int crcflag, int m
 			crcWriteHeader(mono_header_bits, (char*)curframe);
 		else
 			crcWriteHeader(stereo_header_bits, (char*)curframe);
-		if (!UsingTemp)
+		if (!g_mp3gain_config.UsingTemp)
 			mp3gain_buffer_write_pair(curframe + 4);
 	}
 }
@@ -797,7 +798,7 @@ static unsigned long mp3gain_finish_modify_frame(
 {
 	unsigned long ok = !0;
 
-	if (!QuietMode) {
+	if (!g_mp3gain_config.QuietMode) {
 		(*frame)++;
 		if ((*frame) % 200 == 0) {
 			ok = reportPercentWritten(mp3gain_modify_progress_percent(bytesinframe, gFilesize), gFilesize);
@@ -819,7 +820,7 @@ static void mp3gain_reset_modify_scan_state(void)
 
 static void mp3gain_finish_modify_reporting(long gFilesize)
 {
-	if (!QuietMode) {
+	if (!g_mp3gain_config.QuietMode) {
 #ifndef asWIN32DLL
 		fprintf(stderr, "                                                   \r");
 #else
@@ -832,7 +833,7 @@ static void mp3gain_finish_modify_reporting(long gFilesize)
 
 static int mp3gain_finish_modify_result(int result)
 {
-	NowWriting = 0;
+	g_mp3gain_config.NowWriting = 0;
 	return result;
 }
 
@@ -852,7 +853,7 @@ static int mp3gain_fail_modify_open(char **outfilename, int error_code, int numS
 {
 	va_list marker;
 
-	if (UsingTemp && (outf != NULL)) {
+	if (g_mp3gain_config.UsingTemp && (outf != NULL)) {
 		fclose(outf);
 		outf = NULL;
 	}
@@ -886,7 +887,7 @@ static int mp3gain_fail_modify_open(char **outfilename, int error_code, int numS
 
 	free(*outfilename);
 	*outfilename = NULL;
-	NowWriting = 0;
+	g_mp3gain_config.NowWriting = 0;
 	return error_code;
 }
 
@@ -967,7 +968,7 @@ attrerror:
 		return M3G_ERR_RENAME_TMP;
 	}
 
-	if (saveTime)
+	if (g_mp3gain_config.saveTime)
 		fileTime(filename, setStoredTime);
 
 	return 0;
@@ -977,7 +978,7 @@ static void mp3gain_finalize_inplace_modify(char *filename)
 {
 	flushWriteBuff();
 	mp3gain_close_modify_streams();
-	if (saveTime)
+	if (g_mp3gain_config.saveTime)
 		fileTime(filename, setStoredTime);
 }
 
@@ -988,7 +989,7 @@ static void mp3gain_cancel_modify(char *filename, char *outfilename)
 		fclose(inf);
 		inf = NULL;
 	}
-	if (UsingTemp) {
+	if (g_mp3gain_config.UsingTemp) {
 		if (outf != NULL) {
 			fclose(outf);
 			outf = NULL;
@@ -1000,14 +1001,14 @@ static void mp3gain_cancel_modify(char *filename, char *outfilename)
 	else {
 		passError(MP3GAIN_CANCELLED, 3, "Cancelled processing.\n", filename, " is probably corrupted now.");
 	}
-	if (saveTime)
+	if (g_mp3gain_config.saveTime)
 		fileTime(filename, setStoredTime);
 }
 #endif
 
 unsigned long mp3gain_report_frame_progress(unsigned long frame, long bytesinframe, long gFilesize)
 {
-	if (!QuietMode) {
+	if (!g_mp3gain_config.QuietMode) {
 		if (!(frame % 200)) {
 			return reportPercentAnalyzed(
 				(int)mp3gain_analyze_progress_percent(bytesinframe, gFilesize),
@@ -1035,7 +1036,7 @@ void set8Bits(unsigned short val) {
 	wrdpntr[1] &= maskRight8bits[bitidx];
 	wrdpntr[1] |= (val  & 0xFF);
 	
-	if (!UsingTemp) 
+	if (!g_mp3gain_config.UsingTemp) 
 		mp3gain_buffer_write_pair(wrdpntr);
 }
 
@@ -1161,15 +1162,15 @@ unsigned long frameSearch(int startup) {
 		else if ((wrdpntr[2] & 0x0C) == 0x0C)
 			done = 0;       /* bad sample frequency */
 		else if ((wrdpntr[1] & 0x06) != 0x02) { /* not Layer III */
-			if (!LayerSet) {
+			if (!g_mp3gain_config.LayerSet) {
 				switch (wrdpntr[1] & 0x06) {
 					case 0x06:
-						BadLayer = !0;
+						g_mp3gain_config.BadLayer = !0;
 						passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
                             curfilename, " is an MPEG Layer I file, not a layer III file\n");
 						return 0;
 					case 0x04:
-						BadLayer = !0;
+						g_mp3gain_config.BadLayer = !0;
 						passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 2,
                             curfilename, " is an MPEG Layer II file, not a layer III file\n");
 						return 0;
@@ -1498,10 +1499,10 @@ int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchang
 
   outfilename = NULL;
   frame = 0;
-  BadLayer = 0;
-  LayerSet = Reckless;
+  g_mp3gain_config.BadLayer = 0;
+  g_mp3gain_config.LayerSet = g_mp3gain_config.Reckless;
 
-  NowWriting = !0;
+  g_mp3gain_config.NowWriting = !0;
 
   if ((leftgainchange == 0) && (rightgainchange == 0))
 	  return 0;
@@ -1510,7 +1511,7 @@ int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchang
   if (aacH)
   {
       int rc = aac_modify_gain(aacH, leftgainchange, rightgainchange, 
-          QuietMode ? NULL : reportPercentWritten);
+          g_mp3gain_config.QuietMode ? NULL : reportPercentWritten);
       if (rc)
           passError(MP3GAIN_FILEFORMAT_NOTSUPPORTED, 1, "failed to modify gain\n");
       return mp3gain_finish_modify_result(rc);
@@ -1521,7 +1522,7 @@ int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchang
   gainchange[1] = rightgainchange;
   singlechannel = !(leftgainchange == rightgainchange);
 	  
-  if (saveTime)
+  if (g_mp3gain_config.saveTime)
     fileTime(filename, storeTime);
   
   gFilesize = getSizeOfFile(filename);
@@ -1550,13 +1551,13 @@ int changeGain(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftgainchang
 #ifdef asWIN32DLL
 	if (blnCancel) { //need to clean up as best as possible
 		mp3gain_cancel_modify(filename, outfilename);
-		NowWriting = 0;
+		g_mp3gain_config.NowWriting = 0;
 		return;
 	}
 #endif
 
 	mp3gain_finish_modify_reporting(gFilesize);
-	if (UsingTemp) {
+	if (g_mp3gain_config.UsingTemp) {
 		modifyResult = mp3gain_finalize_temp_modify(filename, outfilename);
 		free(outfilename);
 		if (modifyResult != 0) {
@@ -1602,7 +1603,7 @@ void WriteMP3GainTag(char *filename AACGAIN_ARG(AACGainHandle aacH), struct MP3G
 		WriteAacGainTags(aacH, info);
 	} else
 #endif
-	if (useId3) {
+	if (g_mp3gain_config.useId3) {
 		/* Write ID3 tag; remove stale APE tag if it exists. */
 		if (WriteMP3GainID3Tag(filename, info, saveTimeStamp) >= 0)
 			RemoveMP3GainAPETag(filename, saveTimeStamp);
@@ -1627,7 +1628,7 @@ void changeGainAndTag(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftga
 			tag->dirty = !0;
 			tag->undoRight -= rightgainchange;
 			tag->undoLeft -= leftgainchange;
-			tag->undoWrap = wrapGain;
+			tag->undoWrap = g_mp3gain_config.wrapGain;
 
 			/* if undo == 0, then remove Undo tag */
 			tag->haveUndo = !0;
@@ -1656,7 +1657,7 @@ void changeGainAndTag(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftga
 					curMax = tag->maxGain;
 					curMin += leftgainchange;
 					curMax += leftgainchange;
-					if (wrapGain) {
+					if (g_mp3gain_config.wrapGain) {
 						if (curMin < 0 || curMin > 255 || curMax < 0 || curMax > 255) {
 							/* we've lost the "real" min or max because of wrapping */
 							tag->haveMinMaxGain = 0;
@@ -1671,7 +1672,7 @@ void changeGainAndTag(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftga
 					curMax = tag->albumMaxGain;
 					curMin += leftgainchange;
 					curMax += leftgainchange;
-					if (wrapGain) {
+					if (g_mp3gain_config.wrapGain) {
 						if (curMin < 0 || curMin > 255 || curMax < 0 || curMax > 255) {
 							/* we've lost the "real" min or max because of wrapping */
 							tag->haveAlbumMinMaxGain = 0;
@@ -1682,7 +1683,7 @@ void changeGainAndTag(char *filename AACGAIN_ARG(AACGainHandle aacH), int leftga
 					}
 				}
 			} // if (leftgainchange == rightgainchange ...
-			WriteMP3GainTag(filename AACGAIN_ARG(aacH), tag, fileTag, saveTime);
+			WriteMP3GainTag(filename AACGAIN_ARG(aacH), tag, fileTag, g_mp3gain_config.saveTime);
 		} // if (!changeGain(filename ...
 	}// if (leftgainchange !=0 ...
 
@@ -1961,7 +1962,7 @@ int main(int argc, char **argv) {
     /* now stored in tagInfo---  mingain = malloc(sizeof(unsigned char) * argc); */
 	if (!mp3gain_prepare_runtime_batch(argc, argv, fileStart, databaseFormat, &fileok, &tagInfo, &fileTags AACGAIN_ARG(aacInfo)))
 		return 1;
-	return mp3gain_run_batch(argv, argc, fileStart, tagInfo, fileTags, fileok, maxAmpOnly, dBGainMod, mp3GainMod, applyTrack, analysisTrack, applyAlbum, databaseFormat, saveTime, skipTag, autoClip, ignoreClipWarning, &directGain, directSingleChannelGain, directGainVal, &gSuccess, &first, &numFiles, &dBchange, &intGainChange, deleteTag, checkTagOnly AACGAIN_ARG(aacInfo));
+	return mp3gain_run_batch(argv, argc, fileStart, tagInfo, fileTags, fileok, g_mp3gain_config.maxAmpOnly, dBGainMod, mp3GainMod, applyTrack, analysisTrack, applyAlbum, databaseFormat, g_mp3gain_config.saveTime, g_mp3gain_config.skipTag, autoClip, ignoreClipWarning, &directGain, directSingleChannelGain, directGainVal, &gSuccess, &first, &numFiles, &dBchange, &intGainChange, g_mp3gain_config.deleteTag, g_mp3gain_config.checkTagOnly AACGAIN_ARG(aacInfo));
 }
 #endif /* asWIN32DLL */
 

@@ -167,7 +167,7 @@ Observação:
 - O objetivo é reduzir dependência de globais compartilhadas sem alterar comportamento.
 - Focos imediatos:
   - ~~helpers ainda presos em `mp3gain.c`, especialmente `skipID3v2`, `frameSearch` e o restante do cursor de bits do write path~~ -> **CONCLUÍDO:** Cursor de bits e arrays locais consolidados na estrutura `MP3ScanState`.
-  - estado global cruzando `cli.c`, `prep.c`, `exec.c`, `process.c` e `mp3gain.c` (próximo alvo: mover flags `extern` para `MP3GainCliOptions`).
+  - ~~estado global cruzando `cli.c`, `prep.c`, `exec.c`, `process.c` e `mp3gain.c`~~ -> **CONCLUÍDO:** Migrados para a struct protegida `MP3GainGlobalConfig` em `mp3gain_config.h`.
   - conversão de falhas recuperáveis restantes para tratamento por arquivo
 - Ordem sugerida:
   1. ~~continuar escondendo estado de scan atrás de helpers/contextos~~ -> **CONCLUÍDO:** Isolado usando Macro Bridge para preservar a compatibilidade e modularizar o bitstream.
