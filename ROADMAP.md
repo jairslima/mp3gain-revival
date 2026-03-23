@@ -156,9 +156,9 @@ Current state:
 
 ## Phase 5: Optional Expansion
 - ~~Investigate missing historical GUI source~~ -> **Status: Verified missing.** The original source archives only contain the C core.
-- ~~Decide whether to recover, replace, or drop the legacy GUI~~ -> **Status: Dropped.** The project will focus exclusively on the cross-platform CLI.
+- ~~Decide whether to recover, replace, or drop the legacy GUI~~ -> **Status: Hijacked.** The project will focus on the cross-platform CLI, but we discovered the legacy `MP3GainGUI.exe` is a direct wrapper. Our modern CLI can be used as a "Drop-in Replacement" inside the classic installation folder.
 - Revisit localization strategy beyond archived `.chm` help files
-- ~~Consider whether a future GUI should be a separate frontend over the same portable core~~ -> **Status: Decided.** Any future GUI will be an external project interacting with the CLI.
+- ~~Consider whether a future GUI should be a separate frontend over the same portable core~~ -> **Status: Solved.** The classic Windows GUI already acts as an external frontend and is fully compatible with our 2026 engine.
 
 ## Immediate Next Slice
 1. Continue structural cleanup of remaining legacy low-level state (frame-scan decoupling).

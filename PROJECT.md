@@ -165,7 +165,8 @@ Observação:
 - O build do vcpkg local usa a build de debug do mpg123 para dbg e release compilada manualmente
 - A cobertura automatizada ainda é parcial; os smoke tests estão fortes, mas ainda faltam regressões mais específicas para corrupção de frame/decode
 - O código de suporte a DLL (replaygaindll.c) não está no path de build principal
-- A interface gráfica (GUI) antiga não existe neste repositório. O código-fonte visual nunca foi incluído nos arquivos originais recuperados e está permanentemente descartado. Qualquer GUI no futuro será um projeto externo invocando o executável.
+- A interface gráfica (GUI) antiga não possui código-fonte aberto neste repositório. No entanto, descobrimos que o executável original (`MP3GainGUI.exe`) é um *wrapper* perfeito que invoca o `mp3gain.exe` local.
+  - **Injeção de Motor (Drop-in Replacement):** Usuários que já possuem o programa clássico instalado no Windows podem simplesmente substituir o arquivo `mp3gain.exe` antigo da pasta de instalação pelo nosso binário modernizado de 2026 e colar a `mpg123.dll` junto. A interface visual antiga de 2005 passará a usar o motor seguro e multiplataforma de forma transparente.
 
 ## Ponto de Retomada Técnico
 - O próximo corte técnico recomendado agora é **continuar o desacoplamento do frame-scan**.
