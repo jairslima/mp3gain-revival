@@ -160,7 +160,7 @@ Current state:
 - Revisit localization strategy beyond archived `.chm` help files
 - Plan the modern GUI stack:
   - **Core Logic:** The robust `mp3gain` CLI (C99).
-  - **Frontend:** A lightweight modern framework (e.g. Python/Tkinter, PyQt, Electron, or Tauri) that calls the CLI silently and parses its standard output/errors.
+  - **Frontend:** Avalonia UI (C# / .NET). Chosen for its ability to flawlessly recreate the classic desktop "Grid" feel while rendering natively across Windows, Linux, and macOS via Skia, outputting high-performance standalone NativeAOT binaries.
 
 ## Immediate Next Slice
 1. Continue structural cleanup of remaining legacy low-level state (frame-scan decoupling).

@@ -166,7 +166,8 @@ Observação:
 - A cobertura automatizada ainda é parcial; os smoke tests estão fortes, mas ainda faltam regressões mais específicas para corrupção de frame/decode
 - O código de suporte a DLL (replaygaindll.c) não está no path de build principal
 - A interface gráfica (GUI) antiga não possui código-fonte aberto neste repositório. No entanto, descobrimos que o executável original (`MP3GainGUI.exe`) é um *wrapper* perfeito que invoca o `mp3gain.exe` local.
-  - **Injeção de Motor (Drop-in Replacement):** Usuários que já possuem o programa clássico instalado no Windows podem simplesmente substituir o arquivo `mp3gain.exe` antigo da pasta de instalação pelo nosso binário modernizado de 2026 e colar a `mpg123.dll` junto. A interface visual antiga de 2005 passará a usar o motor seguro e multiplataforma de forma transparente.
+  - **Drop-in Replacement (Clássica):** Usuários que já possuem o programa clássico de 2005 instalado no Windows podem simplesmente substituir o arquivo `mp3gain.exe` antigo pelo nosso binário de 2026. A interface visual antiga passará a usar o motor seguro de forma transparente.
+  - **Nova GUI Multiplataforma:** Foi decidido (março de 2026) que será construída uma nova interface gráfica separada em **C# (.NET 8+ com Avalonia UI)**. O Avalonia garante a mesma experiência robusta de tabelas nativas do Windows clássico, mas desenhado via Skia para funcionar perfeitamente em Linux e macOS, servindo de invólucro (wrapper) para executar o nosso CLI por baixo dos panos.
 
 ## Ponto de Retomada Técnico
 - O próximo corte técnico recomendado agora é **continuar o desacoplamento do frame-scan**.
