@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Text.RegularExpressions;
 using Avalonia.Threading;
 using System;
@@ -21,6 +22,11 @@ public class MP3GainEngine
         if (File.Exists(devPath)) return devPath;
 
         return null;
+    }
+
+    public string? GetResolvedCliPathOrNull()
+    {
+        return TryGetCliPath();
     }
 
     private string GetCliPath()
@@ -89,5 +95,33 @@ public class MP3GainEngine
         process.BeginOutputReadLine();
 
         await tcs.Task;
+    }
+
+    public async Task ApplyTrackGainAsync(string filePath, double targetVolume, CancellationToken cancellationToken = default)
+    {
+        double mod = targetVolume - ReplayGainReferenceLoudness;
+        string modArg = mod != 0 ? $"/d {mod.ToString(System.Globalization.CultureInfo.InvariantCulture)}" : "";
+
+        using var process = new Process();
+        process.StartInfo.FileName = GetCliPath();
+        process.StartInfo.Arguments = $"-r {modArg} \"{filePath}\"";
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.RedirectStandardError = true;
+        process.StartInfo.CreateNoWindow = true;
+
+        process.Start();
+
+        await process.WaitForExitAsync(cancellationToken);
+
+        if (process.ExitCode != 0)
+        {
+            string stderr = await process.StandardError.ReadToEndAsync();
+            throw new InvalidOperationException(
+                string.IsNullOrWhiteSpace(stderr)
+                    ? $"mp3gain.exe retornou erro ao aplicar ganho em '{filePath}'."
+                    : stderr.Trim()
+            );
+        }
     }
 }

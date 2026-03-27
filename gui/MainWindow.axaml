@@ -3,42 +3,60 @@
         x:Class="MP3GainUI.MainWindow"
         Title="MP3Gain Revival"
         Width="1000" Height="600"
-        Icon="/Assets/avalonia-logo.ico"
         Background="#F0F0F0">
 
   <DockPanel>
     <!-- Menu Superior Clássico -->
     <Menu DockPanel.Dock="Top" Background="White">
-      <MenuItem Header="_Arquivo"/>
-      <MenuItem Header="_Análise"/>
-      <MenuItem Header="_Modificar o Ganho"/>
-      <MenuItem Header="_Opções"/>
-      <MenuItem Header="_Linguagem"/>
-      <MenuItem Header="_Ajuda"/>
+      <MenuItem Header="_Arquivo">
+        <MenuItem Header="Adicionar Arquivo(s)" Click="BtnAddFiles_Click"/>
+        <MenuItem Header="Adicionar Pasta" Click="BtnAddFolder_Click"/>
+        <Separator/>
+        <MenuItem Header="Limpar Selecionados" Click="BtnClearFiles_Click"/>
+        <MenuItem Header="Limpar Todos" Click="BtnClearAll_Click"/>
+        <Separator/>
+        <MenuItem Header="Sair" Click="MenuExit_Click"/>
+      </MenuItem>
+      <MenuItem Header="_Análise">
+        <MenuItem Header="Análise Rádio" Click="BtnAnalyze_Click"/>
+      </MenuItem>
+      <MenuItem Header="_Modificar o Ganho">
+        <MenuItem Header="Ganho Rádio" Click="BtnGain_Click"/>
+        <MenuItem Header="Cancelar" Click="BtnCancel_Click"/>
+      </MenuItem>
+      <MenuItem Header="_Reprodução">
+        <MenuItem Header="Tocar Selecionado" Click="BtnPlaySelected_Click"/>
+      </MenuItem>
+      <MenuItem Header="_Ajuda">
+        <MenuItem Header="Sobre" Click="MenuAbout_Click"/>
+      </MenuItem>
     </Menu>
 
     <!-- Barra de Ferramentas (ToolBar) -->
     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="White" Spacing="10" Margin="10">
-      <Button Name="BtnAddFiles" Content="Adicionar Arquivo(s)" Click="BtnAddFiles_Click" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
-      <Button Name="BtnAddFolder" Content="Adicionar Pasta" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
-      <Button Name="BtnAnalyze" Content="Análise Rádio" Click="BtnAnalyze_Click" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
-      <Button Name="BtnGain" Content="Ganho Rádio" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
-      <Button Name="BtnClearFiles" Content="Limpar Arquivo(s)" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
-      <Button Name="BtnClearAll" Content="Limpar Todos" Click="BtnClearAll_Click" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
+      <Button Name="BtnAddFiles" Content="Adicionar Arquivo(s)" Click="BtnAddFiles_Click" FontSize="12" Padding="12,6"/>
+      <Button Name="BtnAddFolder" Content="Adicionar Pasta" Click="BtnAddFolder_Click" FontSize="12" Padding="12,6"/>
+      <Button Name="BtnAnalyze" Content="Análise Rádio" Click="BtnAnalyze_Click" FontSize="12" Padding="12,6"/>
+      <Button Name="BtnGain" Content="Ganho Rádio" Click="BtnGain_Click" FontSize="12" Padding="12,6"/>
+      <Button Name="BtnPlaySelected" Content="Play Selecionado" Click="BtnPlaySelected_Click" FontSize="12" Padding="12,6"/>
+      <Button Name="BtnClearFiles" Content="Limpar Arquivo(s)" Click="BtnClearFiles_Click" FontSize="12" Padding="12,6"/>
+      <Button Name="BtnClearAll" Content="Limpar Todos" Click="BtnClearAll_Click" FontSize="12" Padding="12,6"/>
+      <Button Name="BtnExit" Content="Sair" Click="MenuExit_Click" FontSize="12" Padding="12,6"/>
     </StackPanel>
 
     <!-- Target Volume Input -->
     <Border DockPanel.Dock="Top" BorderBrush="Gray" BorderThickness="1" Margin="10,5,10,5" Padding="5" HorizontalAlignment="Left">
       <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
         <TextBlock Text="Volume &quot;Normal&quot; Pretendido:" VerticalAlignment="Center" FontSize="12"/>
-        <TextBox Name="TxtTargetVolume" Text="89,0" Width="50" Height="25" Padding="2" FontSize="12"/>
-        <TextBlock Text="dB (Padrão 89,0)" VerticalAlignment="Center" FontSize="12"/>
+        <TextBox Name="TxtTargetVolume" Text="95,5" Width="50" Height="25" Padding="2" FontSize="12"/>
+        <TextBlock Text="dB (Padrão 95,5)" VerticalAlignment="Center" FontSize="12"/>
       </StackPanel>
     </Border>
 
     <!-- Rodapé: Barras de Progresso e Cancelar -->
     <StackPanel DockPanel.Dock="Bottom" Background="#E0E0E0" Margin="5" Spacing="5">
-      <Button Name="BtnCancel" Content="Cancelar" HorizontalAlignment="Center" Padding="20,2" IsEnabled="False"/>
+      <Button Name="BtnCancel" Content="Cancelar" Click="BtnCancel_Click" HorizontalAlignment="Center" Padding="20,2" IsEnabled="False"/>
+      <TextBlock Name="TxtStatus" Text="Pronto. Adicione arquivos ou uma pasta para começar." FontSize="11"/>
       <Grid ColumnDefinitions="120,*">
         <TextBlock Grid.Column="0" Text="Progr. do Arquivo:" FontSize="11" VerticalAlignment="Center"/>
         <ProgressBar Grid.Column="1" Name="ProgressFile" Minimum="0" Maximum="100" Value="0" Height="15"/>
@@ -55,6 +73,7 @@
               BorderBrush="Gray" BorderThickness="1"
               GridLinesVisibility="All"
               CanUserResizeColumns="True"
+              SelectionMode="Extended"
               AutoGenerateColumns="False"
               IsReadOnly="True"
               RowBackground="White">
