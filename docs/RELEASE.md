@@ -25,7 +25,7 @@ This release targets the supported baseline:
 - macOS is not yet in the supported release baseline.
 - Legacy low-level shared state still exists in `project/mp3gain.c`.
 - Some corrupted MP3s that `ffmpeg` flags as decode-invalid are still tolerated by the current MP3Gain/libmpg123 path.
-- Windows binaries cannot be packaged directly from this exact workspace snapshot due to missing local `cmake`/`msbuild` tooling.
+- Windows package generation still needs to be executed explicitly for each release snapshot; the workspace may contain valid `build/Release` artifacts without a freshly regenerated package.
 
 ## Packaging
 - **Windows Bundle**: `mp3gain.exe`, `mpg123.dll`, and `LICENSE`.

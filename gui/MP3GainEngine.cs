@@ -9,6 +9,8 @@ namespace MP3GainUI;
 
 public class MP3GainEngine
 {
+    public const double ReplayGainReferenceLoudness = 95.5;
+
     // Espera que o executável CLI do mp3gain esteja na mesma pasta que a GUI ou no path relativo.
     private string GetCliPath()
     {
@@ -24,9 +26,9 @@ public class MP3GainEngine
 
     public async Task AnalyzeFileAsync(MP3FileItem item, double targetVolume)
     {
-        // MP3Gain CLI padrão roda em torno de 89.0dB. 
+        // O CLI usa 95.5 dB como referência ReplayGain.
         // O modificador /d calcula a diferença para o TargetVolume do usuário
-        double mod = targetVolume - 89.0;
+        double mod = targetVolume - ReplayGainReferenceLoudness;
         string modArg = mod != 0 ? $"/d {mod.ToString(System.Globalization.CultureInfo.InvariantCulture)}" : "";
 
         var tcs = new TaskCompletionSource();

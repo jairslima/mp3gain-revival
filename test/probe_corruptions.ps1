@@ -4,7 +4,39 @@ $repo = Split-Path -Parent $PSScriptRoot
 $fixture = Join-Path $repo "test\fixtures\test1.mp3"
 $tmp = Join-Path $repo "test\_tmp_corrupt_probe"
 $resultsPath = Join-Path $repo "test\probe_corruptions.results.json"
-$linuxExe = "/mnt/c/Users/jairs/Claude/MP3Gain/build/mp3gain"
+
+function Convert-ToWslPath([string]$windowsPath) {
+    $normalized = $windowsPath -replace '\\', '/'
+    if ($normalized -match '^([A-Za-z]):/(.*)$') {
+        return "/mnt/$($matches[1].ToLower())/$($matches[2])"
+    }
+
+    throw "Unsupported Windows path for WSL conversion: $windowsPath"
+}
+
+function Resolve-LinuxExePath([string]$repoRoot) {
+    $candidates = @(
+        (Join-Path $repoRoot "build\mp3gain"),
+        (Join-Path $repoRoot "build-wsl\mp3gain")
+    )
+
+    foreach ($candidate in $candidates) {
+        if (-not (Test-Path $candidate)) {
+            continue
+        }
+
+        $wslCandidate = Convert-ToWslPath $candidate
+        & wsl.exe test -x $wslCandidate
+        if ($LASTEXITCODE -eq 0) {
+            return $wslCandidate
+        }
+    }
+
+    throw "No Linux MP3Gain binary found. Expected one of: $($candidates -join ', ')"
+}
+
+$repoWsl = Convert-ToWslPath $repo
+$linuxExe = Resolve-LinuxExePath $repo
 
 function Get-FrameSize([byte[]]$b, [int]$i) {
     if ($i + 4 -gt $b.Length) { return 0 }
@@ -50,7 +82,7 @@ function Invoke-Candidate([string]$name, [scriptblock]$mutator) {
     Copy-Item $fixture $path
     & $mutator $path
 
-    $wslPath = "/mnt/c/Users/jairs/Claude/MP3Gain/test/_tmp_corrupt_probe/$name"
+    $wslPath = "$repoWsl/test/_tmp_corrupt_probe/$name"
     $out = & wsl.exe $linuxExe $wslPath 2>&1
     $code = $LASTEXITCODE
     $ffmpegOut = & wsl.exe ffmpeg -v error -i $wslPath -f null - 2>&1

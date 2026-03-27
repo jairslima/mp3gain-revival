@@ -16,8 +16,9 @@ Current limitation:
   refactoring, but they currently remain too tolerant or too unstable to lock into CI
 
 Reproduction aid:
-- `test/probe_corruptions.ps1` runs a small deterministic probe set against the Linux
-  test binary and an `ffmpeg` decoder oracle to compare:
+- `test/probe_corruptions.ps1` runs a small deterministic probe set against a detected
+  Linux test binary (`build/mp3gain` or `build-wsl/mp3gain`) and an `ffmpeg`
+  decoder oracle to compare:
   - frame discovery corruption
   - payload corruption with preserved frame headers
   - scattered corruption across the file

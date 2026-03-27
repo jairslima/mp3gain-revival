@@ -43,8 +43,8 @@ public partial class MainWindow : Window
     {
         if (FilesList.Count == 0) return;
 
-        // O valor padrão do input na tela é 89,0 ou 95,5 etc.
-        double targetVol = 89.0;
+        // O baseline atual acompanha a referência ReplayGain do core.
+        double targetVol = MP3GainEngine.ReplayGainReferenceLoudness;
         if (double.TryParse(TxtTargetVolume.Text?.Replace(",", "."), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double parsed))
         {
             targetVol = parsed;

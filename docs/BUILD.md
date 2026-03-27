@@ -38,6 +38,8 @@ cmake --build build --config Release
 - The CI smoke test script uses immutable fixtures from `test/fixtures/`
 - Each run copies those fixtures to a temporary directory before applying gain changes or undo operations
 - Do not depend on local working copies in `test/` for CI correctness
+- The smoke script now keeps its temp files inside the repository tree so the same fixture-copy flow works both with the Linux binary and with `build/Release/mp3gain.exe` launched from `bash`/WSL
+- When the smoke script selects the Windows executable, it converts MP3 file paths to Windows form before invoking the CLI so file arguments are not misread as `/` switches
 - Current baseline: `27/27` smoke checks passing in the active workspace
 - Current validated platforms:
   - Windows local build + CI
@@ -59,6 +61,7 @@ cmake --build build --config Release
   reliably enforces missing-frame rejection and partial batch failure
 - `test/probe_corruptions.ps1` exists as a deterministic probe harness for comparing
   corruption candidates while that fixture gap remains open
+- The corruption probe now auto-detects an available Linux binary from `build/mp3gain` or `build-wsl/mp3gain` instead of depending on a single hardcoded path
 - Overall validation snapshot is summarized in `docs/VALIDATION.md`
 
 ## Reproduction by Platform
