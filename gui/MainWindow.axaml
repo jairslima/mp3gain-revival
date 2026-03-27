@@ -1,0 +1,74 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MP3GainUI.MainWindow"
+        Title="MP3Gain Revival"
+        Width="1000" Height="600"
+        Icon="/Assets/avalonia-logo.ico"
+        Background="#F0F0F0">
+
+  <DockPanel>
+    <!-- Menu Superior Clássico -->
+    <Menu DockPanel.Dock="Top" Background="White">
+      <MenuItem Header="_Arquivo"/>
+      <MenuItem Header="_Análise"/>
+      <MenuItem Header="_Modificar o Ganho"/>
+      <MenuItem Header="_Opções"/>
+      <MenuItem Header="_Linguagem"/>
+      <MenuItem Header="_Ajuda"/>
+    </Menu>
+
+    <!-- Barra de Ferramentas (ToolBar) -->
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="White" Spacing="10" Margin="10">
+      <Button Name="BtnAddFiles" Content="Adicionar Arquivo(s)" Click="BtnAddFiles_Click" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
+      <Button Name="BtnAddFolder" Content="Adicionar Pasta" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
+      <Button Name="BtnAnalyze" Content="Análise Rádio" Click="BtnAnalyze_Click" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
+      <Button Name="BtnGain" Content="Ganho Rádio" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
+      <Button Name="BtnClearFiles" Content="Limpar Arquivo(s)" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
+      <Button Name="BtnClearAll" Content="Limpar Todos" Click="BtnClearAll_Click" FontSize="12" Padding="5,15,5,5" Background="Transparent"/>
+    </StackPanel>
+
+    <!-- Target Volume Input -->
+    <Border DockPanel.Dock="Top" BorderBrush="Gray" BorderThickness="1" Margin="10,5,10,5" Padding="5" HorizontalAlignment="Left">
+      <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+        <TextBlock Text="Volume &quot;Normal&quot; Pretendido:" VerticalAlignment="Center" FontSize="12"/>
+        <TextBox Name="TxtTargetVolume" Text="89,0" Width="50" Height="25" Padding="2" FontSize="12"/>
+        <TextBlock Text="dB (Padrão 89,0)" VerticalAlignment="Center" FontSize="12"/>
+      </StackPanel>
+    </Border>
+
+    <!-- Rodapé: Barras de Progresso e Cancelar -->
+    <StackPanel DockPanel.Dock="Bottom" Background="#E0E0E0" Margin="5" Spacing="5">
+      <Button Name="BtnCancel" Content="Cancelar" HorizontalAlignment="Center" Padding="20,2" IsEnabled="False"/>
+      <Grid ColumnDefinitions="120,*">
+        <TextBlock Grid.Column="0" Text="Progr. do Arquivo:" FontSize="11" VerticalAlignment="Center"/>
+        <ProgressBar Grid.Column="1" Name="ProgressFile" Minimum="0" Maximum="100" Value="0" Height="15"/>
+      </Grid>
+      <Grid ColumnDefinitions="120,*">
+        <TextBlock Grid.Column="0" Text="Progresso Total:" FontSize="11" VerticalAlignment="Center"/>
+        <ProgressBar Grid.Column="1" Name="ProgressTotal" Minimum="0" Maximum="100" Value="0" Height="15"/>
+      </Grid>
+    </StackPanel>
+
+    <!-- Miolo Central: O DataGrid Clássico -->
+    <DataGrid Name="FilesGrid" 
+              Margin="10,0,10,10"
+              BorderBrush="Gray" BorderThickness="1"
+              GridLinesVisibility="All"
+              CanUserResizeColumns="True"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              RowBackground="White">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Caminho\Arquivo" Binding="{Binding Path}" Width="400"/>
+        <DataGridTextColumn Header="Volume" Binding="{Binding Volume}"/>
+        <DataGridTextColumn Header="clipping" Binding="{Binding Clipping}" Foreground="Red"/>
+        <DataGridTextColumn Header="Ganho Rádio" Binding="{Binding TrackGain}"/>
+        <DataGridTextColumn Header="clip(Rádio)" Binding="{Binding TrackClip}" Foreground="Red"/>
+        <DataGridTextColumn Header="Volume Álbum" Binding="{Binding AlbumVolume}"/>
+        <DataGridTextColumn Header="Ganho Álbum" Binding="{Binding AlbumGain}"/>
+        <DataGridTextColumn Header="clip(Álbum)" Binding="{Binding AlbumClip}" Foreground="Red"/>
+      </DataGrid.Columns>
+    </DataGrid>
+
+  </DockPanel>
+</Window>
