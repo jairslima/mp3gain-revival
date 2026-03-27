@@ -1,7 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using System;
-using System.IO;
 using System.Reflection;
 
 namespace MP3GainUI;
@@ -16,15 +14,14 @@ public partial class AboutWindow : Window
     {
         InitializeComponent();
 
-        string version =
+        string frontendVersion =
             Assembly.GetEntryAssembly()?.GetName().Version?.ToString()
             ?? Assembly.GetExecutingAssembly().GetName().Version?.ToString()
             ?? "desconhecida";
 
-        TxtVersion.Text = version;
-        TxtReference.Text = $"{MP3GainEngine.ReplayGainReferenceLoudness:0.0} dB";
-        TxtCliPath.Text = string.IsNullOrWhiteSpace(cliPath) ? "não localizado" : cliPath;
-        TxtGuiPath.Text = Environment.ProcessPath ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MP3GainUI.exe");
+        TxtFrontendVersion.Text = $"Versão {frontendVersion}";
+        TxtBackendVersion.Text = "Versão 1.6.2";
+        TxtReference.Text = $"Referência ReplayGain atual: {MP3GainEngine.ReplayGainReferenceLoudness:0.0} dB.";
     }
 
     private void CloseButton_Click(object? sender, RoutedEventArgs e)

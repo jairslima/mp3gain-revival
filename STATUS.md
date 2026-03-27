@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-- Phase 4: final publication pending for the Windows/Linux baseline
+- Completed: validated Windows/Linux baseline with unified Windows GUI + CLI package
 
 ## Validated Baseline
 
@@ -24,11 +24,12 @@ macOS remains outside the first public release support claim until real validati
 - Linux package generation is working.
 - Windows package generation is working.
 - Current local package artifacts:
-  - `dist/mp3gain-linux-phase4-dev.zip`
-  - `dist/mp3gain-windows-phase4-dev.zip`
+  - `dist/mp3gain-linux-1.6.2-revival2.zip`
+  - `dist/mp3gain-windows-1.6.2-revival2.zip`
 - Final publication candidate version prepared in docs: `1.6.2-revival2`
 - The MP3Gain/libmpg123 versus `ffmpeg` corruption mismatch is documented as a known limitation of the first public release.
-- The remaining step for the CLI recovery baseline is public release publication, not core build/test recovery.
+- The recovery/build/test work is complete for the supported baseline.
+- The Windows package now ships the GUI wrapper together with the CLI runtime in one folder.
 
 ## Key Files For The Next Developer
 
@@ -46,4 +47,4 @@ macOS remains outside the first public release support claim until real validati
 
 ## Immediate Next Step
 
-- Publish the first public release from a clean tagged snapshot and attach the validated Windows/Linux packages.
+- Optional follow-up only: publish/tag the prepared `1.6.2-revival2` release snapshot when credentials/process permit.

@@ -6,7 +6,7 @@ Este documento guia o desenvolvimento da interface em Avalonia UI.
 - [x] Etapa 1: Desenho da Tela e instalacao do DataGrid
 - [x] Etapa 2: Estruturacao dos modelos e bindings
 - [x] Etapa 3: Wrapper do motor CLI com execucao em background
-- [ ] Etapa 4: Eventos de botoes e interacoes nativas do sistema
+- [x] Etapa 4: Eventos de botoes e interacoes nativas do sistema
 
 ## Situacao Atual
 - A GUI ja abre a janela principal e exibe o grid de arquivos.
@@ -14,25 +14,29 @@ Este documento guia o desenvolvimento da interface em Avalonia UI.
 - O wrapper do CLI ja executa analise em background.
 - A tela ja permite:
   - adicionar arquivos
+  - adicionar pasta
+  - tocar o arquivo selecionado no player padrao
+  - limpar selecao parcial
   - limpar tudo
   - rodar analise
+  - aplicar ganho de faixa
+  - cancelar operacao em andamento
 - O baseline de loudness da GUI ja foi alinhado para `95.5 dB`.
+- O menu foi reduzido ao que e funcional ou util no estado atual.
+- A janela `Sobre` foi implementada com base no conteudo relevante do original.
+- O pacote Windows final agora distribui GUI + CLI juntos.
 
 ## O Que Ainda Falta
-- Implementar `Adicionar Pasta`
-- Implementar `Ganho Radio`
-- Implementar `Limpar Arquivo(s)` para selecao parcial
-- Implementar `Cancelar`
-- Completar o comportamento dos menus superiores
-- Refinar o texto visual padrao da interface para refletir o baseline atual em toda a tela
-- Validar empacotamento/distribuicao propria da GUI quando esse track avancar
+- Album Gain e fluxo de album ainda podem ser adicionados em etapa futura.
+- Iconografia e refinamento visual ainda podem aproximar mais a GUI do original.
+- Preferencias avancadas do menu original continuam fora de escopo ate haver necessidade real.
 
 ## Escopo
-- A GUI continua nao bloqueando a conclusao da recuperacao do CLI.
-- No Windows, o objetivo agora e distribuir GUI + CLI como um unico produto na mesma pasta final.
-- A trilha separada pos-release continua valendo para evolucao funcional da GUI, nao para a organizacao do pacote.
+- A GUI nao bloqueia mais a conclusao da recuperacao do CLI.
+- No Windows, GUI + CLI ja sao distribuidos como um unico produto na mesma pasta final.
+- A trilha futura passa a ser refinamento funcional/visual, nao integracao basica.
 
 ## Proximo Corte Recomendado
-1. Fechar a Etapa 4 para tirar a GUI do estado de prototipo.
-2. Consolidar um pacote Windows unico em que `MP3GainUI.exe`, `mp3gain.exe` e `mpg123.dll` saiam juntos.
-3. Depois decidir se a GUI passa a ter distribuicao propria ou continua apenas como wrapper experimental.
+1. Se necessario, implementar Album Gain e operacoes de album.
+2. Refinar iconografia e detalhes visuais da janela principal.
+3. Só expandir preferências/menu antigo quando houver valor funcional real.

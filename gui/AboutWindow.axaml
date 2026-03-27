@@ -1,43 +1,40 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MP3GainUI.AboutWindow"
-        Title="Sobre o MP3Gain Revival"
-        Width="520" Height="320"
+        Title="Sobre o MP3Gain"
+        Width="440" Height="360"
         CanResize="False"
         WindowStartupLocation="CenterOwner">
 
-  <Border Padding="16">
-    <StackPanel Spacing="10">
-      <TextBlock Text="MP3Gain Revival" FontSize="22" FontWeight="Bold"/>
-      <TextBlock Text="Interface gráfica unificada para o CLI do MP3Gain Revival." TextWrapping="Wrap"/>
+  <Border Padding="14">
+    <DockPanel LastChildFill="True">
+      <Button Content="OK"
+              DockPanel.Dock="Bottom"
+              HorizontalAlignment="Center"
+              Width="84"
+              Margin="0,12,0,0"
+              Click="CloseButton_Click"/>
 
-      <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,8,0,0">
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Versão:" FontWeight="Bold"/>
-        <TextBlock Grid.Row="0" Grid.Column="1" Name="TxtVersion" TextWrapping="Wrap"/>
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+          <Border Width="36" Height="36" BorderBrush="Gray" BorderThickness="1" Background="#E8E8E8">
+            <TextBlock Text="♪" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+          </Border>
 
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Referência ReplayGain:" FontWeight="Bold"/>
-        <TextBlock Grid.Row="1" Grid.Column="1" Name="TxtReference" TextWrapping="Wrap"/>
+          <Grid Grid.Column="1" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="MP3Gain" FontWeight="Bold"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Text='"Back End" (mp3gain.exe)' FontWeight="Bold"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Name="TxtFrontendVersion"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Name="TxtBackendVersion"/>
+          </Grid>
+        </Grid>
 
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Executável CLI:" FontWeight="Bold"/>
-        <TextBlock Grid.Row="2" Grid.Column="1" Name="TxtCliPath" TextWrapping="Wrap"/>
-
-        <TextBlock Grid.Row="3" Grid.Column="0" Text="Executável GUI:" FontWeight="Bold"/>
-        <TextBlock Grid.Row="3" Grid.Column="1" Name="TxtGuiPath" TextWrapping="Wrap"/>
-
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="Licença:" FontWeight="Bold"/>
-        <TextBlock Grid.Row="4" Grid.Column="1" Text="LGPL 2.1 ou posterior" TextWrapping="Wrap"/>
-      </Grid>
-
-      <TextBlock
-          Text="Status: build Windows unificado com GUI + CLI na mesma pasta final."
-          TextWrapping="Wrap"
-          Margin="0,8,0,0"/>
-
-      <Button Content="Fechar"
-              HorizontalAlignment="Right"
-              Width="96"
-              Click="CloseButton_Click"
-              Margin="0,12,0,0"/>
-    </StackPanel>
+        <TextBlock Text="Executa a análise ReplayGain de arquivos MP3." TextWrapping="Wrap"/>
+        <TextBlock Text="Para mais informações sobre o sistema ReplayGain, vá para http://replaygain.hydrogenaudio.org" TextWrapping="Wrap"/>
+        <TextBlock Text="Última versão do MP3Gain Revival em https://github.com/jairslima/mp3gain-revival" TextWrapping="Wrap"/>
+        <TextBlock Name="TxtReference" TextWrapping="Wrap"/>
+        <TextBlock Text="Licença: LGPL 2.1 ou posterior." TextWrapping="Wrap"/>
+      </StackPanel>
+    </DockPanel>
   </Border>
 </Window>

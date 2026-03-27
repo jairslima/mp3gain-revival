@@ -24,6 +24,13 @@
         <MenuItem Header="Ganho Rádio" Click="BtnGain_Click"/>
         <MenuItem Header="Cancelar" Click="BtnCancel_Click"/>
       </MenuItem>
+      <MenuItem Header="_Opções">
+        <MenuItem Header="Sempre no Topo" Click="ToggleAlwaysOnTop_Click"/>
+        <MenuItem Header="Modificar apenas os Arquivos Selecionados" Click="ToggleSelectedOnly_Click"/>
+        <MenuItem Header="Adicionar Subpastas" IsChecked="True" Click="ToggleRecursiveFolders_Click"/>
+        <Separator/>
+        <MenuItem Header="Voltar as colunas ao tamanho Padrão" Click="ResetColumns_Click"/>
+      </MenuItem>
       <MenuItem Header="_Reprodução">
         <MenuItem Header="Tocar Selecionado" Click="BtnPlaySelected_Click"/>
       </MenuItem>
@@ -33,15 +40,17 @@
     </Menu>
 
     <!-- Barra de Ferramentas (ToolBar) -->
-    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="White" Spacing="10" Margin="10">
-      <Button Name="BtnAddFiles" Content="Adicionar Arquivo(s)" Click="BtnAddFiles_Click" FontSize="12" Padding="12,6"/>
-      <Button Name="BtnAddFolder" Content="Adicionar Pasta" Click="BtnAddFolder_Click" FontSize="12" Padding="12,6"/>
-      <Button Name="BtnAnalyze" Content="Análise Rádio" Click="BtnAnalyze_Click" FontSize="12" Padding="12,6"/>
-      <Button Name="BtnGain" Content="Ganho Rádio" Click="BtnGain_Click" FontSize="12" Padding="12,6"/>
-      <Button Name="BtnPlaySelected" Content="Play Selecionado" Click="BtnPlaySelected_Click" FontSize="12" Padding="12,6"/>
-      <Button Name="BtnClearFiles" Content="Limpar Arquivo(s)" Click="BtnClearFiles_Click" FontSize="12" Padding="12,6"/>
-      <Button Name="BtnClearAll" Content="Limpar Todos" Click="BtnClearAll_Click" FontSize="12" Padding="12,6"/>
-      <Button Name="BtnExit" Content="Sair" Click="MenuExit_Click" FontSize="12" Padding="12,6"/>
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="White" Spacing="6" Margin="8,8,8,4">
+      <Button Name="BtnAddFiles" Content="Adicionar Arquivo(s)" Click="BtnAddFiles_Click" FontSize="12" Padding="10,6"/>
+      <Button Name="BtnAddFolder" Content="Adicionar Pasta" Click="BtnAddFolder_Click" FontSize="12" Padding="10,6"/>
+      <Separator Width="12"/>
+      <Button Name="BtnAnalyze" Content="Análise Rádio" Click="BtnAnalyze_Click" FontSize="12" Padding="10,6" IsEnabled="False"/>
+      <Button Name="BtnGain" Content="Ganho Rádio" Click="BtnGain_Click" FontSize="12" Padding="10,6" IsEnabled="False"/>
+      <Separator Width="12"/>
+      <Button Name="BtnClearFiles" Content="Limpar Arquivo(s)" Click="BtnClearFiles_Click" FontSize="12" Padding="10,6" IsEnabled="False"/>
+      <Button Name="BtnClearAll" Content="Limpar Todos" Click="BtnClearAll_Click" FontSize="12" Padding="10,6" IsEnabled="False"/>
+      <Separator Width="12"/>
+      <Button Name="BtnPlaySelected" Content="Play Selecionado" Click="BtnPlaySelected_Click" FontSize="12" Padding="10,6" IsEnabled="False"/>
     </StackPanel>
 
     <!-- Target Volume Input -->
@@ -55,7 +64,10 @@
 
     <!-- Rodapé: Barras de Progresso e Cancelar -->
     <StackPanel DockPanel.Dock="Bottom" Background="#E0E0E0" Margin="5" Spacing="5">
-      <Button Name="BtnCancel" Content="Cancelar" Click="BtnCancel_Click" HorizontalAlignment="Center" Padding="20,2" IsEnabled="False"/>
+      <Grid ColumnDefinitions="*,Auto">
+        <Button Name="BtnCancel" Grid.Column="0" Content="Cancelar" Click="BtnCancel_Click" HorizontalAlignment="Center" Padding="20,2" IsEnabled="False"/>
+        <Button Name="BtnExit" Grid.Column="1" Content="Sair" Click="MenuExit_Click" HorizontalAlignment="Right" Padding="20,2"/>
+      </Grid>
       <TextBlock Name="TxtStatus" Text="Pronto. Adicione arquivos ou uma pasta para começar." FontSize="11"/>
       <Grid ColumnDefinitions="120,*">
         <TextBlock Grid.Column="0" Text="Progr. do Arquivo:" FontSize="11" VerticalAlignment="Center"/>
@@ -74,6 +86,7 @@
               GridLinesVisibility="All"
               CanUserResizeColumns="True"
               SelectionMode="Extended"
+              SelectionChanged="FilesGrid_SelectionChanged"
               AutoGenerateColumns="False"
               IsReadOnly="True"
               RowBackground="White">

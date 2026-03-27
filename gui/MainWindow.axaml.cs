@@ -1,7 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Avalonia.Controls.Primitives;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
@@ -17,6 +19,8 @@ public partial class MainWindow : Window
     public ObservableCollection<MP3FileItem> FilesList { get; set; } = new();
     private readonly MP3GainEngine _engine = new();
     private CancellationTokenSource? _operationCts;
+    private bool _selectedOnlyMode;
+    private bool _recursiveFolderMode = true;
 
     public MainWindow()
     {
@@ -56,45 +60,6 @@ public partial class MainWindow : Window
         SetStatus(files.Count == 0 ? "Nenhum arquivo foi selecionado." : $"{files.Count} arquivo(s) adicionados.");
     }
 
-    private async void BtnAddFolder_Click(object? sender, RoutedEventArgs e)
-    {
-        var topLevel = TopLevel.GetTopLevel(this);
-        if (topLevel == null)
-        {
-            SetStatus("Erro: a janela não conseguiu obter o provedor de pastas.");
-            return;
-        }
-
-        if (!topLevel.StorageProvider.CanPickFolder)
-        {
-            SetStatus("Erro: o diálogo de pastas não está disponível neste ambiente.");
-            return;
-        }
-
-        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-        {
-            Title = "Selecionar Pasta com MP3",
-            AllowMultiple = false
-        });
-
-        string? folder = folders.FirstOrDefault()?.Path.LocalPath;
-        if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
-        {
-            SetStatus("Nenhuma pasta foi selecionada.");
-            return;
-        }
-
-        int added = 0;
-        foreach (string path in Directory.EnumerateFiles(folder, "*.mp3", SearchOption.AllDirectories))
-        {
-            int before = FilesList.Count;
-            AddFileIfMissing(path);
-            if (FilesList.Count > before) added++;
-        }
-
-        SetStatus(added == 0 ? "Nenhum arquivo MP3 novo foi encontrado na pasta." : $"{added} arquivo(s) adicionados da pasta.");
-    }
-
     private void BtnClearFiles_Click(object? sender, RoutedEventArgs e)
     {
         var selected = FilesGrid.SelectedItems?.OfType<MP3FileItem>().ToList();
@@ -110,12 +75,14 @@ public partial class MainWindow : Window
         }
 
         SetStatus($"{selected.Count} arquivo(s) removidos da lista.");
+        UpdateActionStates(false);
     }
 
     private void BtnClearAll_Click(object? sender, RoutedEventArgs e)
     {
         FilesList.Clear();
         SetStatus("Lista limpa.");
+        UpdateActionStates(false);
     }
 
     private async void BtnAnalyze_Click(object? sender, RoutedEventArgs e)
@@ -181,6 +148,50 @@ public partial class MainWindow : Window
         SetStatus("Janela Sobre exibida.");
     }
 
+    private void FilesGrid_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        UpdateActionStates(_operationCts != null);
+    }
+
+    private void ToggleAlwaysOnTop_Click(object? sender, RoutedEventArgs e)
+    {
+        Topmost = !Topmost;
+        if (sender is MenuItem item)
+        {
+            item.IsChecked = Topmost;
+        }
+        SetStatus(Topmost ? "Janela fixada no topo." : "Janela voltou ao comportamento normal.");
+    }
+
+    private void ToggleSelectedOnly_Click(object? sender, RoutedEventArgs e)
+    {
+        _selectedOnlyMode = !_selectedOnlyMode;
+        if (sender is MenuItem item)
+        {
+            item.IsChecked = _selectedOnlyMode;
+        }
+        SetStatus(_selectedOnlyMode ? "Modo: operar apenas nos arquivos selecionados." : "Modo: operar em todos os arquivos listados.");
+    }
+
+    private void ToggleRecursiveFolders_Click(object? sender, RoutedEventArgs e)
+    {
+        _recursiveFolderMode = !_recursiveFolderMode;
+        if (sender is MenuItem item)
+        {
+            item.IsChecked = _recursiveFolderMode;
+        }
+        SetStatus(_recursiveFolderMode ? "Adicionar Pasta inclui subpastas." : "Adicionar Pasta usa apenas a pasta selecionada.");
+    }
+
+    private void ResetColumns_Click(object? sender, RoutedEventArgs e)
+    {
+        foreach (var column in FilesGrid.Columns)
+        {
+            column.Width = DataGridLength.Auto;
+        }
+        SetStatus("Colunas redefinidas para o tamanho padrão.");
+    }
+
     private void MenuExit_Click(object? sender, RoutedEventArgs e)
     {
         Close();
@@ -200,10 +211,11 @@ public partial class MainWindow : Window
             ProgressFile.Maximum = 1;
             ProgressFile.Value = 0;
             ProgressTotal.IsIndeterminate = false;
-            ProgressTotal.Maximum = FilesList.Count;
+            var targets = GetTargetItems();
+            ProgressTotal.Maximum = targets.Count;
             ProgressTotal.Value = 0;
 
-            foreach (var item in FilesList.ToList())
+            foreach (var item in targets)
             {
                 _operationCts.Token.ThrowIfCancellationRequested();
                 ProgressFile.Value = 0;
@@ -245,13 +257,9 @@ public partial class MainWindow : Window
     {
         BtnAddFiles.IsEnabled = !isBusy;
         BtnAddFolder.IsEnabled = !isBusy;
-        BtnAnalyze.IsEnabled = !isBusy;
-        BtnGain.IsEnabled = !isBusy;
-        BtnPlaySelected.IsEnabled = !isBusy;
-        BtnClearFiles.IsEnabled = !isBusy;
-        BtnClearAll.IsEnabled = !isBusy;
         BtnExit.IsEnabled = !isBusy;
         BtnCancel.IsEnabled = isBusy;
+        UpdateActionStates(isBusy);
     }
 
     private void SetStatus(string message)
@@ -268,5 +276,72 @@ public partial class MainWindow : Window
         }
 
         FilesList.Add(new MP3FileItem { Path = path });
+        UpdateActionStates(_operationCts != null);
+    }
+
+    private List<MP3FileItem> GetTargetItems()
+    {
+        if (_selectedOnlyMode)
+        {
+            var selected = FilesGrid.SelectedItems?.OfType<MP3FileItem>().ToList();
+            if (selected != null && selected.Count > 0)
+            {
+                return selected;
+            }
+        }
+
+        return FilesList.ToList();
+    }
+
+    private void UpdateActionStates(bool isBusy)
+    {
+        bool hasFiles = FilesList.Count > 0;
+        bool hasSelection = FilesGrid.SelectedItems?.Count > 0;
+
+        BtnAnalyze.IsEnabled = !isBusy && hasFiles;
+        BtnGain.IsEnabled = !isBusy && hasFiles;
+        BtnClearAll.IsEnabled = !isBusy && hasFiles;
+        BtnClearFiles.IsEnabled = !isBusy && hasSelection;
+        BtnPlaySelected.IsEnabled = !isBusy && hasSelection;
+    }
+
+    private async void BtnAddFolder_Click(object? sender, RoutedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null)
+        {
+            SetStatus("Erro: a janela não conseguiu obter o provedor de pastas.");
+            return;
+        }
+
+        if (!topLevel.StorageProvider.CanPickFolder)
+        {
+            SetStatus("Erro: o diálogo de pastas não está disponível neste ambiente.");
+            return;
+        }
+
+        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Selecionar Pasta com MP3",
+            AllowMultiple = false
+        });
+
+        string? folder = folders.FirstOrDefault()?.Path.LocalPath;
+        if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+        {
+            SetStatus("Nenhuma pasta foi selecionada.");
+            return;
+        }
+
+        int added = 0;
+        SearchOption option = _recursiveFolderMode ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+        foreach (string path in Directory.EnumerateFiles(folder, "*.mp3", option))
+        {
+            int before = FilesList.Count;
+            AddFileIfMissing(path);
+            if (FilesList.Count > before) added++;
+        }
+
+        SetStatus(added == 0 ? "Nenhum arquivo MP3 novo foi encontrado na pasta." : $"{added} arquivo(s) adicionados da pasta.");
     }
 }
