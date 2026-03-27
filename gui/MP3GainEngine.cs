@@ -11,8 +11,7 @@ public class MP3GainEngine
 {
     public const double ReplayGainReferenceLoudness = 95.5;
 
-    // Espera que o executável CLI do mp3gain esteja na mesma pasta que a GUI ou no path relativo.
-    private string GetCliPath()
+    private string? TryGetCliPath()
     {
         string localPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "mp3gain.exe");
         if (File.Exists(localPath)) return localPath;
@@ -21,7 +20,20 @@ public class MP3GainEngine
         string devPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "..", "build", "Release", "mp3gain.exe");
         if (File.Exists(devPath)) return devPath;
 
-        return "mp3gain"; // Tenta do PATH global no Linux/Mac
+        return null;
+    }
+
+    private string GetCliPath()
+    {
+        string? cliPath = TryGetCliPath();
+        if (!string.IsNullOrEmpty(cliPath))
+        {
+            return cliPath;
+        }
+
+        throw new FileNotFoundException(
+            "mp3gain.exe nao foi encontrado ao lado da GUI. Gere o CLI em build\\Release e reconstrua a GUI para formar o produto unificado."
+        );
     }
 
     public async Task AnalyzeFileAsync(MP3FileItem item, double targetVolume)

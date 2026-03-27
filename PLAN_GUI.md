@@ -28,9 +28,11 @@ Este documento guia o desenvolvimento da interface em Avalonia UI.
 - Validar empacotamento/distribuicao propria da GUI quando esse track avancar
 
 ## Escopo
-- A GUI nao bloqueia a conclusao da recuperacao do CLI.
-- A GUI e uma trilha separada de expansao pos-release.
+- A GUI continua nao bloqueando a conclusao da recuperacao do CLI.
+- No Windows, o objetivo agora e distribuir GUI + CLI como um unico produto na mesma pasta final.
+- A trilha separada pos-release continua valendo para evolucao funcional da GUI, nao para a organizacao do pacote.
 
 ## Proximo Corte Recomendado
 1. Fechar a Etapa 4 para tirar a GUI do estado de prototipo.
-2. Depois decidir se a GUI passa a ter distribuicao propria ou continua apenas como wrapper experimental.
+2. Consolidar um pacote Windows unico em que `MP3GainUI.exe`, `mp3gain.exe` e `mpg123.dll` saiam juntos.
+3. Depois decidir se a GUI passa a ter distribuicao propria ou continua apenas como wrapper experimental.

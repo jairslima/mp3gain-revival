@@ -22,6 +22,11 @@ switch ($Platform) {
     "windows" {
         $exe = Join-Path $repo "build\\Release\\mp3gain.exe"
         $dll = Join-Path $repo "build\\Release\\mpg123.dll"
+        $guiDirCandidates = @(
+            (Join-Path $repo "gui\\bin\\Release\\net8.0"),
+            (Join-Path $repo "gui\\bin\\Debug\\net8.0")
+        )
+        $guiDir = $null
 
         if (!(Test-Path $exe)) {
             throw "Missing Windows executable: $exe"
@@ -30,8 +35,22 @@ switch ($Platform) {
             throw "Missing Windows runtime DLL: $dll"
         }
 
-        Copy-Item $exe $stage
-        Copy-Item $dll $stage
+        foreach ($candidate in $guiDirCandidates) {
+            if (Test-Path (Join-Path $candidate "MP3GainUI.exe")) {
+                $guiDir = $candidate
+                break
+            }
+        }
+
+        if ($null -ne $guiDir) {
+            Copy-Item (Join-Path $guiDir "*") $stage -Recurse
+            Copy-Item $exe $stage -Force
+            Copy-Item $dll $stage -Force
+        }
+        else {
+            Copy-Item $exe $stage
+            Copy-Item $dll $stage
+        }
     }
     "linux" {
         $linuxCandidates = @(

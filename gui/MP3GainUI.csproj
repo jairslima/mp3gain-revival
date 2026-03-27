@@ -5,6 +5,10 @@
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <RepoRoot>$(MSBuildThisFileDirectory)..\</RepoRoot>
+    <CliOutputDir>$(RepoRoot)build\Release\</CliOutputDir>
+    <CliExecutable>$(CliOutputDir)mp3gain.exe</CliExecutable>
+    <CliRuntimeDll>$(CliOutputDir)mpg123.dll</CliRuntimeDll>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,4 +23,29 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <Target Name="CopyCliRuntimeToGuiOutput" AfterTargets="Build">
+    <Warning Condition="!Exists('$(CliExecutable)')" Text="CLI executable not found at $(CliExecutable). Build the CLI to bundle the unified GUI product." />
+    <Warning Condition="!Exists('$(CliRuntimeDll)')" Text="CLI runtime DLL not found at $(CliRuntimeDll). Build the CLI to bundle the unified GUI product." />
+
+    <Copy SourceFiles="$(CliExecutable)"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(CliExecutable)')" />
+    <Copy SourceFiles="$(CliRuntimeDll)"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(CliRuntimeDll)')" />
+  </Target>
+
+  <Target Name="CopyCliRuntimeToGuiPublish" AfterTargets="Publish">
+    <Copy SourceFiles="$(CliExecutable)"
+          DestinationFolder="$(PublishDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(CliExecutable)')" />
+    <Copy SourceFiles="$(CliRuntimeDll)"
+          DestinationFolder="$(PublishDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(CliRuntimeDll)')" />
+  </Target>
 </Project>
