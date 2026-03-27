@@ -1,4 +1,4 @@
-# Release Notes: 1.6.2-revival1
+# Release Notes: 1.6.2-revival2
 
 The first public recovery release of MP3Gain Revival.
 
@@ -25,7 +25,7 @@ This release targets the supported baseline:
 - macOS is not yet in the supported release baseline.
 - Legacy low-level shared state still exists in `project/mp3gain.c`.
 - Some corrupted MP3s that `ffmpeg` flags as decode-invalid are still tolerated by the current MP3Gain/libmpg123 path.
-- Windows package generation still needs to be executed explicitly for each release snapshot; the workspace may contain valid `build/Release` artifacts without a freshly regenerated package.
+- Release publication still needs to be executed explicitly for each snapshot even when locally validated package zips already exist.
 
 ## Packaging
 - **Windows Bundle**: `mp3gain.exe`, `mpg123.dll`, and `LICENSE`.

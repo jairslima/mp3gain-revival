@@ -79,8 +79,8 @@ bash test/smoke_test.sh
 ### Linux
 
 ```bash
-cmake -S project -B build
-cmake --build build
+cmake -S project -B build-linux
+cmake --build build-linux
 bash test/smoke_test.sh
 ```
 
@@ -96,8 +96,8 @@ bash test/smoke_test.sh
 - Keep `LICENSE` with binary redistributions and publish corresponding source
 
 ### Linux
-- Build with `cmake --build build`
-- Ship `build/mp3gain`
+- Build with `cmake --build build-linux` or another Linux-only build directory
+- Ship the resulting `mp3gain` binary from that Linux build directory
 - Document the target distro/toolchain used for the release build
 
 ## Known Issues

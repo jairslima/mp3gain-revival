@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-- Phase 4: Release Readiness for the Windows/Linux baseline
+- Phase 4: final publication pending for the Windows/Linux baseline
 
 ## Validated Baseline
 
@@ -10,6 +10,7 @@
 - `bash test/smoke_test.sh`: `27/27 passed`
 - `pwsh -File test\probe_corruptions.ps1`: OK
 - Linux packaging: `pwsh -File scripts/package_release.ps1 -Platform linux -Version phase4-dev`
+- Windows packaging: `pwsh -File scripts/package_release.ps1 -Platform windows -Version phase4-dev`
 
 ## Supported Release Baseline
 
@@ -20,12 +21,14 @@ macOS remains outside the first public release support claim until real validati
 
 ## Current Release Position
 
-- Linux package workflow is working.
-- Windows release artifacts are present in this workspace:
-  - `build/Release/mp3gain.exe`
-  - `build/Release/mpg123.dll`
-- Windows packaging was not re-run in this turn, but the previous "missing local artifacts" blocker no longer applies to this snapshot.
+- Linux package generation is working.
+- Windows package generation is working.
+- Current local package artifacts:
+  - `dist/mp3gain-linux-phase4-dev.zip`
+  - `dist/mp3gain-windows-phase4-dev.zip`
+- Final publication candidate version prepared in docs: `1.6.2-revival2`
 - The MP3Gain/libmpg123 versus `ffmpeg` corruption mismatch is documented as a known limitation of the first public release.
+- The remaining step for the CLI recovery baseline is public release publication, not core build/test recovery.
 
 ## Key Files For The Next Developer
 
@@ -43,4 +46,4 @@ macOS remains outside the first public release support claim until real validati
 
 ## Immediate Next Step
 
-- Run `pwsh -File scripts/package_release.ps1 -Platform windows -Version <tag>` against the current `build/Release` artifacts, then review the resulting package contents.
+- Publish the first public release from a clean tagged snapshot and attach the validated Windows/Linux packages.

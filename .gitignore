@@ -19,6 +19,7 @@ ReleaseDLL/
 # Generated artifacts
 dist/
 build/
+build-*/
 vcpkg_installed/
 .vs/
 

@@ -34,9 +34,22 @@ switch ($Platform) {
         Copy-Item $dll $stage
     }
     "linux" {
-        $exe = Join-Path $repo "build\\mp3gain"
-        if (!(Test-Path $exe)) {
-            throw "Missing Linux executable: $exe"
+        $linuxCandidates = @(
+            (Join-Path $repo "build\\mp3gain"),
+            (Join-Path $repo "build-linux\\mp3gain"),
+            (Join-Path $repo "build-wsl\\mp3gain")
+        )
+        $exe = $null
+
+        foreach ($candidate in $linuxCandidates) {
+            if (Test-Path $candidate) {
+                $exe = $candidate
+                break
+            }
+        }
+
+        if ($null -eq $exe) {
+            throw "Missing Linux executable. Expected one of: $($linuxCandidates -join ', ')"
         }
 
         Copy-Item $exe $stage

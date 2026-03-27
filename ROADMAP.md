@@ -147,12 +147,18 @@ Current state:
 - Add packaging instructions
 - Publish the first public recovery release
 - Document LGPL compliance expectations for source and binary releases
-- Status: complete
+- Status: ready for final publication
 
 Current state:
-- the project has completed Phase 4 for the Windows/Linux supported baseline (v1.6.2-revival1 release docs updated)
-- actual binary packaging for Windows will require a runner with msbuild/cmake
-- remaining work focuses on Phase 5 and continuous structural cleanup
+- release docs, validation baseline, and package shape are defined for the Windows/Linux supported baseline
+- local package generation now works for both validated platforms in this workspace:
+  - `dist/mp3gain-linux-phase4-dev.zip`
+  - `dist/mp3gain-windows-phase4-dev.zip`
+- what still remains to close the first public CLI release is publication work:
+  - choose the final version/tag to publish
+  - publish the release artifacts from a clean release snapshot
+  - attach the validated Windows/Linux packages to the public release entry
+- remaining engineering work after publication focuses on Phase 5 and continuous structural cleanup
 
 ## Phase 5: Optional Expansion
 - ~~Investigate missing historical GUI source~~ -> **Status: Verified missing.**
@@ -163,6 +169,7 @@ Current state:
   - **Frontend:** Avalonia UI (C# / .NET). Chosen for its ability to flawlessly recreate the classic desktop "Grid" feel while rendering natively across Windows, Linux, and macOS via Skia, outputting high-performance standalone NativeAOT binaries.
 
 ## Immediate Next Slice
-1. Continue structural cleanup of remaining legacy low-level state (frame-scan decoupling).
+1. Publish the first public Windows/Linux CLI release from the validated package baseline.
 2. Keep macOS outside the release support claim until it is validated separately.
-3. The corruption mismatch against `ffmpeg` has been evaluated and is now accepted as a permanent characteristic of `libmpg123` tolerance. No further C code changes will be made to emulate `ffmpeg` strictness.
+3. Continue structural cleanup of remaining legacy low-level state (`mp3gain.c` / frame-scan decoupling) as post-release maintenance, not as a publication blocker.
+4. Continue the Avalonia GUI only as a separate post-release track; it is not required to close the CLI recovery effort.

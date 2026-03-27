@@ -75,11 +75,11 @@ This repository is being rebuilt from archived MP3Gain materials with the goal o
 - The local dependency tree in `vcpkg_installed/` can become very large and is not part of the active source review path
 
 ## Recommended Next Steps
-1. Execute Phase 4 release-readiness work for the Windows/Linux baseline
-2. Prepare packaging and release notes for the first public recovery release
-3. Keep the published `archive/` tree curated and clearly separated from the active source tree
-4. Continue reducing global-state coupling where it materially improves release confidence
-5. Revisit macOS only after a validated baseline exists there
+1. Publish the first public Windows/Linux CLI release from the validated local package baseline
+2. Keep the published `archive/` tree curated and clearly separated from the active source tree
+3. Continue reducing global-state coupling where it materially improves maintainability, but treat that as post-release cleanup rather than a blocker
+4. Revisit macOS only after a validated baseline exists there
+5. Continue the Avalonia GUI as an optional expansion track after the CLI release is out
 
 ## Release Baseline
 
