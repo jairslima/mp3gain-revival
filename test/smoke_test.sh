@@ -34,7 +34,13 @@ fail() { echo "  FAIL: $1"; FAIL=$((FAIL + 1)); }
 to_cli_path() {
     local path="$1"
     if [ "$IS_WINDOWS_EXE" -eq 1 ]; then
-        wslpath -w "$path"
+        if command -v cygpath >/dev/null 2>&1; then
+            cygpath -w "$path"
+        elif command -v wslpath >/dev/null 2>&1; then
+            wslpath -w "$path"
+        else
+            printf '%s\n' "$path"
+        fi
     else
         printf '%s\n' "$path"
     fi

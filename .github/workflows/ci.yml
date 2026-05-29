@@ -33,11 +33,22 @@ jobs:
 
       - name: Copy runtime DLL
         run: |
-          $dll = Get-ChildItem "${{ github.workspace }}\vcpkg\installed\x64-windows\bin\mpg123.dll" -ErrorAction SilentlyContinue
+          $knownDlls = @(
+            "${{ github.workspace }}\build\vcpkg_installed\x64-windows\bin\mpg123.dll",
+            "${{ github.workspace }}\vcpkg_installed\x64-windows\bin\mpg123.dll",
+            "${{ github.workspace }}\vcpkg\installed\x64-windows\bin\mpg123.dll"
+          )
+          $dll = $knownDlls | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $dll) {
+            $dll = Get-ChildItem "${{ github.workspace }}" -Recurse -Filter mpg123.dll -ErrorAction SilentlyContinue |
+              Where-Object { $_.FullName -notmatch '\\debug\\' } |
+              Select-Object -First 1 -ExpandProperty FullName
+          }
           if ($dll) {
-            Copy-Item $dll.FullName "build\Release\"
+            Copy-Item $dll "build\Release\"
+            Write-Host "Copied runtime DLL from $dll"
           } else {
-            Write-Warning "mpg123.dll not found in vcpkg installed -- smoke tests may fail"
+            Write-Warning "mpg123.dll not found -- smoke tests or artifacts may fail"
           }
         shell: pwsh
 
