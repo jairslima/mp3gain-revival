@@ -24,6 +24,24 @@
 
 macOS does not yet have an active CI job because it is outside the immediate release support baseline until a validated local path exists.
 
+## CI Regression Notes
+
+### 2026-05-29 Windows smoke path conversion
+
+- Failing run: GitHub Actions `CI` run `26581249634` on commit `52987b1`
+- Failing job: `Build and Test (Windows / MSVC)`
+- Failure point: `test/smoke_test.sh` test 2, before any MP3 analysis assertion
+- Root cause: the smoke script called `wslpath -w` for Windows executable paths, but GitHub Actions runs `shell: bash` on Windows through Git Bash, where `cygpath` is available and `wslpath` is not
+- Fix commit: `0d51da3` (`Fix Windows CI smoke test path conversion`)
+- Confirmed passing run: GitHub Actions `CI` run `26662156250`
+
+Prevention rules:
+
+- Bash smoke tests that call `build/Release/*.exe` must not assume WSL-only tools.
+- Prefer `cygpath` for Git Bash, `wslpath` for WSL, and a plain path fallback for environments that already accept the current path form.
+- Runtime DLL lookup in CI should check the CMake/vcpkg manifest location (`build/vcpkg_installed/...`) before falling back to older vcpkg install layouts.
+- If a required runtime DLL is absent, keep the workflow message explicit so artifact or smoke failures point to dependency packaging instead of test logic.
+
 ## Local Reproduction
 
 ### Windows

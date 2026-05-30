@@ -70,7 +70,7 @@ This repository is being rebuilt from archived MP3Gain materials with the goal o
 - No Git history was recovered
 - The Visual Studio project references `mpglibDBL/*` files that are not present in the extracted source package
 - The Unix `Makefile` expects an external `libmpg123`
-- Windows build validation has been completed locally, but CI stabilization and cross-platform validation are still incomplete
+- Windows and Linux CI build/smoke validation is active; macOS remains outside the current support baseline
 - The historical Windows GUI source is not present in this archive set
 - The local dependency tree in `vcpkg_installed/` can become very large and is not part of the active source review path
 
